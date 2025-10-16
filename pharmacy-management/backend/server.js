@@ -24,14 +24,13 @@ db.connect((err) => {
   }
 });
 
-// Route test
+
 app.get("/", (req, res) => {
   res.send("API đang hoạt động với MySQL Railway!");
 });
 
-// Ví dụ route lấy dữ liệu từ bảng bất kỳ
 app.get("/benhnhan", (req, res) => {
-  const sql = "SELECT * FROM BenhNhan"; // đổi theo tên bảng của bạn
+  const sql = "SELECT * FROM BenhNhan";
   db.query(sql, (err, results) => {
     if (err) {
       console.error(err);

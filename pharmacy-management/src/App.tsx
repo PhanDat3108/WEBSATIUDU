@@ -1,21 +1,32 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./App.css";
+import HomePage from './pages/HomePage';
+import { Routes, Route, Link } from 'react-router-dom';
+import RegisterPage from './pages/RegisterPage';
 
 function App() {
-  const [msg, setMsg] = useState("");
-
-  useEffect(() => {
-    axios
-      .get("http://localhost:8080/") // Gọi API từ backend
-      .then((res) => setMsg(res.data))
-      .catch((err) => console.error("Lỗi kết nối API:", err));
-  }, []);
-
   return (
     <div className="App">
-      <h1>Kết nối React - Node - MySQL</h1>
-      <p>{msg}</p>
+      {/* 1. Tạo thanh điều hướng (Navigation) */}
+      <nav>
+        <ul>
+          <li>
+            <Link to="/">Trang Chủ</Link>
+          </li>
+          <li>
+            <Link to="/register">Đăng Ký</Link>
+          </li>
+        </ul>
+      </nav>
+
+      {/* 2. Định nghĩa các tuyến đường */}
+      <main>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/register" element={<RegisterPage />} />
+        </Routes>
+      </main>
     </div>
   );
 }
