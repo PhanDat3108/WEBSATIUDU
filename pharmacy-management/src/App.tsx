@@ -20,7 +20,7 @@ function App() {
         </ul>
       </nav>
 
-      {/* 2. Định nghĩa các tuyến đường */}
+   
       <main>
         <Routes>
           <Route path="/" element={<HomePage />} />
