@@ -1,6 +1,7 @@
 // src/pages/HomePage.tsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Navbar from "../components/Navbar";
 
 function HomePage() {
   const [msg, setMsg] = useState<string>('');
@@ -13,7 +14,7 @@ function HomePage() {
 
   return (
     <div>
-      <h1>Kết nối React - Node - MySQL</h1>
+      <Navbar></Navbar>
       <p>{msg}</p>
     </div>
   );
