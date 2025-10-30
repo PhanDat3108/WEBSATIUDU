@@ -1,0 +1,7 @@
+# Bỏ qua thư mục node_modules
+node_modules/
+
+# Bỏ qua các tệp cấu hình
+package-lock.json
+package.json
+tsconfig.json
