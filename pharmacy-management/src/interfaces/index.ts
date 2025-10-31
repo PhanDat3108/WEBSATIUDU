@@ -1,5 +1,4 @@
 // Định nghĩa cấu trúc dữ liệu Medicine
-// Dùng chung cho Mock data và Form
 export interface Medicine {
   id: number;
   stt: number;
@@ -7,7 +6,38 @@ export interface Medicine {
   tenThuoc: string;
   loaiThuoc: string;
   soLuong: number;
-  hsd: string;        // Định dạng: YYYY-MM-DD
-  nhaCungCap: string; // Thêm từ form
-  ngayNhap: string;   // Thêm từ form (YYYY-MM-DD)
+  hsd: string;
+  nhaCungCap: string;
+  ngayNhap: string;
+  giaBan: number;
+}
+
+// Định nghĩa cấu trúc dữ liệu Patient
+export interface Patient {
+  id: number;
+  stt: number;
+  maBenhNhan: string;
+  tenBenhNhan: string;
+  gioiTinh: 'Nam' | 'Nữ';
+  tuoi: number;
+  diaChi: string;
+  sdt: string;
+  tienSuBenhAn: string; 
+}
+
+// Định nghĩa giao dịch (cho trang Thu nhập)
+export interface Transaction {
+    id: number;
+    ngayBan: string; 
+    maThuoc: string;
+    soLuongBan: number;
+    tongTien: number;
+}
+
+// [MỚI] Định nghĩa Báo cáo Hạn sử dụng
+// (Di chuyển từ dashboardApi.ts sang đây)
+export interface ExpiryReport {
+    expired: number;
+    expiringSoon: number; // 90 ngày
+    good: number;
 }

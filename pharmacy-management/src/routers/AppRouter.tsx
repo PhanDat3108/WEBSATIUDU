@@ -1,17 +1,15 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-// Import Pages & Layouts (Đã sửa đường dẫn)
+// Import Pages & Layouts
 import AdminLayout from '../components/AdminLayout/AdminLayout'; 
 import AdminDashboard from '../pages/Admin/Dashboard';
 import HomePage from '../pages/HomePage';
 import RegisterPage from '../pages/RegisterPage'; 
-
-// [MỚI] Import các trang quản lý
 import MedicineManagement from '../pages/Admin/MedicineManagement';
 import PatientManagement from '../pages/Admin/PatientManagement';
 import Reports from '../pages/Admin/Reports';
-// import UserManagement from '../pages/Admin/UserManagement'; // (Nếu bạn có)
+import Revenue from '../pages/Admin/Revenue'; // <-- [IMPORT MỚI]
 
 // =======================================================
 // === MOCK AUTH LOGIC (Giữ nguyên) ===
@@ -48,14 +46,12 @@ const AppRouter: React.FC = () => {
                 </ProtectedRoute>
             }
         >
-          {/* Định tuyến các trang con trong Layout Admin */}
           <Route index element={<AdminDashboard />} /> 
           <Route path="dashboard" element={<AdminDashboard />} /> 
-          
-          {/* [CẬP NHẬT] Thêm các route mới */}
           <Route path="medicines" element={<MedicineManagement />} />
           <Route path="patients" element={<PatientManagement />} />
           <Route path="reports" element={<Reports />} />
+          <Route path="revenue" element={<Revenue />} /> {/* <-- [ROUTE MỚI] */}
           
         </Route>
 

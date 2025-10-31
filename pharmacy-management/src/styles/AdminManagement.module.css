@@ -2,7 +2,7 @@
 @value color-primary, color-sidebar-bg, color-sidebar-text, color-card-bg, color-border, color-text-dark from './AdminLayout.module.css';
 
 .managementContainer {
-    background-color: color-card-bg; /* Nền trắng (trắng tinh) */
+    background-color: white; /* Nền trắng (trắng tinh) */
     border: 1px solid color-border;
     border-radius: 8px;
     padding: 20px;
@@ -23,7 +23,7 @@
 }
 
 .addButton {
-    background-color: color-primary;
+    background-color: rgb(140,229,236);
     color: #ffffff;
     border: none;
     padding: 10px 20px;
