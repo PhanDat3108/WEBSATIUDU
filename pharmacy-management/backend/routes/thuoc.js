@@ -106,6 +106,25 @@ router.put("/fix", (req, res) => {
     res.status(200).json({ message: "Sửa thuốc thành công!", maThuoc });
   });
 });
+// hiển thị thuốc
+router.get("/list", (req, res) => {
+  const sql = `
+    SELECT 
+      MaThuoc, TenThuoc, DonViTinh, SoLuongTon, GiaNhap, 
+      HanSuDung, NhaCungCap, NgayNhap, MaLoai, GiaBan
+    FROM Thuoc
+    ORDER BY TenThuoc ASC
+  `;
+
+  db.query(sql, (err, rows) => {
+    if (err) {
+      console.error(" Lỗi khi lấy danh sách thuốc:", err);
+      return res.status(500).json({ message: "Lỗi khi lấy danh sách thuốc!" });
+    }
+    res.json(rows);
+  });
+});
+
 
 
 export default router;

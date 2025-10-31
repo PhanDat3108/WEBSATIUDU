@@ -33,20 +33,30 @@ router.post("/register", async (req, res) => {
   });
 });
 // api đăng nhập
-router.post("/login",(req,res)=>{
-    const { taiKhoan, matKhau} = req.body;
-    if ( !taiKhoan || !matKhau ) {
+router.post("/login", (req, res) => {
+  const { taiKhoan, matKhau } = req.body;
+  if (!taiKhoan || !matKhau) {
     return res.status(400).json({ message: "Thiếu thông tin!" });
   }
-  db.query("SELECT * FROM NhanVien WHERE TaiKhoan = ?",[taiKhoan],async (err,rows)=>{
+  db.query("SELECT * FROM NhanVien WHERE TaiKhoan = ?", [taiKhoan], async (err, rows) => {
     if (err) return res.status(500).json({ message: "Lỗi DB" });
-    if (rows.lenght===0){
-        return res.status(400).json({message:"Không tồn tại tài khoản"})
+    if (rows.lenght === 0) {
+      return res.status(400).json({ message: "Không tồn tại tài khoản" })
 
     }
-    const user=rows[0];
-    const match= await bcrybt.compare(matKhau,user.matKhau)
+    const user = rows[0];
+    const match = await bcrypt.compare(matKhau, user.MatKhau);
+    if (!match) {
+      return res.status(400).json({ message: "Sai mật khẩu" });
+      
 
+    }
+    res.json({
+        message: "Đăng nhập thành công!",
+        maNhanVien: user.MaNhanVien,
+        tenNhanVien: user.TenNhanVien,
+        vaiTro: user.VaiTro
+      });
   }
 
   )
