@@ -12,9 +12,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/thuoc", thuocRoutes);
 
 app.get("/", (req, res) => {
-  res.send("✅ API đang hoạt động!");
+  res.send(" API đang hoạt động!");
 });
 
 app.listen(8080, () => {
-  console.log("🚀 Server chạy tại http://localhost:8080");
+  console.log(" Server chạy tại http://localhost:8080");
 });
