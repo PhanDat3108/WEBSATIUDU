@@ -2,10 +2,10 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 // LỖI ĐƯỜNG DẪN ĐÃ ĐƯỢC SỬA: Dùng '../' để đi ra khỏi thư mục 'routers'
-import AdminLayout from '../components/AdminLayout/AdminLayout'; 
-import AdminDashboard from '../pages/Admin/Dashboard';
-import HomePage from '../pages/HomePage';
-import RegisterPage from '../pages/RegisterPage'; 
+import AdminLayout from '../../src/components/AdminLayout/AdminLayout'; 
+import AdminDashboard from '../../src/pages/Admin/Dashboard';
+import HomePage from '../../src/pages/HomePage';
+import RegisterPage from '../../src/pages/RegisterPage'; 
 // import UserManagement from '../pages/Admin/UserManagement'; // Mở comment khi tạo file này
 
 // =======================================================
