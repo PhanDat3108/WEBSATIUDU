@@ -1,25 +1,28 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-// LỖI ĐƯỜNG DẪN ĐÃ ĐƯỢC SỬA: Dùng '../' để đi ra khỏi thư mục 'routers'
-import AdminLayout from '../../src/components/AdminLayout/AdminLayout'; 
-import AdminDashboard from '../../src/pages/Admin/Dashboard';
-import HomePage from '../../src/pages/HomePage';
-import RegisterPage from '../../src/pages/RegisterPage'; 
-// import UserManagement from '../pages/Admin/UserManagement'; // Mở comment khi tạo file này
+// Import Pages & Layouts (Đã sửa đường dẫn)
+import AdminLayout from '../components/AdminLayout/AdminLayout'; 
+import AdminDashboard from '../pages/Admin/Dashboard';
+import HomePage from '../pages/HomePage';
+import RegisterPage from '../pages/RegisterPage'; 
+
+// [MỚI] Import các trang quản lý
+import MedicineManagement from '../pages/Admin/MedicineManagement';
+import PatientManagement from '../pages/Admin/PatientManagement';
+import Reports from '../pages/Admin/Reports';
+// import UserManagement from '../pages/Admin/UserManagement'; // (Nếu bạn có)
 
 // =======================================================
-// === MOCK AUTH LOGIC (GIẢ LẬP CỬA SAU) ===
+// === MOCK AUTH LOGIC (Giữ nguyên) ===
 // =======================================================
 const MOCK_ADMIN_AUTHENTICATED = true; 
 const ADMIN_LOGIN_PATH = '/login';
 
 const isAuthenticatedAdmin = () => {
-    // GIỮ LÀ TRUE KHI ĐANG PHÁT TRIỂN GIAO DIỆN ADMIN
     return MOCK_ADMIN_AUTHENTICATED; 
 };
 
-// Component Route bảo vệ (Protected Route) - Lỗi JSX.Element đã được sửa
 const ProtectedRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
     if (!isAuthenticatedAdmin()) {
         return <Navigate to={ADMIN_LOGIN_PATH} replace />;
@@ -36,7 +39,7 @@ const AppRouter: React.FC = () => {
         <Route path="/" element={<HomePage />} />
         <Route path={ADMIN_LOGIN_PATH} element={<RegisterPage />} /> 
 
-        {/* Admin Protected Routes (FE của bạn nằm ở đây) */}
+        {/* Admin Protected Routes */}
         <Route
             path="/admin"
             element={
@@ -45,10 +48,14 @@ const AppRouter: React.FC = () => {
                 </ProtectedRoute>
             }
         >
-          {/* Định tuyến các trang con */}
+          {/* Định tuyến các trang con trong Layout Admin */}
           <Route index element={<AdminDashboard />} /> 
           <Route path="dashboard" element={<AdminDashboard />} /> 
-          {/* Thêm các route admin khác: medicines, patients, reports... */}
+          
+          {/* [CẬP NHẬT] Thêm các route mới */}
+          <Route path="medicines" element={<MedicineManagement />} />
+          <Route path="patients" element={<PatientManagement />} />
+          <Route path="reports" element={<Reports />} />
           
         </Route>
 
