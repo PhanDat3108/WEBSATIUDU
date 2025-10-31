@@ -1,16 +1,17 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import styles from '../../styles/AdminLayout.module.css'; // Import CSS Modules
+import styles from '../../styles/AdminLayout.module.css'; 
 
 const AdminSidebar: React.FC = () => {
     const location = useLocation();
 
-    // Menu Item Icons (Sử dụng ký tự Unicode)
+    // Cập nhật menuItems:
     const menuItems = [
         { key: '/admin/dashboard', icon: '🏠', label: 'Trang chủ' },
         { key: '/admin/medicines', icon: '💊', label: 'Quản lý thuốc' },
         { key: '/admin/patients', icon: '👥', label: 'Quản lý bệnh nhân' },
         { key: '/admin/reports', icon: '📊', label: 'Thống kê' },
+        { key: '/admin/revenue', icon: '💰', label: 'Thu nhập' }, // <-- [MỤC MỚI]
     ];
 
     return (

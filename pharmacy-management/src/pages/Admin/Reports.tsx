@@ -1,64 +1,54 @@
 import React, { useState, useEffect } from 'react';
-import { Medicine } from '../../interfaces'; // Import type Medicine
+import { Medicine } from '../../interfaces'; 
 
 // TÁI SỬ DỤNG CSS:
-// 1. Import CSS của Dashboard để dùng layout Card
 import dashboardStyles from '../../styles/AdminDashboard.module.css'; 
-// 2. Import CSS của Management để dùng layout Bảng Grid
 import tableStyles from '../../styles/AdminManagement.module.css';
 
-// --- Dữ liệu giả lập cho Báo cáo (Thêm thuốc sắp hết/hết hạn) ---
-// (Trong thực tế, bạn sẽ fetch từ API)
-const mockMedicinesData: Medicine[] = [
-    { id: 1, stt: 1, maThuoc: 'PARA100', tenThuoc: 'Paracetamol 500mg', loaiThuoc: 'Giảm đau, hạ sốt', soLuong: 150, hsd: '2026-10-30', nhaCungCap: 'Traphaco', ngayNhap: '2024-10-30' },
-    { id: 2, stt: 2, maThuoc: 'AMO500', tenThuoc: 'Amoxicillin 500mg', loaiThuoc: 'Kháng sinh', soLuong: 80, hsd: '2025-05-15', nhaCungCap: 'Hậu Giang', ngayNhap: '2024-05-15' },
-    // Cảnh báo: Sắp hết hàng
-    { id: 3, stt: 3, maThuoc: 'VITC100', tenThuoc: 'Vitamin C 100mg', loaiThuoc: 'Vitamin', soLuong: 15, hsd: '2027-01-20', nhaCungCap: 'Traphaco', ngayNhap: '2024-01-20' },
-    // Cảnh báo: Sắp hết hạn (Giả sử hôm nay là 31/10/2025)
-    { id: 4, stt: 4, maThuoc: 'BERG10', tenThuoc: 'Berberin 10mg', loaiThuoc: 'Tiêu hóa', soLuong: 50, hsd: '2025-12-01', nhaCungCap: 'Nam Hà', ngayNhap: '2024-12-01' },
-    { id: 5, stt: 5, maThuoc: 'OPI05', tenThuoc: 'Omeprazol 20mg', loaiThuoc: 'Dạ dày', soLuong: 120, hsd: '2026-08-01', nhaCungCap: 'Hậu Giang', ngayNhap: '2024-08-01' },
-    // Cảnh báo: Hết hạn
-    { id: 6, stt: 6, maThuoc: 'ASP100', tenThuoc: 'Aspirin 100mg', loaiThuoc: 'Chống đông máu', soLuong: 40, hsd: '2025-01-01', nhaCungCap: 'Traphaco', ngayNhap: '2024-01-01' },
-];
-// ----------------------------------------------------------------
+// [ĐỒNG BỘ] Import "Database Giả"
+import { mockMedicines, mockPatients, mockTransactions } from '../../api/mockDatabase';
 
 const Reports: React.FC = () => {
     // State cho các báo cáo chi tiết
     const [lowStockMedicines, setLowStockMedicines] = useState<Medicine[]>([]);
     const [expiringMedicines, setExpiringMedicines] = useState<Medicine[]>([]);
 
-    // State cho các thẻ thống kê (lấy từ ảnh của bạn)
+    // [ĐỒNG BỘ] Tính toán từ Database Giả
     const summaryStats = [
-        { title: 'Tổng số lượng thuốc', value: 5000 },
-        { title: 'Tổng số lượng bệnh nhân', value: 50 },
+        // Tính tổng SL thuốc từ DB
+        { title: 'Tổng số lượng thuốc', value: mockMedicines.reduce((sum, med) => sum + med.soLuong, 0) },
+        // Tính tổng BN từ DB
+        { title: 'Tổng số lượng bệnh nhân', value: mockPatients.length },
+        // Giữ số liệu lịch sử (vì không có DB thật)
         { title: 'Số lượng thuốc đã nhập', value: 10000 },
-        { title: 'Số lượng thuốc đã bán', value: 8000 },
-        { title: 'Số lượng thuốc hết hạn', value: 100 },
+        // Tính tổng SL bán từ DB
+        { title: 'Số lượng thuốc đã bán', value: mockTransactions.reduce((sum, t) => sum + t.soLuongBan, 0) },
     ];
 
     // Chạy 1 lần khi component mount để lọc dữ liệu
     useEffect(() => {
-        const today = new Date();
-        // Mốc 90 ngày tới
+        const today = new Date(); // Giả sử hôm nay là 31/10/2025
         const warningDateLimit = new Date();
-        warningDateLimit.setDate(today.getDate() + 90); 
+        warningDateLimit.setDate(today.getDate() + 90); // Mốc 90 ngày
 
+        // [ĐỒNG BỘ] Dùng mockMedicines đã import
         // 1. Lọc thuốc sắp hết hàng (ví dụ: SL < 20)
-        const lowStock = mockMedicinesData.filter(m => m.soLuong < 20);
+        const lowStock = mockMedicines.filter(m => m.soLuong < 20);
         setLowStockMedicines(lowStock);
 
         // 2. Lọc thuốc sắp hết hạn (trong 90 ngày tới) hoặc đã hết hạn
-        const expiring = mockMedicinesData.filter(m => {
+        const expiring = mockMedicines.filter(m => {
             const expiryDate = new Date(m.hsd);
             return expiryDate <= warningDateLimit;
         });
-        setExpiringMedicines(expiring.sort((a, b) => new Date(a.hsd).getTime() - new Date(b.hsd).getTime())); // Sắp xếp HSD gần nhất
+        // Sắp xếp HSD gần nhất
+        setExpiringMedicines(expiring.sort((a, b) => new Date(a.hsd).getTime() - new Date(b.hsd).getTime())); 
 
-    }, []);
+    }, []); // Chỉ chạy 1 lần
 
     return (
-        // Dùng CSS của trang Quản lý
-        <div className={tableStyles.managementContainer}>
+        // [SỬA LỖI Z-INDEX] Thêm animation vào div nội dung
+        <div className={`${tableStyles.managementContainer} animate__animated animate__fadeInRightBig animate__faster`}>
             <h2 className={tableStyles.title}>Thống kê & Báo cáo</h2>
 
             {/* Phần 1: Thống kê tổng quan (Dùng CSS của Dashboard) */}
@@ -134,7 +124,6 @@ const Reports: React.FC = () => {
                     )}
                 </div>
             </div>
-
         </div>
     );
 };
