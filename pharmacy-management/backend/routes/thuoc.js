@@ -113,7 +113,7 @@ router.get("/list", (req, res) => {
       MaThuoc, TenThuoc, DonViTinh, SoLuongTon, GiaNhap, 
       HanSuDung, NhaCungCap, NgayNhap, MaLoai, GiaBan
     FROM Thuoc
-    ORDER BY TenThuoc ASC
+    ORDER BY MaThuoc ASC
   `;
 
   db.query(sql, (err, rows) => {
@@ -125,6 +125,33 @@ router.get("/list", (req, res) => {
   });
 });
 
+// xoá thuốc
+router.delete("/delete/:maThuoc", (req, res) => {
+  const { maThuoc } = req.params;
 
+  if (!maThuoc) {
+    return res.status(400).json({ message: "Thiếu mã thuốc để xoá!" });
+  }
+
+  db.query("SELECT * FROM Thuoc WHERE MaThuoc = ?", [maThuoc], (err, rows) => {
+    if (err) {
+      console.error(" Lỗi khi kiểm tra thuốc:", err);
+      return res.status(500).json({ message: "Lỗi kiểm tra thuốc!" });
+    }
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Không tìm thấy thuốc để xoá!" });
+    }
+
+    db.query("DELETE FROM Thuoc WHERE MaThuoc = ?", [maThuoc], (err2) => {
+      if (err2) {
+        console.error("Lỗi khi xoá thuốc:", err2);
+        return res.status(500).json({ message: "Lỗi khi xoá thuốc!" });
+      }
+
+      res.json({ message: "Xoá thuốc thành công!", maThuoc });
+    });
+  });
+});
 
 export default router;
