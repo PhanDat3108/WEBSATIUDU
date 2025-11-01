@@ -10,6 +10,7 @@ import MedicineManagement from '../pages/Admin/MedicineManagement';
 import PatientManagement from '../pages/Admin/PatientManagement';
 import Reports from '../pages/Admin/Reports';
 import Revenue from '../pages/Admin/Revenue'; // <-- [IMPORT MỚI]
+import TestThuoc from "../pages/Admin/Testthuoc";
 
 // =======================================================
 // === MOCK AUTH LOGIC (Giữ nguyên) ===
@@ -52,7 +53,7 @@ const AppRouter: React.FC = () => {
           <Route path="patients" element={<PatientManagement />} />
           <Route path="reports" element={<Reports />} />
           <Route path="revenue" element={<Revenue />} /> {/* <-- [ROUTE MỚI] */}
-          
+          <Route path="/admin/chinhthuoc" element={<TestThuoc />} /> 
         </Route>
 
         <Route path="*" element={<div>404 Not Found</div>} />
