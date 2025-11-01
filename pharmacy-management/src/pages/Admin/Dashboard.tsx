@@ -1,110 +1,132 @@
+// src/pages/Admin/Dashboard.tsx
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import styles from '../../styles/AdminDashboard.module.css'; 
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { Pie } from 'react-chartjs-2';
-import { getExpiryStatusReport } from '../../api/dashboardApi';
-import { mockMedicines, mockPatients } from '../../api/mockDatabase';
+// 1. Import từ các file API service thật
+import { getWarningMedicines } from '../../api/dashboardApi';
+import { getRevenueData } from '../../api/revenueApi';
+// 2. Import interfaces
+import { ThuocCanhBao, DuLieuDoanhThu } from '../../interfaces';
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+import styles from '../../styles/AdminDashboard.module.css';
+// Giả sử bạn có các component này, nếu không có, hãy tạm ẩn chúng đi
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 
-interface PieChartData { labels: string[]; datasets: any[]; }
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const AdminDashboard: React.FC = () => {
-    
-    const [expiryData, setExpiryData] = useState<PieChartData | null>(null);
-    const [loadingChart, setLoadingChart] = useState(true);
+// Định nghĩa một kiểu dữ liệu đơn giản cho summary
+interface SummaryData {
+  totalRevenue: number;
+  totalPatients: number;
+  lowStock: number;
+}
 
-    const totalStock = mockMedicines.reduce((sum, med) => sum + med.soLuong, 0);
-    const totalPatients = mockPatients.length;
+const Dashboard: React.FC = () => {
+  // 3. Cập nhật state để dùng interface mới và thêm loading/error
+  const [summary, setSummary] = useState<SummaryData>({ totalRevenue: 0, totalPatients: 0, lowStock: 0 });
+  const [warnings, setWarnings] = useState<ThuocCanhBao[]>([]);
+  const [revenue, setRevenue] = useState<DuLieuDoanhThu[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const report = await getExpiryStatusReport();
-                const data = {
-                    labels: [
-                        `Hết hạn (${report.expired})`, 
-                        `Sắp hết hạn (<= 90 ngày) (${report.expiringSoon})`, 
-                        `Còn dùng tốt (${report.good})`
-                    ],
-                    datasets: [
-                        {
-                            label: 'Tình trạng thuốc',
-                            data: [report.expired, report.expiringSoon, report.good],
-                            backgroundColor: ['#dc3545', '#ffc107', '#28a745'],
-                            borderColor: '#ffffff',
-                            borderWidth: 2,
-                        },
-                    ],
-                };
-                setExpiryData(data);
-            } catch (err) {
-                console.error("Lỗi tải báo cáo HSD:", err);
-            } finally {
-                setLoadingChart(false);
-            }
-        };
-        fetchData();
-    }, []);
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        // 4. Gọi đến các hàm API rỗng mới
+        const warningData = await getWarningMedicines();
+        const revenueData = await getRevenueData();
+        
+        setWarnings(warningData);
+        setRevenue(revenueData);
 
-    return (
-        // [ĐÃ SỬA] Thêm animation vào div nội dung
-        <div className={`${styles.dashboardContainer} animate__animated animate__fadeInRightBig animate__faster`}>
-            {/* Welcome Card */}
-            <div className={styles.welcomeCard}>
-                <p className={styles.welcomeText}>Xin chào A</p>
-                <p className={styles.returnText}>Mừng quay trở lại!</p>
-            </div>
+        // Vì chúng ta chưa có API cho summary, ta sẽ đặt giá trị mặc định
+        setSummary({
+          totalRevenue: 0,
+          totalPatients: 0, // Sẽ lấy từ API bệnh nhân
+          lowStock: warningData.filter(w => w.LyDo === 'SapHetHang').length,
+        });
 
-            {/* Stats Grid */}
-            <div className={styles.statsGrid}>
-                {/* Card 1: Bệnh nhân */}
-                <div className={styles.statCard}>
-                    <p className={styles.statTitle}>Số lượng bệnh nhân:</p>
-                    <p className={styles.statValue}>{totalPatients}</p>
-                    <Link to="/admin/patients" className={styles.detailButton}>Xem chi tiết</Link>
-                </div>
+      } catch (err) {
+        setError((err as Error).message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-                {/* Card 2: Thuốc trong kho */}
-                <div className={styles.statCard}>
-                    <p className={styles.statTitle}>Tổng số lượng thuốc trong kho:</p>
-                    <p className={styles.statValue}>{totalStock}</p>
-                    
-                    <div style={{ height: '160px', position: 'relative', margin: '15px auto', width: '100%' }}>
-                        {loadingChart ? (
-                            <p style={{ textAlign: 'center', fontSize: '0.9em' }}>Đang tải dữ liệu HSD...</p>
-                        ) : (
-                            expiryData && (
-                                <Pie 
-                                    data={expiryData}
-                                    options={{
-                                        responsive: true,
-                                        maintainAspectRatio: false, 
-                                        plugins: {
-                                            legend: {
-                                                position: 'bottom', 
-                                                labels: { boxWidth: 12, font: { size: 10 }, padding: 10 }
-                                            }
-                                        }
-                                    }}
-                                />
-                            )
-                        )}
-                    </div>
-                    
-                    <Link to="/admin/medicines" className={styles.detailButton}>Xem chi tiết</Link>
-                </div>
+    loadData();
+  }, []);
 
-                {/* Card 3: Thuốc đã nhập */}
-                <div className={styles.statCard}>
-                    <p className={styles.statTitle}>Số lượng thuốc đã nhập:</p>
-                    <p className={styles.statValue}>10.000</p>
-                    <Link to="/admin/reports" className={styles.detailButton}>Xem chi tiết</Link>
-                </div>
-            </div>
+  // 5. Render với các trạng thái loading, error
+  if (isLoading) {
+    return <div className={styles.container}><p>Đang tải dữ liệu Dashboard...</p></div>;
+  }
+
+  if (error) {
+    return <div className={styles.container}><p style={{ color: 'red' }}>Lỗi: {error}</p></div>;
+  }
+
+  // Dữ liệu cho biểu đồ doanh thu
+  const revenueChartData = {
+    labels: revenue.map(r => r.thang),
+    datasets: [
+      {
+        label: 'Doanh thu',
+        data: revenue.map(r => r.doanhThu),
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+      },
+    ],
+  };
+
+  return (
+    <div className={styles.container}>
+      <h1 className={styles.title}>Tổng quan</h1>
+      
+      {/* Summary Cards */}
+      <div className={styles.summaryGrid}>
+        <div className={styles.summaryCard}>
+          <h2>Tổng doanh thu</h2>
+          <p>{summary.totalRevenue.toLocaleString()} VNĐ</p>
         </div>
-    );
+        <div className={styles.summaryCard}>
+          <h2>Tổng bệnh nhân</h2>
+          <p>{summary.totalPatients}</p>
+        </div>
+        <div className={styles.summaryCard}>
+          <h2>Thuốc sắp hết</h2>
+          <p>{summary.lowStock}</p>
+        </div>
+      </div>
+
+      {/* Charts and Warnings */}
+      <div className={styles.mainGrid}>
+        <div className={styles.chartContainer}>
+          <h2>Biểu đồ doanh thu</h2>
+          {revenue.length > 0 ? (
+            <Bar data={revenueChartData} />
+          ) : (
+            <p>Không có dữ liệu doanh thu để hiển thị.</p>
+          )}
+        </div>
+        
+        <div className={styles.warningList}>
+          <h2>Cảnh báo</h2>
+          {warnings.length > 0 ? (
+            <ul>
+              {warnings.map((warning) => (
+                <li key={warning.MaThuoc} className={styles[warning.LyDo]}>
+                  <strong>{warning.TenThuoc}</strong> ({warning.LyDo === 'SapHetHang' ? `Còn ${warning.SoLuongTon}` : `HSD: ${new Date(warning.HanSuDung).toLocaleDateString()}`})
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Không có cảnh báo nào.</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 };
 
-export default AdminDashboard;
+export default Dashboard;

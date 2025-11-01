@@ -1,114 +1,137 @@
+// src/pages/Admin/Revenue.tsx
 import React, { useState, useEffect } from 'react';
+// 1. Import hàm mới và interface
+import { getRevenueData } from '../../api/revenueApi';
+import { DuLieuDoanhThu } from '../../interfaces';
 
-// Import Chart.js và các component biểu đồ
+// 2. Import components biểu đồ
 import {
-  Chart as ChartJS,
-  CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement
-} from 'chart.js';
-import { Line, Pie } from 'react-chartjs-2'; // Import 2 loại biểu đồ
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  PieChart, Pie, Cell,
+} from 'recharts';
 
-// Import API giả lập (Đã sửa lỗi và đồng bộ)
-import * as revenueApi from '../../api/revenueApi';
-import { ChartData } from '../../api/revenueApi'; // Import kiểu dữ liệu
+// Giả sử file style
+import styles from '../../styles/AdminDashboard.module.css';
 
-// TÁI SỬ DỤNG CSS (Không xung đột)
-import dashboardStyles from '../../styles/AdminDashboard.module.css'; 
-import tableStyles from '../../styles/AdminManagement.module.css';
+// Kiểu dữ liệu giả cho PieChart (vì ta chưa có API)
+interface TopProduct {
+  name: string;
+  value: number;
+  // SỬA LỖI Ở ĐÂY: Thêm dòng này để sửa lỗi TS2322
+  [key: string]: any;
+}
+// Kiểu dữ liệu giả cho Summary (vì ta chưa có API)
+interface RevenueSummary {
+  total: number;
+  profit: number;
+  itemsSold: number;
+}
 
-// Đăng ký các thành phần của Chart.js
-ChartJS.register(
-  CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement
-);
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
 const Revenue: React.FC = () => {
-    // State cho các thẻ thống kê
-    const [summary, setSummary] = useState({ todayRevenue: 0, monthlyRevenue: 0, totalOrders: 0 });
-    // State cho biểu đồ
-    const [lineData, setLineData] = useState<ChartData | null>(null);
-    const [pieData, setPieData] = useState<ChartData | null>(null);
-    const [loading, setLoading] = useState(true);
+  // 3. Cập nhật state
+  const [summary, setSummary] = useState<RevenueSummary>({ total: 0, profit: 0, itemsSold: 0 });
+  const [lineChartData, setLineChartData] = useState<DuLieuDoanhThu[]>([]);
+  const [pieChartData, setPieChartData] = useState<TopProduct[]>([]);
+  
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    // Dùng useEffect để gọi API giả lập khi component mount
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                // Các hàm này đã được sửa để đọc từ mockDatabase
-                const summaryData = await revenueApi.getRevenueSummary();
-                const lineChartData = await revenueApi.getRevenueOverTime();
-                const pieChartData = await revenueApi.getTopSellingProducts();
-                
-                setSummary(summaryData);
-                setLineData(lineChartData);
-                setPieData(pieChartData);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        // 4. Chỉ gọi hàm getRevenueData
+        const lineData = await getRevenueData();
+        setLineChartData(lineData);
 
-            } catch (error) {
-                console.error("Lỗi khi fetch dữ liệu giả lập:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+        // 5. Đặt dữ liệu rỗng cho các phần chưa có API
+        setSummary({ total: 0, profit: 0, itemsSold: 0 });
+        setPieChartData([]); // API cho TopSellingProducts chưa được định nghĩa
 
-        fetchData();
-    }, []);
+      } catch (err) {
+        // Lỗi này sẽ hiển thị "Chức năng chưa sẵn sàng"
+        setError((err as Error).message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
-    // Hiển thị loading
-    if (loading) {
-        return (
-             <div className={`${tableStyles.managementContainer} animate__animated animate__fadeInRightBig animate__faster`}>
-                <h2 className={tableStyles.title}>Đang tải dữ liệu thu nhập...</h2>
-            </div>
-        );
-    }
+  // 6. Render với các trạng thái
+  if (isLoading) {
+    return <div className={styles.container}><p>Đang tải dữ liệu doanh thu...</p></div>;
+  }
 
-    return (
-        // [SỬA LỖI Z-INDEX] Thêm animation vào div nội dung
-        <div className={`${tableStyles.managementContainer} animate__animated animate__fadeInRightBig animate__faster`}>
-            <h2 className={tableStyles.title}>Quản lý Thu nhập</h2>
-            
-            {/* Tái sử dụng CSS từ Dashboard cho các thẻ thống kê */}
-            <div className={dashboardStyles.statsGrid} style={{ marginBottom: '30px' }}>
-                <div className={dashboardStyles.statCard} style={{minHeight: '150px'}}>
-                    <p className={dashboardStyles.statTitle}>Thu nhập hôm nay:</p>
-                    <p className={dashboardStyles.statValue}>{summary.todayRevenue.toLocaleString('vi-VN')} VNĐ</p>
-                </div>
-                <div className={dashboardStyles.statCard} style={{minHeight: '150px'}}>
-                    <p className={dashboardStyles.statTitle}>Thu nhập tháng này:</p>
-                    <p className={dashboardStyles.statValue}>{summary.monthlyRevenue.toLocaleString('vi-VN')} VNĐ</p>
-                </div>
-                <div className={dashboardStyles.statCard} style={{minHeight: '150px'}}>
-                    <p className={dashboardStyles.statTitle}>Tổng đơn hàng (tháng):</p>
-                    <p className={dashboardStyles.statValue}>{summary.totalOrders}</p>
-                </div>
-            </div>
-
-            {/* Khu vực Biểu đồ */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
-                
-                {/* Biểu đồ 1: Doanh thu (Line) */}
-                <div className={dashboardStyles.welcomeCard} style={{ padding: '15px' }}>
-                    <h3 style={{ textAlign: 'center' }}>Biểu đồ Doanh thu (Tháng)</h3>
-                    {lineData && (
-                        <Line 
-                            data={lineData} 
-                            options={{ responsive: true, plugins: { legend: { position: 'top' } } }} 
-                        />
-                    )}
-                </div>
-
-                {/* Biểu đồ 2: Sản phẩm (Pie) */}
-                <div className={dashboardStyles.welcomeCard} style={{ padding: '15px' }}>
-                    <h3 style={{ textAlign: 'center' }}>Sản phẩm bán chạy</h3>
-                    {pieData && (
-                        <Pie 
-                            data={pieData}
-                            options={{ responsive: true }}
-                        />
-                    )}
-                </div>
-            </div>
+  // Hiển thị lỗi (nếu API reject)
+  if (error && lineChartData.length === 0) {
+    return <div className={styles.container}><p style={{ color: 'red' }}>Lỗi: {error}</p></div>;
+  }
+  
+  return (
+    <div className={styles.container}>
+      <h1 className={styles.title}>Phân tích Doanh thu</h1>
+      
+      {/* Summary Cards */}
+      <div className={styles.summaryGrid}>
+        <div className={styles.summaryCard}>
+          <h2>Tổng Doanh thu</h2>
+          <p>{summary.total.toLocaleString()} VNĐ</p>
         </div>
-    );
+        <div className={styles.summaryCard}>
+          <h2>Lợi nhuận</h2>
+          <p>{summary.profit.toLocaleString()} VNĐ</p>
+        </div>
+        <div className={styles.summaryCard}>
+          <h2>Sản phẩm đã bán</h2>
+          <p>{summary.itemsSold}</p>
+        </div>
+      </div>
+      
+      {/* Charts */}
+      <div className={styles.mainGrid}>
+        <div className={styles.chartContainer}>
+          <h2>Doanh thu theo thời gian</h2>
+          {lineChartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={lineChartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="thang" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="doanhThu" stroke="#8884d8" activeDot={{ r: 8 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+             <p>Không có dữ liệu doanh thu theo thời gian.</p>
+          )}
+        </div>
+        
+        <div className={styles.chartContainer}>
+          <h2>Top sản phẩm bán chạy</h2>
+          {pieChartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie data={pieChartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} fill="#8884d8" label>
+                  {pieChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <p>Không có dữ liệu sản phẩm bán chạy.</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Revenue;

@@ -1,113 +1,224 @@
-import React, { useState, useEffect } from 'react';
-import { Medicine } from '../../interfaces'; 
+// src/components/AdminForms/MedicineForm.tsx
+import React, { useState } from 'react';
+import { Thuoc } from '../../interfaces';
+import { addMedicine, updateMedicine } from '../../api/thuocApi';
 import styles from '../../styles/Form.module.css';
 
-type MedicineFormData = Omit<Medicine, 'id' | 'stt'>;
-
 interface MedicineFormProps {
-  initialData?: Medicine | null; 
-  onSubmit: (data: MedicineFormData) => void; 
-  onCancel: () => void;
+  medicine: Thuoc | null;
+  onSave: () => void;
+  onClose: () => void;
 }
 
-const defaultFormState: MedicineFormData = {
-  maThuoc: '',
-  tenThuoc: '',
-  loaiThuoc: '',
-  soLuong: 0,
-  giaBan: 0, 
-  hsd: '',
-  nhaCungCap: '',
-  ngayNhap: '',
-};
+const getTodayString = () => new Date().toISOString().split('T')[0];
 
-const MedicineForm: React.FC<MedicineFormProps> = ({ initialData, onSubmit, onCancel }) => {
-  const [formData, setFormData] = useState<MedicineFormData>(defaultFormState);
+export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, onClose }) => {
+  const [formData, setFormData] = useState<Partial<Thuoc>>({
+    TenThuoc: medicine?.TenThuoc || '',
+    DonViTinh: medicine?.DonViTinh || 'Viên',
+    SoLuongTon: medicine?.SoLuongTon || 0,
+    GiaNhap: medicine?.GiaNhap || 0,
+    GiaBan: medicine?.GiaBan || 0,
+    HanSuDung: medicine?.HanSuDung ? medicine.HanSuDung.split('T')[0] : getTodayString(),
+    NgayNhap: medicine?.NgayNhap ? medicine.NgayNhap.split('T')[0] : getTodayString(),
+    MaLoai: medicine?.MaLoai || '',
+    NhaCungCap: medicine?.NhaCungCap || '',
+  });
 
-  useEffect(() => {
-    if (initialData) {
-      setFormData(initialData);
-    } else {
-      setFormData(defaultFormState);
-    }
-  }, [initialData]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: (name === 'soLuong' || name === 'giaBan') ? parseInt(value, 10) : value,
+      [name]: (name === 'SoLuongTon' || name === 'GiaNhap' || name === 'GiaBan')
+        ? Number(value)
+        : value,
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    setFormError(null);
+    setIsSubmitting(true);
+
+    try {
+      const formDataPascal = formData;
+
+      const dataToSend = {
+        tenThuoc: formDataPascal.TenThuoc,
+        donViTinh: formDataPascal.DonViTinh,
+        soLuongTon: formDataPascal.SoLuongTon,
+        giaNhap: formDataPascal.GiaNhap,
+        giaBan: formDataPascal.GiaBan,
+        hanSuDung: formDataPascal.HanSuDung,
+        ngayNhap: formDataPascal.NgayNhap,
+        maLoai: formDataPascal.MaLoai,
+        nhaCungCap: formDataPascal.NhaCungCap,
+      };
+      
+      if (!dataToSend.tenThuoc || !dataToSend.donViTinh || !dataToSend.hanSuDung || !dataToSend.maLoai || !dataToSend.giaBan) {
+         throw new Error('Vui lòng điền đủ Tên, ĐVT, HSD, Mã Loại, Giá Bán.');
+      }
+
+      if (medicine) {
+        // Chế độ Sửa (gửi data camelCase)
+        await updateMedicine(medicine.MaThuoc, dataToSend);
+      } else {
+        // Chế độ Thêm mới (gửi data camelCase)
+        // SỬA LỖI Ở ĐÂY: Xóa bỏ phần ép kiểu
+        await addMedicine(dataToSend);
+      }
+      
+      alert('Lưu thành công!');
+      onSave();
+    } catch (err) {
+      setFormError((err as Error).message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    // [BẮT BUỘC] Áp dụng layout Grid
-    <form className={styles.form} onSubmit={handleSubmit}>
-      
-      {/* Mã thuốc */}
-      <div className={styles.formGroup}>
-        <label className={styles.formLabel}>Mã thuốc</label>
-        <input type="text" name="maThuoc" value={formData.maThuoc} onChange={handleChange} className={styles.formInput} required />
-      </div>
+    <form onSubmit={handleSubmit} className={styles.form}>
+      <h2 className={styles.title}>{medicine ? 'Sửa thông tin thuốc' : 'Thêm thuốc mới'}</h2>
 
-      {/* Loại thuốc */}
-      <div className={styles.formGroup}>
-        <label className={styles.formLabel}>Loại thuốc</label>
-        <input type="text" name="loaiThuoc" value={formData.loaiThuoc} onChange={handleChange} className={styles.formInput} />
-      </div>
+      {/* Bố cục 2 cột */}
+      <div className={styles.formGrid}>
+        
+        {/* Cột 1 */}
+        <div className={styles.formGroup}>
+          <label htmlFor="TenThuoc">Tên thuốc *</label>
+          <input
+            type="text"
+            id="TenThuoc"
+            name="TenThuoc"
+            value={formData.TenThuoc}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        
+        <div className={styles.formGroup}>
+          <label htmlFor="DonViTinh">Đơn vị tính *</label>
+          <input
+            type="text"
+            id="DonViTinh"
+            name="DonViTinh"
+            value={formData.DonViTinh}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-      {/* Tên thuốc (Full Width) */}
-      <div className={styles.formGroupFullWidth}>
-        <label className={styles.formLabel}>Tên thuốc</label>
-        <input type="text" name="tenThuoc" value={formData.tenThuoc} onChange={handleChange} className={styles.formInput} required />
-      </div>
+        <div className={styles.formGroup}>
+          <label htmlFor="SoLuongTon">Số lượng tồn</label>
+          <input
+            type="number"
+            id="SoLuongTon"
+            name="SoLuongTon"
+            value={formData.SoLuongTon}
+            onChange={handleChange}
+            min="0"
+          />
+        </div>
+        
+        <div className={styles.formGroup}>
+          <label htmlFor="GiaNhap">Giá nhập</label>
+          <input
+            type="number"
+            id="GiaNhap"
+            name="GiaNhap"
+            value={formData.GiaNhap}
+            onChange={handleChange}
+            min="0"
+          />
+        </div>
+        
+        <div className={styles.formGroup}>
+          <label htmlFor="GiaBan">Giá bán *</label>
+          <input
+            type="number"
+            id="GiaBan"
+            name="GiaBan"
+            value={formData.GiaBan}
+            onChange={handleChange}
+            min="0"
+            required
+          />
+        </div>
 
-      {/* Số lượng */}
-      <div className={styles.formGroup}>
-        <label className={styles.formLabel}>Số lượng</label>
-        <input type="number" name="soLuong" value={formData.soLuong} onChange={handleChange} className={styles.formInput} min="0" required />
-      </div>
+        {/* Cột 2 */}
+        <div className={styles.formGroup}>
+          <label htmlFor="NgayNhap">Ngày nhập</label>
+          <input
+            type="date"
+            id="NgayNhap"
+            name="NgayNhap"
+            value={formData.NgayNhap}
+            onChange={handleChange}
+          />
+        </div>
+        
+        <div className={styles.formGroup}>
+          <label htmlFor="HanSuDung">Hạn sử dụng *</label>
+          <input
+            type="date"
+            id="HanSuDung"
+            name="HanSuDung"
+            value={formData.HanSuDung}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        
+        <div className={styles.formGroup}>
+          <label htmlFor="MaLoai">Mã Loại *</label>
+          <input
+            type="text"
+            id="MaLoai"
+            name="MaLoai"
+            value={formData.MaLoai}
+            onChange={handleChange}
+            placeholder="VD: ML001 (Sẽ là Dropdown)"
+            required
+          />
+        </div>
+        
+        <div className={styles.formGroup}>
+          <label htmlFor="NhaCungCap">Mã Nhà Cung Cấp *</label>
+          <input
+            type="text"
+            id="NhaCungCap"
+            name="NhaCungCap"
+            value={formData.NhaCungCap}
+            onChange={handleChange}
+            placeholder="VD: NCC001 (Sẽ là Dropdown)"
+            required
+          />
+        </div>
+        
+        <div className={styles.formGroup}>
+          {/* (Trống) */}
+        </div>
 
-      {/* Giá Bán */}
-      <div className={styles.formGroup}>
-        <label className={styles.formLabel}>Giá bán (VNĐ)</label>
-        <input type="number" name="giaBan" value={formData.giaBan} onChange={handleChange} className={styles.formInput} min="0" required />
-      </div>
+      </div> {/* Đóng .formGrid */}
 
-      {/* Ngày nhập */}
-      <div className={styles.formGroup}>
-        <label className={styles.formLabel}>Ngày nhập</label>
-        <input type="date" name="ngayNhap" value={formData.ngayNhap} onChange={handleChange} className={styles.formInput} required />
-      </div>
+      {formError && (
+        <div className={styles.errorText}>
+          {formError}
+        </div>
+      )}
 
-      {/* Hạn sử dụng */}
-      <div className={styles.formGroup}>
-        <label className={styles.formLabel}>Hạn sử dụng</label>
-        <input type="date" name="hsd" value={formData.hsd} onChange={handleChange} className={styles.formInput} required />
-      </div>
-
-      {/* Nhà cung cấp (Full Width) */}
-      <div className={styles.formGroupFullWidth}>
-        <label className={styles.formLabel}>Nhà cung cấp</label>
-        <input type="text" name="nhaCungCap" value={formData.nhaCungCap} onChange={handleChange} className={styles.formInput} />
-      </div>
-
-      {/* Buttons (Tự động full width) */}
-      <div className={styles.buttonContainer}>
-        <button type="button" className={`${styles.formButton} ${styles.cancelButton}`} onClick={onCancel}>
-          Hủy
+      <div className={styles.buttonGroup}>
+        <button type="submit" className={styles.saveButton} disabled={isSubmitting}>
+          {isSubmitting ? 'Đang lưu...' : 'Lưu'}
         </button>
-        <button type="submit" className={`${styles.formButton} ${styles.submitButton}`}>
-          {initialData ? 'Cập nhật' : 'Thêm'}
+        <button type="button" className={styles.cancelButton} onClick={onClose} disabled={isSubmitting}>
+          Hủy
         </button>
       </div>
     </form>
   );
 };
-
-export default MedicineForm;

@@ -1,109 +1,134 @@
-import React, { useState, useEffect } from 'react';
-import { Patient } from '../../interfaces'; 
+// src/components/AdminForms/PatientForm.tsx
+import React, { useState } from 'react';
+import { BenhNhan } from '../../interfaces';
+import { addPatient, updatePatient } from '../../api/benhNhanApi';
 import styles from '../../styles/Form.module.css';
 
-type PatientFormData = Omit<Patient, 'id' | 'stt'>;
-
 interface PatientFormProps {
-  initialData?: Patient | null; 
-  onSubmit: (data: PatientFormData) => void;
-  onCancel: () => void;
+  patient: BenhNhan | null;
+  onSave: () => void;
+  onClose: () => void;
 }
 
-const defaultFormState: PatientFormData = {
-  maBenhNhan: '',
-  tenBenhNhan: '',
-  gioiTinh: 'Nam',
-  tuoi: 0,
-  diaChi: '',
-  sdt: '',
-  tienSuBenhAn: '',
-};
+const getTodayString = () => new Date().toISOString().split('T')[0];
 
-const PatientForm: React.FC<PatientFormProps> = ({ initialData, onSubmit, onCancel }) => {
-  const [formData, setFormData] = useState<PatientFormData>(defaultFormState);
+export const PatientForm: React.FC<PatientFormProps> = ({ patient, onSave, onClose }) => {
+  const [formData, setFormData] = useState<Partial<BenhNhan>>({
+    TenBenhNhan: patient?.TenBenhNhan || '',
+    NgaySinh: patient?.NgaySinh ? patient.NgaySinh.split('T')[0] : getTodayString(),
+    GioiTinh: patient?.GioiTinh || 'Nam',
+    SoDienThoai: patient?.SoDienThoai || '',
+    DiaChi: patient?.DiaChi || '',
+  });
 
-  useEffect(() => {
-    if (initialData) {
-      setFormData(initialData);
-    } else {
-      setFormData(defaultFormState);
-    }
-  }, [initialData]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: name === 'tuoi' ? parseInt(value, 10) : value,
+      [name]: value,
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    setFormError(null);
+    setIsSubmitting(true);
+
+    try {
+      if (patient) {
+        await updatePatient(patient.MaBenhNhan, formData);
+      } else {
+        await addPatient(formData as Omit<BenhNhan, 'MaBenhNhan'>);
+      }
+      alert('Lưu thành công!');
+      onSave();
+    } catch (err) {
+      setFormError((err as Error).message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    // [BẮT BUỘC] Áp dụng layout Grid 2 cột
-    <form className={styles.form} onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className={styles.form}>
+      <h2 className={styles.title}>{patient ? 'Sửa thông tin bệnh nhân' : 'Thêm bệnh nhân mới'}</h2>
+
+      <div className={styles.formGroup}>
+        <label htmlFor="TenBenhNhan">Tên bệnh nhân *</label>
+        <input
+          type="text"
+          id="TenBenhNhan"
+          name="TenBenhNhan"
+          value={formData.TenBenhNhan}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
+      <div className={styles.formGroup}>
+        <label htmlFor="NgaySinh">Ngày sinh</label>
+        <input
+          type="date"
+          id="NgaySinh"
+          name="NgaySinh"
+          value={formData.NgaySinh}
+          onChange={handleChange}
+        />
+      </div>
       
-      {/* Mã bệnh nhân */}
       <div className={styles.formGroup}>
-        <label className={styles.formLabel}>Mã bệnh nhân</label>
-        <input type="text" name="maBenhNhan" value={formData.maBenhNhan} onChange={handleChange} className={styles.formInput} required />
-      </div>
-
-      {/* Tên bệnh nhân */}
-      <div className={styles.formGroup}>
-        <label className={styles.formLabel}>Tên bệnh nhân</label>
-        <input type="text" name="tenBenhNhan" value={formData.tenBenhNhan} onChange={handleChange} className={styles.formInput} required />
-      </div>
-
-      {/* Giới tính */}
-      <div className={styles.formGroup}>
-        <label className={styles.formLabel}>Giới tính</label>
-        <select name="gioiTinh" value={formData.gioiTinh} onChange={handleChange} className={styles.formInput}>
+        <label htmlFor="GioiTinh">Giới tính</label>
+         <select
+          id="GioiTinh"
+          name="GioiTinh"
+          value={formData.GioiTinh}
+          onChange={handleChange}
+        >
           <option value="Nam">Nam</option>
           <option value="Nữ">Nữ</option>
+          <option value="Khác">Khác</option>
         </select>
       </div>
 
-      {/* Tuổi */}
       <div className={styles.formGroup}>
-        <label className={styles.formLabel}>Tuổi</label>
-        <input type="number" name="tuoi" value={formData.tuoi} onChange={handleChange} className={styles.formInput} min="0" required />
+        <label htmlFor="SoDienThoai">Số điện thoại</label>
+        <input
+          type="tel"
+          id="SoDienThoai"
+          name="SoDienThoai"
+          value={formData.SoDienThoai}
+          onChange={handleChange}
+        />
       </div>
 
-      {/* Số điện thoại (Full Width) */}
-      <div className={styles.formGroupFullWidth}>
-        <label className={styles.formLabel}>Số điện thoại</label>
-        <input type="tel" name="sdt" value={formData.sdt} onChange={handleChange} className={styles.formInput} />
+      <div className={styles.formGroup}>
+        <label htmlFor="DiaChi">Địa chỉ</label>
+        <textarea
+          id="DiaChi"
+          name="DiaChi"
+          value={formData.DiaChi}
+          onChange={handleChange}
+          rows={3}
+        />
       </div>
 
-      {/* Địa chỉ (Full Width) */}
-      <div className={styles.formGroupFullWidth}>
-        <label className={styles.formLabel}>Địa chỉ</label>
-        <textarea name="diaChi" value={formData.diaChi} onChange={handleChange} className={styles.formInput} rows={3} />
-      </div>
+      {formError && (
+        <div className={styles.errorText}>
+          {formError}
+        </div>
+      )}
 
-      {/* Tiền sử bệnh án (Full Width) */}
-      <div className={styles.formGroupFullWidth}>
-        <label className={styles.formLabel}>Tiền sử bệnh án</label>
-        <textarea name="tienSuBenhAn" value={formData.tienSuBenhAn} onChange={handleChange} className={styles.formInput} rows={3} />
-      </div>
-
-      {/* Buttons (Tự động full width) */}
-      <div className={styles.buttonContainer}>
-        <button type="button" className={`${styles.formButton} ${styles.cancelButton}`} onClick={onCancel}>
-          Hủy
+      <div className={styles.buttonGroup}>
+        <button type="submit" className={styles.saveButton} disabled={isSubmitting}>
+          {isSubmitting ? 'Đang lưu...' : 'Lưu'}
         </button>
-        <button type="submit" className={`${styles.formButton} ${styles.submitButton}`}>
-          {initialData ? 'Cập nhật' : 'Thêm'}
+        <button type="button" className={styles.cancelButton} onClick={onClose} disabled={isSubmitting}>
+          Hủy
         </button>
       </div>
     </form>
   );
 };
-
-export default PatientForm;

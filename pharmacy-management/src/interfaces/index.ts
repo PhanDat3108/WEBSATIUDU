@@ -1,43 +1,109 @@
-// Định nghĩa cấu trúc dữ liệu Medicine
-export interface Medicine {
-  id: number;
-  stt: number;
-  maThuoc: string;
-  tenThuoc: string;
-  loaiThuoc: string;
-  soLuong: number;
-  hsd: string;
-  nhaCungCap: string;
-  ngayNhap: string;
-  giaBan: number;
+// src/interfaces/index.ts
+
+// Từ bảng LoaiThuoc
+export interface LoaiThuoc {
+  MaLoai: string;
+  TenLoai: string;
 }
 
-// Định nghĩa cấu trúc dữ liệu Patient
-export interface Patient {
-  id: number;
-  stt: number;
-  maBenhNhan: string;
-  tenBenhNhan: string;
-  gioiTinh: 'Nam' | 'Nữ';
-  tuoi: number;
-  diaChi: string;
-  sdt: string;
-  tienSuBenhAn: string; 
+// Từ bảng NhaCungCap
+export interface NhaCungCap {
+  MaNhaCungCap: string;
+  TenNhaCungCap: string;
+  DiaChi: string;
+  SoDienThoai: string;
+  Email: string;
 }
 
-// Định nghĩa giao dịch (cho trang Thu nhập)
-export interface Transaction {
-    id: number;
-    ngayBan: string; 
-    maThuoc: string;
-    soLuongBan: number;
-    tongTien: number;
+// Từ bảng Thuoc
+export interface Thuoc {
+  MaThuoc: string;
+  TenThuoc: string;
+  DonViTinh: string;
+  SoLuongTon: number;
+  GiaNhap: number;
+  GiaBan: number;
+  HanSuDung: string;
+  NgayNhap: string;
+  MaLoai: string;
+  
+  // LỖI CỦA BẠN CÓ THỂ Ở ĐÂY:
+  // Tên cột trong database.sql của bạn là 'NhaCungCap', KHÔNG PHẢI 'MaNhaCungCap'
+  NhaCungCap: string; 
+
+  // Dữ liệu join từ BE
+  TenLoai?: string;
+  TenNhaCungCap?: string;
 }
 
-// [MỚI] Định nghĩa Báo cáo Hạn sử dụng
-// (Di chuyển từ dashboardApi.ts sang đây)
-export interface ExpiryReport {
-    expired: number;
-    expiringSoon: number; // 90 ngày
-    good: number;
+// Từ bảng BenhNhan
+export interface BenhNhan {
+  MaBenhNhan: string;
+  TenBenhNhan: string;
+  NgaySinh: string;
+  GioiTinh: string;
+  SoDienThoai: string;
+  DiaChi: string;
+}
+
+// Từ bảng PhieuNhap
+export interface PhieuNhap {
+  MaPhieuNhap: string;
+  NgayNhap: string;
+  TongTien: number;
+  MaNhanVien: string;
+  MaNhaCungCap: string;
+  ChiTietNhap?: ChiTietNhap[];
+}
+
+// Từ bảng ChiTietNhap
+export interface ChiTietNhap {
+  MaPhieuNhap: string;
+  MaThuoc: string;
+  SoLuongNhap: number;
+  DonGiaNhap: number;
+  TenThuoc?: string;
+}
+
+// Từ bảng PhieuXuat
+export interface PhieuXuat {
+  MaPhieuXuat: string;
+  NgayXuat: string;
+  TongTien: number;
+  MaNhanVien: string;
+  MaBenhNhan: string;
+  ChiTietXuat?: ChiTietXuat[];
+}
+
+// Từ bảng ChiTietXuat
+export interface ChiTietXuat {
+  MaPhieuXuat: string;
+  MaThuoc: string;
+  SoLuongXuat: number;
+  DonGiaXuat: number;
+  TenThuoc?: string;
+}
+
+// Dành cho Dashboard
+export interface ThuocCanhBao {
+  MaThuoc: string;
+  TenThuoc: string;
+  SoLuongTon: number;
+  HanSuDung: string;
+  LyDo: 'SapHetHan' | 'SapHetHang';
+}
+
+// Dành cho Báo cáo
+export interface BaoCaoTonKho {
+  TongSoLoaiThuoc: number;
+  TongSoLuongTon: number;
+  ThuocSapHetHan: Thuoc[];
+  ThuocDaHetHan: Thuoc[];
+  ThuocSapHetHang: Thuoc[];
+}
+
+// Dành cho Doanh thu
+export interface DuLieuDoanhThu {
+  thang: string;
+  doanhThu: number;
 }

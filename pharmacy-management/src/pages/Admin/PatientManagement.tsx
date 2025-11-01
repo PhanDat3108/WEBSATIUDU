@@ -1,125 +1,129 @@
-import React, { useState } from 'react';
-import styles from '../../styles/AdminManagement.module.css'; 
-import Modal from '../../components/common/Modal'; 
-import PatientForm from '../../components/AdminForms/PatientForm'; 
-import { Patient } from '../../interfaces'; 
-import { mockPatients } from '../../api/mockDatabase';
-
-type PatientFormData = Omit<Patient, 'id' | 'stt'>;
+// src/pages/Admin/PatientManagement.tsx
+import React, { useState, useEffect } from 'react';
+import { BenhNhan } from '../../interfaces';
+import { getPatients, deletePatient } from '../../api/benhNhanApi';
+import { PatientForm } from '../../components/AdminForms/PatientForm';
+import Modal from '../../components/common/Modal';
+import styles from '../../styles/AdminManagement.module.css';
 
 const PatientManagement: React.FC = () => {
-    const [patients, setPatients] = useState(mockPatients);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
-    const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [patients, setPatients] = useState<BenhNhan[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState<BenhNhan | null>(null);
 
-    // ... (Toàn bộ các hàm handleAdd, handleEdit, handleDelete, handleFormSubmit giữ nguyên) ...
-    const handleAdd = () => {
-        setModalMode('add');
-        setSelectedPatient(null);
-        setIsModalOpen(true);
-    };
-    const handleEdit = (id: number) => {
-        const patientToEdit = patients.find(p => p.id === id);
-        if (patientToEdit) {
-            setModalMode('edit');
-            setSelectedPatient(patientToEdit);
-            setIsModalOpen(true);
-        }
-    };
-    const handleDelete = (id: number) => {
-        if (window.confirm(`Bạn có chắc muốn Xóa Bệnh nhân ID: ${id}?`)) {
-            setPatients(prev => prev.filter(p => p.id !== id));
-            alert('Đã xóa!');
-        }
-    };
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
-        setSelectedPatient(null);
-    };
-    const handleFormSubmit = (data: PatientFormData) => {
-        if (modalMode === 'add') {
-            const newId = Math.max(...patients.map(p => p.id)) + 1;
-            const newPatient: Patient = { ...data, id: newId, stt: newId };
-            setPatients(prev => [newPatient, ...prev]);
-            alert('Đã thêm bệnh nhân mới!');
-        } else if (modalMode === 'edit' && selectedPatient) {
-            setPatients(prev => prev.map(p => 
-                p.id === selectedPatient.id ? { ...p, ...data, id: p.id, stt: p.stt } : p
-            ));
-            alert(`Đã cập nhật bệnh nhân ID: ${selectedPatient.id}`);
-        }
-        handleCloseModal();
-    };
+  const loadPatients = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await getPatients();
+      setPatients(data);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    return (
-        // [ĐÃ SỬA] Thêm 1 div bọc ngoài
-        <div>
-            {/* Div nội dung (Bảng) sẽ có animation */}
-            <div className={`${styles.managementContainer} animate__animated animate__fadeInRightBig animate__faster`}>
-                {/* Header: Title và Nút Thêm */}
-                <div className={styles.header}>
-                    <h2 className={styles.title}>Quản lý bệnh nhân</h2>
-                    <button className={styles.addButton} onClick={handleAdd}>
-                        + Thêm bệnh nhân
-                    </button>
-                </div>
+  useEffect(() => {
+    loadPatients();
+  }, []);
 
-                {/* Bảng Grid */}
-                <div 
-                    className={styles.gridTable} 
-                    style={{ gridTemplateColumns: '50px 100px 1.5fr 80px 60px 2fr 1fr 1fr' }}
-                >
-                    {/* Hàng Header */}
-                    <div className={styles.gridHeader}>
-                        <div>STT</div>
-                        <div>Mã BN</div>
-                        <div>Tên Bệnh nhân</div>
-                        <div>Giới tính</div>
-                        <div>Tuổi</div>
-                        <div>Địa chỉ</div>
-                        <div>Điện thoại</div>
-                        <div>Thao tác</div>
-                    </div>
+  const handleOpenModal = (patient: BenhNhan | null) => {
+    setSelectedPatient(patient);
+    setIsModalOpen(true);
+  };
 
-                    {/* Hàng Dữ liệu */}
-                    {patients.map((bn) => (
-                        <div className={styles.gridRow} key={bn.id}>
-                            {/* ... (các gridCell) ... */}
-                            <div className={styles.gridCell}>{bn.stt}</div>
-                            <div className={styles.gridCell}>{bn.maBenhNhan}</div>
-                            <div className={styles.gridCell}>{bn.tenBenhNhan}</div>
-                            <div className={styles.gridCell}>{bn.gioiTinh}</div>
-                            <div className={styles.gridCell}>{bn.tuoi}</div>
-                            <div className={styles.gridCell}>{bn.diaChi}</div>
-                            <div className={styles.gridCell}>{bn.sdt}</div>
-                            <div className={styles.actionCell}>
-                                <button className={`${styles.actionButton} ${styles.editButton}`} onClick={() => handleEdit(bn.id)}>
-                                    Sửa
-                                </button>
-                                <button className={`${styles.actionButton} ${styles.deleteButton}`} onClick={() => handleDelete(bn.id)}>
-                                    Xóa
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedPatient(null);
+  };
 
-            {/* Modal được để BÊN NGOÀI div animation */}
-            <Modal
-                isOpen={isModalOpen}
-                onClose={handleCloseModal}
-                title={modalMode === 'add' ? 'Thêm mới bệnh nhân' : 'Chỉnh sửa bệnh nhân'}
-            >
-                <PatientForm
-                    initialData={selectedPatient}
-                    onSubmit={handleFormSubmit}
-                    onCancel={handleCloseModal}
-                />
-            </Modal>
-        </div>
-    );
+  const handleSave = () => {
+    handleCloseModal();
+    loadPatients();
+  };
+
+  const handleDelete = async (maBenhNhan: string) => {
+    if (window.confirm('Bạn có chắc muốn xóa bệnh nhân này?')) {
+      try {
+        await deletePatient(maBenhNhan);
+        alert('Đã xóa thành công!');
+        loadPatients();
+      } catch (err) {
+        alert('Lỗi khi xóa: ' + (err as Error).message);
+      }
+    }
+  };
+
+  const renderContent = () => {
+    if (isLoading) {
+      return <tr><td colSpan={7}>Đang tải dữ liệu, vui lòng chờ...</td></tr>;
+    }
+    if (error) {
+      return <tr><td colSpan={7} style={{ color: 'red' }}>Lỗi: {error}</td></tr>;
+    }
+    if (patients.length === 0) {
+      return <tr><td colSpan={7}>Không tìm thấy dữ liệu bệnh nhân.</td></tr>;
+    }
+
+    return patients.map((p) => (
+      <tr key={p.MaBenhNhan}>
+        <td>{p.MaBenhNhan}</td>
+        <td>{p.TenBenhNhan}</td>
+        <td>{new Date(p.NgaySinh).toLocaleDateString()}</td>
+        <td>{p.GioiTinh}</td>
+        <td>{p.SoDienThoai}</td>
+        <td>{p.DiaChi}</td>
+        <td>
+          <button onClick={() => handleOpenModal(p)} className={styles.editButton}>Sửa</button>
+          <button onClick={() => handleDelete(p.MaBenhNhan)} className={styles.deleteButton}>Xóa</button>
+        </td>
+      </tr>
+    ));
+  };
+
+  return (
+    <div className={styles.container}>
+      <h1 className={styles.title}>Quản lý Bệnh nhân</h1>
+      <button onClick={() => handleOpenModal(null)} className={styles.addButton}>
+        Thêm bệnh nhân mới
+      </button>
+
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th>Mã BN</th>
+            <th>Tên Bệnh nhân</th>
+            <th>Ngày sinh</th>
+            <th>Giới tính</th>
+            <th>Điện thoại</th>
+            <th>Địa chỉ</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          {renderContent()}
+        </tbody>
+      </table>
+
+      {/* SỬA LỖI Ở ĐÂY:
+        Truyền 'isOpen' và 'title' vào component Modal
+      */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        title={selectedPatient ? 'Sửa thông tin bệnh nhân' : 'Thêm bệnh nhân mới'}
+      >
+        <PatientForm
+          patient={selectedPatient}
+          onSave={handleSave}
+          onClose={handleCloseModal}
+        />
+      </Modal>
+    </div>
+  );
 };
 
 export default PatientManagement;
