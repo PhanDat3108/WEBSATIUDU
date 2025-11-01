@@ -1,5 +1,6 @@
 # WEBSATIUDU
-
+Hình như phải cài thêm thư viện này ở backend
+npm install cors
 ---
 
 ## 🚀 Cài đặt Dự án (Installation)
