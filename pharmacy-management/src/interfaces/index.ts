@@ -107,3 +107,11 @@ export interface DuLieuDoanhThu {
   thang: string;
   doanhThu: number;
 }
+// Bổ sung: Từ bảng NhanVien
+export interface NhanVien {
+  MaNhanVien: string;
+  TenNhanVien: string;
+  TaiKhoan: string;
+  MatKhau: string; // CHÚ Ý: Không nên truyền Mật khẩu thô (raw) qua API!
+  VaiTro: string; // Ví dụ: 'Admin', 'NhanVienNhapXuat', v.v.
+}
