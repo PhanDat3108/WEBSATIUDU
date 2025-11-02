@@ -76,20 +76,34 @@ router.delete("/delete/:maBenhNhan", (req, res) => {
 router.get("/list", (req, res) => {
   const sql = `
     SELECT 
-      TenBenhNhan, NgaySinh, GioiTinh, SoDienThoai, DiaChi, 
-      MaBenhNhan
-    FROM Thuoc
+      MaBenhNhan, TenBenhNhan, NgaySinh, GioiTinh, SoDienThoai, DiaChi
+    FROM BenhNhan
     ORDER BY MaBenhNhan ASC
   `;
   db.query(sql, (err, rows) => {
     if (err) {
-      console.error(" Lỗi khi lấy danh sách bệnh nhân:", err);
+      console.error("Lỗi khi lấy danh sách bệnh nhân:", err);
       return res.status(500).json({ message: "Lỗi khi lấy danh sách bệnh nhân" });
     }
     res.json(rows);
   });
 });
+// thêm bẹnh nhân
+router.post("/add", (req, res) => {
+  const { maBenhNhan, tenBenhNhan, ngaySinh, gioiTinh, soDienThoai, diaChi } = req.body;
 
+  const sql = `
+    INSERT INTO BenhNhan (MaBenhNhan, TenBenhNhan, NgaySinh, GioiTinh, SoDienThoai, DiaChi)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
 
+  db.query(sql, [maBenhNhan, tenBenhNhan, ngaySinh, gioiTinh, soDienThoai, diaChi], (err, result) => {
+    if (err) {
+      console.error("Lỗi khi thêm bệnh nhân:", err);
+      return res.status(500).json({ message: "Lỗi khi thêm bệnh nhân" });
+    }
+    res.json({ message: "Thêm bệnh nhân thành công", data: result });
+  });
+});
 
 export default router;
