@@ -74,8 +74,4 @@ router.delete("/delete/:maBenhNhan", (req, res) => {
 });
 
 
-
-
-
-
 export default router;
