@@ -90,20 +90,37 @@ router.get("/list", (req, res) => {
 });
 // thêm bẹnh nhân
 router.post("/add", (req, res) => {
-  const { maBenhNhan, tenBenhNhan, ngaySinh, gioiTinh, soDienThoai, diaChi } = req.body;
+  const { tenBenhNhan, ngaySinh, gioiTinh, soDienThoai, diaChi } = req.body;
 
-  const sql = `
-    INSERT INTO BenhNhan (MaBenhNhan, TenBenhNhan, NgaySinh, GioiTinh, SoDienThoai, DiaChi)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `;
+  if (!tenBenhNhan) {
+    return res.status(400).json({ message: "Thiếu thông tin bắt buộc của bệnh nhân!" });
+  }
 
-  db.query(sql, [maBenhNhan, tenBenhNhan, ngaySinh, gioiTinh, soDienThoai, diaChi], (err, result) => {
-    if (err) {
-      console.error("Lỗi khi thêm bệnh nhân:", err);
-      return res.status(500).json({ message: "Lỗi khi thêm bệnh nhân" });
-    }
-    res.json({ message: "Thêm bệnh nhân thành công", data: result });
+  db.query("SELECT COUNT(*) AS total FROM BenhNhan", (err, result) => {
+    if (err) return res.status(500).json({ message: "Lỗi DB" });
+
+    const maBenhNhan = "BN" + String(result[0].total + 1).padStart(3, "0");
+
+    const sql = `
+      INSERT INTO BenhNhan (
+        MaBenhNhan, TenBenhNhan, NgaySinh, GioiTinh, SoDienThoai, DiaChi
+      )
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
+
+    db.query(
+      sql,
+      [maBenhNhan, tenBenhNhan, ngaySinh || null, gioiTinh || null, soDienThoai || null, diaChi || null],
+      (err2) => {
+        if (err2) {
+          console.error("Lỗi thêm bệnh nhân:", err2);
+          return res.status(500).json({ message: "Lỗi khi thêm bệnh nhân!" });
+        }
+        res.status(201).json({ message: "Thêm bệnh nhân thành công!", maBenhNhan });
+      }
+    );
   });
 });
+
 
 export default router;
