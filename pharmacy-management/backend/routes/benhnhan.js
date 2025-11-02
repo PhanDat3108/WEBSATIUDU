@@ -72,6 +72,24 @@ router.delete("/delete/:maBenhNhan", (req, res) => {
         });
     });
 });
+//api hiển thị benhnhan
+router.get("/list", (req, res) => {
+  const sql = `
+    SELECT 
+      TenBenhNhan, NgaySinh, GioiTinh, SoDienThoai, DiaChi, 
+      MaBenhNhan
+    FROM Thuoc
+    ORDER BY MaBenhNhan ASC
+  `;
+  db.query(sql, (err, rows) => {
+    if (err) {
+      console.error(" Lỗi khi lấy danh sách bệnh nhân:", err);
+      return res.status(500).json({ message: "Lỗi khi lấy danh sách bệnh nhân" });
+    }
+    res.json(rows);
+  });
+});
+
 
 
 export default router;
