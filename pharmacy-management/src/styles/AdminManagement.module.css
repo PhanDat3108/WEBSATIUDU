@@ -1,0 +1,116 @@
+/* src/styles/AdminManagement.module.css */
+
+/* * File này kế thừa các biến màu toàn cục 
+ * đã được định nghĩa trong AdminLayout.module.css 
+ * (ví dụ: var(--color-primary), var(--color-main-bg))
+ */
+
+.container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  /* Kế thừa màu nền chính từ layout */
+  background-color: var(--color-main-bg, #f9f9f9); /* Dùng màu #f9f9f9 làm dự phòng */
+}
+
+.title {
+  color: #333;
+  /* Kế thừa màu nhấn (hover) của sidebar cho đường gạch chân */
+  border-bottom: 2px solid var(--color-sidebar-hover, #007bff);
+  padding-bottom: 10px;
+}
+
+.addButton {
+  /* Kế thừa màu hover của sidebar cho nút Thêm */
+  background-color: var(--color-sidebar-hover, #007bff);
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-bottom: 20px;
+  transition: background-color 0.3s;
+}
+
+.addButton:hover {
+  /* Làm màu tối đi một chút khi hover */
+  filter: brightness(0.9);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tableHeader {
+  padding: 12px 15px;
+  text-align: left;
+  /* Kế thừa màu nền sidebar cho header của bảng */
+  background-color: var(--color-sidebar-bg, #333);
+  /* Kế..."
+Dự án nhóm
+...hừa màu chữ sidebar */
+  color: var(--color-sidebar-text, #e0e0e0);
+  font-weight: bold;
+  border-bottom: 2px solid #ddd;
+}
+
+.tableCell {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.tableRow {
+  background-color: #ffffff;
+  transition: background-color 0.2s;
+}
+
+.tableRowEven {
+  background-color: #f2f2f2;
+}
+
+.tableRow:hover {
+  background-color: #e0e0e0;
+}
+
+.actionCell {
+  padding: 12px 15px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+  white-space: nowrap;
+}
+
+.editButton {
+  /* Kế thừa màu xanh nổi bật từ layout */
+  background-color: var(--color-primary, #2196F3);
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+  transition: background-color 0.3s;
+}
+
+.editButton:hover {
+  filter: brightness(0.9);
+}
+
+.deleteButton {
+  background-color: #f44336; /* Giữ màu đỏ cho nút xóa */
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.deleteButton:hover {
+  background-color: #d32f2f;
+}

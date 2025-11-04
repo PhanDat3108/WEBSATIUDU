@@ -1,0 +1,66 @@
+/* src/styles/Modal.module.css */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  z-index: 1000;
+  
+  /* Đã sửa: Dùng flex-start để neo form dài ở trên */
+  align-items: flex-start; 
+
+  overflow-y: auto;        
+  padding: 40px 20px; /* Thêm padding (ví dụ: 40px) trên/dưới */
+}
+
+.modalContainer {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  
+  /* SỬA ĐỂ GỌN HƠN: Cho phép popup rộng ra để chứa 2 cột */
+  max-width: 850px; /* Tăng từ 600px */
+  
+  z-index: 1001;
+  overflow: hidden; 
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 25px;
+  border-bottom: 1px solid #eee;
+  background-color: var(--color-sidebar-bg, #f7f7f7);
+  color: var(--color-sidebar-text, #333);
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 1.25em;
+  font-weight: 600;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.8em;
+  color: var(--color-sidebar-text, #888);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.closeButton:hover {
+  color: var(--color-sidebar-hover, #000);
+}
+
+.modalBody {
+  padding: 25px;
+}

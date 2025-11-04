@@ -1,46 +1,27 @@
+// pharmacy-management/backend/server.js
 import express from "express";
-import mysql from "mysql2";
-import cors from "cors";
+import db from "./config/db.js";
+import thuocRoutes from "./routes/thuoc.js";
+import authRoutes from "./routes/auth.js";
+import benhNhanRoutes from "./routes/benhnhan.js"
+import cors from "cors"; 
 
 const app = express();
-app.use(cors());
+const port = process.env.PORT || 8080;
+
+
+app.use(cors()); 
+
 app.use(express.json());
 
-// Kết nối MySQL Railway
-const db = mysql.createConnection({
-  host: "shuttle.proxy.rlwy.net",
-  user: "root",
-  password: "cvBYSZNGDpRTMphQxZgNDMmwEnZpBYVl",
-  database: "railway",
-  port: 20337
-});
-
-// Kiểm tra kết nối
-db.connect((err) => {
-  if (err) {
-    console.error("❌ Lỗi kết nối MySQL:", err);
-  } else {
-    console.log("✅ Kết nối MySQL Railway thành công!");
-  }
-});
+// 3. SỬA ĐƯỜNG DẪN NÀY
+//    Chúng ta sẽ thống nhất dùng /api/v1/thuoc
+app.use("/api/v1/thuoc", thuocRoutes); 
+app.use("/api/v1/benhnhan", benhNhanRoutes);
+app.use("/api/auth", authRoutes);
 
 
-app.get("/", (req, res) => {
-  res.send("API đang hoạt động với MySQL Railway!");
-});
 
-app.get("/benhnhan", (req, res) => {
-  const sql = "SELECT * FROM BenhNhan";
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send("Lỗi truy vấn MySQL");
-    } else {
-      res.json(results);
-    }
-  });
-});
-
-app.listen(8080, () => {
-  console.log("🚀 Server chạy tại http://localhost:8080");
+app.listen(port, () => {
+  console.log(`Server đang chạy tại http://localhost:${port}`);
 });
