@@ -9,12 +9,12 @@ import RegisterPage from '../pages/RegisterPage';
 import MedicineManagement from '../pages/Admin/MedicineManagement';
 import PatientManagement from '../pages/Admin/PatientManagement';
 import Reports from '../pages/Admin/Reports';
-import Revenue from '../pages/Admin/Revenue'; // <-- [IMPORT MỚI]
+import Revenue from '../pages/Admin/Revenue'; 
 import TestThuoc from "../pages/Admin/Testthuoc";
+import Navbar from "../components/Navbar"
+import Footer from "../components/Footer"
 
-// =======================================================
-// === MOCK AUTH LOGIC (Giữ nguyên) ===
-// =======================================================
+
 const MOCK_ADMIN_AUTHENTICATED = true; 
 const ADMIN_LOGIN_PATH = '/login';
 
@@ -28,11 +28,12 @@ const ProtectedRoute: React.FC<{ children: React.ReactElement }> = ({ children }
     }
     return children;
 };
-// =======================================================
+
 
 const AppRouter: React.FC = () => {
   return (
     <Router>
+      <Navbar></Navbar>
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<HomePage />} />
@@ -58,6 +59,7 @@ const AppRouter: React.FC = () => {
 
         <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>
+      <Footer></Footer>
     </Router>
   );
 };
