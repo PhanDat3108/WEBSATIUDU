@@ -1,26 +1,17 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./App.css";
-import HomePage from './pages/HomePage';
-import { Routes, Route, Link } from 'react-router-dom';
-import RegisterPage from './pages/RegisterPage';
+import HomePage from "./pages/HomePage";
+import { Routes, Route } from "react-router-dom";
+import RegisterPage from "./pages/RegisterPage";
+import Navbar from "./components/Navbar"; 
 
 function App() {
   return (
     <div className="App">
-      {/* 1. Tạo thanh điều hướng (Navigation) */}
-      <nav>
-        <ul>
-          <li>
-            <Link to="/">Trang Chủ</Link>
-          </li>
-          <li>
-            <Link to="/register">Đăng Ký</Link>
-          </li>
-        </ul>
-      </nav>
+      {/*  Gọi Navbar ở đây */}
+      <Navbar />
 
-   
       <main>
         <Routes>
           <Route path="/" element={<HomePage />} />
