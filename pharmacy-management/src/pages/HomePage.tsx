@@ -1,12 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+
+
 const HomePage: React.FC = () => {
   return (
+
     <div style={{ padding: '40px', textAlign: 'center', fontFamily: 'Arial, sans-serif', minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
       <h1 style={{color: '#333'}}>Chào mừng đến với Hệ thống Quản lý Tủ thuốc</h1>
       <p style={{color: '#555', fontSize: '1.1em'}}>Vui lòng đăng nhập để tiếp tục...</p>
-      
+   
       {/* Liên kết đến trang Login thật */}
       <Link 
         to="/login" 
