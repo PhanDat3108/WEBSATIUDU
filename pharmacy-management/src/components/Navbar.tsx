@@ -14,7 +14,10 @@ const Navbar: React.FC = () => {
       </div>
       <div className="navbar-top">
         <div className="navbar-logo">
+
           <img src={logo} alt="Logo" />
+
+         
         </div>
 
         <button className="navbar-category">

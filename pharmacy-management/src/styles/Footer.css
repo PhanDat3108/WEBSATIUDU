@@ -4,7 +4,7 @@
   color: #333;
 }
 
-/* Thanh đăng ký trên cùng */
+
 .footer-top {
   background-color: #1976d2;
   color: white;
@@ -43,7 +43,6 @@
   cursor: pointer;
 }
 
-/* Nội dung chính */
 .footer-content {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
