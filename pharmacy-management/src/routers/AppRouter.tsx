@@ -47,6 +47,7 @@ const AppContent: React.FC = () => {
 
   return (
     <>
+    
       {!isAdminPage && <Navbar />}
 
       <Routes>
@@ -75,6 +76,7 @@ const AppContent: React.FC = () => {
 
         <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>
+    
     </>
   );
 };
