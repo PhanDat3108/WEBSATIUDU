@@ -12,7 +12,7 @@ import Reports from '../pages/Admin/Reports';
 import Revenue from '../pages/Admin/Revenue'; 
 import TestThuoc from "../pages/Admin/Testthuoc";
 import Navbar from "../components/Navbar"
-import Footer from "../components/Footer"
+
 
 
 const MOCK_ADMIN_AUTHENTICATED = true; 
@@ -59,7 +59,6 @@ const AppRouter: React.FC = () => {
 
         <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>
-      <Footer></Footer>
     </Router>
   );
 };
