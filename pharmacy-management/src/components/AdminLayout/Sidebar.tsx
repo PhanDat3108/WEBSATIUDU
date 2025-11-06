@@ -10,6 +10,7 @@ const AdminSidebar: React.FC = () => {
         { key: '/admin/dashboard', icon: '🏠', label: 'Trang chủ' },
         { key: '/admin/medicines', icon: '💊', label: 'Quản lý thuốc' },
         { key: '/admin/patients', icon: '👥', label: 'Quản lý bệnh nhân' },
+        { key: '/admin/employees', icon: '👨‍💼', label: 'Quản lý nhân viên' },
         { key: '/admin/reports', icon: '📊', label: 'Thống kê' },
         { key: '/admin/revenue', icon: '💰', label: 'Thu nhập' }, // <-- [MỤC MỚI]
     ];
