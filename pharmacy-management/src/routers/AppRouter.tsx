@@ -9,6 +9,7 @@ import HomePage from '../pages/HomePage';
 import RegisterPage from '../pages/RegisterPage'; 
 import MedicineManagement from '../pages/Admin/MedicineManagement';
 import PatientManagement from '../pages/Admin/PatientManagement';
+import NhanVienManagement from '../pages/Admin/NhanVienManagement';
 import Reports from '../pages/Admin/Reports';
 import Revenue from '../pages/Admin/Revenue'; 
 import TestThuoc from "../pages/Admin/Testthuoc";
@@ -66,6 +67,7 @@ const AppContent: React.FC = () => {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="medicines" element={<MedicineManagement />} />
           <Route path="patients" element={<PatientManagement />} />
+          <Route path="employees" element={<NhanVienManagement />} />
           <Route path="reports" element={<Reports />} />
           <Route path="revenue" element={<Revenue />} />
           <Route path="chinhthuoc" element={<TestThuoc />} />
