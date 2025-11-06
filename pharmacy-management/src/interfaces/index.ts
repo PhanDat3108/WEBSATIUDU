@@ -108,10 +108,34 @@ export interface DuLieuDoanhThu {
   doanhThu: number;
 }
 // Bổ sung: Từ bảng NhanVien
+// export interface NhanVien {
+//   MaNhanVien: string;
+//   TenNhanVien: string;
+//   TaiKhoan: string;
+//   MatKhau: string; // CHÚ Ý: Không nên truyền Mật khẩu thô (raw) qua API!
+//   VaiTro: string; // Ví dụ: 'Admin', 'NhanVienNhapXuat', v.v.
+// }
 export interface NhanVien {
   MaNhanVien: string;
   TenNhanVien: string;
   TaiKhoan: string;
-  MatKhau: string; // CHÚ Ý: Không nên truyền Mật khẩu thô (raw) qua API!
-  VaiTro: string; // Ví dụ: 'Admin', 'NhanVienNhapXuat', v.v.
+  VaiTro: string;
+}
+
+// [MỚI] Dùng để GỬI dữ liệu khi CẬP NHẬT (Form Sửa)
+// Các trường đều là optional (có thể có hoặc không)
+export interface NhanVienUpdateData {
+  TenNhanVien?: string;
+  TaiKhoan?: string;
+  VaiTro?: string;
+  // Lưu ý: Không có MatKhau ở đây
+}
+
+// [MỚI] Dùng để GỬI dữ liệu khi TẠO MỚI (Form Thêm)
+// Các trường là bắt buộc
+export interface NhanVienCreateData {
+  TenNhanVien: string;
+  TaiKhoan: string;
+  MatKhau: string; // Bắt buộc có mật khẩu khi tạo mới
+  VaiTro: string;
 }

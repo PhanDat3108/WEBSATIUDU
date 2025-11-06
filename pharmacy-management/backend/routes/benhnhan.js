@@ -3,6 +3,23 @@ import db from "../config/db.js";
 
 
 const router = express.Router();
+// API Lấy tất cả bệnh nhân (để fix lỗi "Không thể tải danh sách")
+router.get("/", (req, res) => {
+  const sql = `
+    SELECT 
+      MaBenhNhan, TenBenhNhan, NgaySinh, GioiTinh, SoDienThoai, DiaChi
+    FROM BenhNhan
+    ORDER BY MaBenhNhan ASC
+  `;
+  db.query(sql, (err, rows) => {
+    if (err) {
+      console.error("Lỗi khi lấy danh sách bệnh nhân:", err);
+      return res.status(500).json({ message: "Lỗi khi lấy danh sách bệnh nhân" });
+    }
+    // Trả về dữ liệu JSON (FE đang dùng PascalCase, nên đây là chính xác)
+    res.json(rows);
+  });
+});
 
 //  api sửa thông tin bệnh nhân
 router.put("/fix", (req, res) => {

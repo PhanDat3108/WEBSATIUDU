@@ -87,9 +87,9 @@ const PatientManagement: React.FC = () => {
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Quản lý Bệnh nhân</h1>
-      <button onClick={() => handleOpenModal(null)} className={styles.addButton}>
+      {/* <button onClick={() => handleOpenModal(null)} className={styles.addButton}>
         Thêm bệnh nhân mới
-      </button>
+      </button> */}
 
       <table className={styles.table}>
         <thead>
