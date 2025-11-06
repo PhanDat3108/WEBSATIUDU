@@ -13,7 +13,7 @@ import NhanVienManagement from '../pages/Admin/NhanVienManagement';
 import Reports from '../pages/Admin/Reports';
 import Revenue from '../pages/Admin/Revenue'; 
 import TestThuoc from "../pages/Admin/Testthuoc";
-import Navbar from "../components/Navbar"
+
 
 
 
@@ -48,11 +48,12 @@ const AppContent: React.FC = () => {
   return (
     <>
     
-      {!isAdminPage && <Navbar />}
+      
 
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<LoginHomePage />} />
+        <Route path="home" element={< HomePage/>} />
 
 
         {/* Admin Protected Routes */}
@@ -72,6 +73,8 @@ const AppContent: React.FC = () => {
           <Route path="reports" element={<Reports />} />
           <Route path="revenue" element={<Revenue />} />
           <Route path="chinhthuoc" element={<TestThuoc />} />
+          
+
         </Route>
 
         <Route path="*" element={<div>404 Not Found</div>} />
