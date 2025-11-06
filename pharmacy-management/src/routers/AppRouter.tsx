@@ -75,13 +75,7 @@ const AppContent: React.FC = () => {
 
         <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>
-<<<<<<< HEAD
     </Router>
-=======
-
-      <Footer />
-    </>
->>>>>>> 05c036b5444e70aa1e7597c8445824ace1adcdd2
   );
 };
 

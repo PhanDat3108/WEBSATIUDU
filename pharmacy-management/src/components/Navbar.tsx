@@ -14,12 +14,12 @@ const Navbar: React.FC = () => {
       </div>
       <div className="navbar-top">
         <div className="navbar-logo">
-<<<<<<< HEAD
+<<<<<<<<< Temporary merge branch 1
+          <img src={logo} alt="Logo" />
+=========
           <img src="/logo.png" alt="Logo" />
           <h2>SATIUDU</h2>
-=======
-          <img src={logo} alt="Logo" />
->>>>>>> 05c036b5444e70aa1e7597c8445824ace1adcdd2
+>>>>>>>>> Temporary merge branch 2
         </div>
 
         <button className="navbar-category">
