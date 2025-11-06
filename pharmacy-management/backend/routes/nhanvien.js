@@ -17,37 +17,37 @@ router.get("/list", (req, res) => {
 
 //them
 router.post("/add", (req, res) => {
-  const { tenNhanVien, taiKhoan, matKhau, vaiTro } = req.body;
+  const { TenNhanVien, TaiKhoan, MatKhau, VaiTro } = req.body;
 
-  if (!tenNhanVien || !taiKhoan || !matKhau || !vaiTro) {
+  if (!TenNhanVien || !TaiKhoan || !MatKhau || !VaiTro) {
     return res.status(400).json({ message: "Thiếu thông tin bắt buộc!" });
   }
 
   db.query("SELECT COUNT(*) AS total FROM NhanVien", (err, result) => {
     if (err) return res.status(500).json({ message: "Lỗi DB" });
 
-    const maNhanVien = "NV" + String(result[0].total + 1).padStart(3, "0");
+    const MaNhanVien = "NV" + String(result[0].total + 1).padStart(3, "0");
 
     const sql = `
       INSERT INTO NhanVien (MaNhanVien, TenNhanVien, TaiKhoan, MatKhau, VaiTro)
       VALUES (?, ?, ?, ?, ?)
     `;
 
-    db.query(sql, [maNhanVien, tenNhanVien, taiKhoan, matKhau, vaiTro], (err2) => {
+    db.query(sql, [MaNhanVien, TenNhanVien, TaiKhoan, MatKhau, VaiTro], (err2) => {
       if (err2) {
         console.error("Lỗi khi thêm nhân viên:", err2);
         return res.status(500).json({ message: "Lỗi khi thêm nhân viên!" });
       }
-      res.status(201).json({ message: "Thêm nhân viên thành công!", maNhanVien });
+      res.status(201).json({ message: "Thêm nhân viên thành công!", MaNhanVien });
     });
   });
 });
 
 //sua
 router.put("/fix", (req, res) => {
-  const { maNhanVien, tenNhanVien, taiKhoan, matKhau, vaiTro } = req.body;
+  const { MaNhanVien, TenNhanVien, TaiKhoan, MatKhau, VaiTro } = req.body;
 
-  if (!maNhanVien || !tenNhanVien) {
+  if (!MaNhanVien || !TenNhanVien) {
     return res.status(400).json({ message: "Thiếu mã hoặc tên nhân viên!" });
   }
 
@@ -57,7 +57,7 @@ router.put("/fix", (req, res) => {
     WHERE MaNhanVien = ?
   `;
 
-  db.query(sql, [tenNhanVien, taiKhoan, matKhau, vaiTro, maNhanVien], (err, result) => {
+  db.query(sql, [TenNhanVien, TaiKhoan, MatKhau, VaiTro, MaNhanVien], (err, result) => {
     if (err) {
       console.error("Lỗi khi sửa nhân viên:", err);
       return res.status(500).json({ message: "Lỗi khi sửa thông tin nhân viên!" });
@@ -67,18 +67,18 @@ router.put("/fix", (req, res) => {
       return res.status(404).json({ message: "Không tìm thấy nhân viên cần sửa!" });
     }
 
-    res.status(200).json({ message: "Sửa thông tin nhân viên thành công!", maNhanVien });
+    res.status(200).json({ message: "Sửa thông tin nhân viên thành công!", MaNhanVien });
   });
 });
 
 //xoá
-router.delete("/delete/:maNhanVien", (req, res) => {
-  const { maNhanVien } = req.params;
-  if (!maNhanVien) {
+router.delete("/delete/:MaNhanVien", (req, res) => {
+  const { MaNhanVien } = req.params;
+  if (!MaNhanVien) {
     return res.status(400).json({ message: "Thiếu mã nhân viên để xoá!" });
   }
 
-  db.query("SELECT * FROM NhanVien WHERE MaNhanVien = ?", [maNhanVien], (err, rows) => {
+  db.query("SELECT * FROM NhanVien WHERE MaNhanVien = ?", [MaNhanVien], (err, rows) => {
     if (err) {
       return res.status(500).json({ message: "Lỗi khi kiểm tra nhân viên!" });
     }
@@ -87,7 +87,7 @@ router.delete("/delete/:maNhanVien", (req, res) => {
       return res.status(404).json({ message: "Không tìm thấy nhân viên!" });
     }
 
-    db.query("DELETE FROM NhanVien WHERE MaNhanVien = ?", [maNhanVien], (err2) => {
+    db.query("DELETE FROM NhanVien WHERE MaNhanVien = ?", [MaNhanVien], (err2) => {
       if (err2) {
         console.error("Lỗi khi xoá nhân viên:", err2);
         return res.status(500).json({ message: "Lỗi khi xoá nhân viên!" });
