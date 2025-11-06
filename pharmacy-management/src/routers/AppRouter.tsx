@@ -6,7 +6,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate,useLocation } from 're
 import AdminLayout from '../components/AdminLayout/AdminLayout'; 
 import AdminDashboard from '../pages/Admin/Dashboard';
 import HomePage from '../pages/HomePage';
-import RegisterPage from '../pages/RegisterPage'; 
+import LoginHomePage from "../pages/Login";
 import MedicineManagement from '../pages/Admin/MedicineManagement';
 import PatientManagement from '../pages/Admin/PatientManagement';
 import NhanVienManagement from '../pages/Admin/NhanVienManagement';
@@ -52,8 +52,8 @@ const AppContent: React.FC = () => {
 
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<HomePage />} />
-        <Route path={ADMIN_LOGIN_PATH} element={<RegisterPage />} /> 
+        <Route path="/" element={<LoginHomePage />} />
+
 
         {/* Admin Protected Routes */}
         <Route
