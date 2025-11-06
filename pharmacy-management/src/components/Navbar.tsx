@@ -1,15 +1,25 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "../styles/Navbar.css";
-
+import logo from "../styles/img/logo.png";
 
 const Navbar: React.FC = () => {
   return (
     <header className="navbar">
+      <div className="navbarlogin" style={{ fontSize: "15px" }} >
+        <div className="notice-navbar">Thông báo sẽ hiện đây</div>
+        <a href="" style={{ marginRight: '5px' }}>Đăng nhập </a>
+        <i> / </i>
+        <a href="" style={{ marginLeft: '5px' }}>Đăng kí </a>
+      </div>
       <div className="navbar-top">
         <div className="navbar-logo">
+<<<<<<< HEAD
           <img src="/logo.png" alt="Logo" />
           <h2>SATIUDU</h2>
+=======
+          <img src={logo} alt="Logo" />
+>>>>>>> 05c036b5444e70aa1e7597c8445824ace1adcdd2
         </div>
 
         <button className="navbar-category">
@@ -22,15 +32,13 @@ const Navbar: React.FC = () => {
         </div>
 
         <div className="navbar-icons">
-          <span title="Địa điểm">📍</span>
-          <span title="Yêu thích">💖</span>
           <span title="Thông báo">🔔</span>
-          <Link to="/cart" className="cart-btn">🛒 Giỏ hàng</Link>
+          <Link to="/cart" className="cart-btn">Đơn thuốc</Link>
         </div>
       </div>
 
       <nav className="navbar-menu">
-        <Link to="/" className="active">Trang chủ</Link>
+        <Link to="/" >Trang chủ</Link>
         <Link to="/gioi-thieu">Giới thiệu</Link>
         <div className="dropdown">
           <Link to="/san-pham">Sản phẩm ▼</Link>

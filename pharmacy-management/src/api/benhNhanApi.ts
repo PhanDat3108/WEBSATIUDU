@@ -1,29 +1,81 @@
 // src/api/benhNhanApi.ts
 import { BenhNhan } from '../interfaces';
 
+// URL này được giả định là /api/v1/benhnhan (do server.js của bạn cấu hình)
 const API_BASE_URL = '/api/v1/benhnhan';
 
+/**
+ * [ĐÃ SỬA] Lấy danh sách bệnh nhân
+ * Sửa lại để gọi API thật
+ */
 export const getPatients = async (): Promise<BenhNhan[]> => {
-  console.log('GỌI API: getPatients (BE CHƯA SẴN SÀNG)');
-  return Promise.resolve([]);
-  
-  /* // --- KHI BE SẴN SÀNG ---
-  // const response = await fetch(API_BASE_URL);
-  // return await response.json();
-  */
+  const response = await fetch(API_BASE_URL); // Gọi GET /api/v1/benhnhan
+  if (!response.ok) {
+    throw new Error('Không thể tải danh sách bệnh nhân');
+  }
+  return await response.json();
 };
 
+/**
+ * [ĐÃ SỬA] Cập nhật thông tin bệnh nhân
+ * Sửa lại để "dịch" dữ liệu sang camelCase cho BE
+ */
+export const updatePatient = async (maBenhNhan: string, data: Partial<BenhNhan>): Promise<BenhNhan> => {
+  
+  // [SỬA LỖI Ở ĐÂY]
+  // 'data' (từ form) chỉ chứa Ten, NgaySinh...
+  // 'maBenhNhan' được lấy từ tham số hàm
+  const dataForBackend = {
+    maBenhNhan: maBenhNhan,          // <-- Lấy từ tham số `maBenhNhan`
+    tenBenhNhan: data.TenBenhNhan,   // <-- Lấy từ `data` (formData)
+    ngaySinh: data.NgaySinh,         
+    gioiTinh: data.GioiTinh,         
+    soDienThoai: data.SoDienThoai,   
+    diaChi: data.DiaChi              
+  };
+
+  // BE của bạn dùng route "/fix"
+  const response = await fetch(`${API_BASE_URL}/fix`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    // Gửi dữ liệu đã "dịch" (camelCase)
+    body: JSON.stringify(dataForBackend), 
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Cập nhật thất bại');
+  }
+  
+  const result = await response.json();
+  
+  // Trả về data (dạng PascalCase) để cập nhật UI
+  // Chúng ta dùng data gốc (biến 'data') và 'maBenhNhan' để tạo lại
+  return { ...data, MaBenhNhan: maBenhNhan } as BenhNhan;
+};
+
+/**
+ * [ĐÃ SỬA] Xóa bệnh nhân
+ * Sửa lại để gọi API thật
+ */
+export const deletePatient = async (maBenhNhan: string): Promise<void> => {
+  // BE của bạn dùng "/delete/:maBenhNhan"
+  const response = await fetch(`${API_BASE_URL}/delete/${maBenhNhan}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Xóa thất bại');
+  }
+};
+
+/**
+ * Hàm thêm (Tạm thời vô hiệu hóa)
+ */
 export const addPatient = async (benhNhanData: Omit<BenhNhan, 'MaBenhNhan'>): Promise<BenhNhan> => {
   console.log('GỌI API: addPatient (BE CHƯA SẴN SÀNG)', benhNhanData);
-  return Promise.reject(new Error('Chức năng chưa sẵn sàng (đang chờ BE).'));
-};
-
-export const updatePatient = async (maBenhNhan: string, data: Partial<BenhNhan>): Promise<BenhNhan> => {
-  console.log('GỌI API: updatePatient (BE CHƯA SẴN SÀNG)', maBenhNhan, data);
-  return Promise.reject(new Error('Chức năng chưa sẵn sàng (đang chờ BE).'));
-};
-
-export const deletePatient = async (maBenhNhan: string): Promise<void> => {
-  console.log('GỌI API: deletePatient (BE CHƯA SẴN SÀNG)', maBenhNhan);
   return Promise.reject(new Error('Chức năng chưa sẵn sàng (đang chờ BE).'));
 };

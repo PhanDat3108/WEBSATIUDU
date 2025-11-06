@@ -1,34 +1,34 @@
 // src/api/thuocApi.ts
 import { Thuoc } from '../interfaces';
 
-// Đường dẫn này khớp với server.js (Bước 1) và proxy (Bước 2)
 const API_BASE_URL = '/api/v1/thuoc';
 
 /**
  * Hàm chung để xử lý response từ fetch
  */
 const handleResponse = async (response: Response) => {
-  // Nếu response không OK (lỗi 400, 500...), ném ra lỗi
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Có lỗi xảy ra từ server');
+    // Thử đọc lỗi dưới dạng JSON trước
+    try {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Có lỗi xảy ra từ server');
+    } catch (jsonError) {
+      // Nếu thất bại (vì response là HTML/Text), đọc dưới dạng text
+      const errorText = await response.text();
+      // Ném lỗi này (có thể là lỗi HTML 404 hoặc 500)
+      throw new Error(errorText || 'Lỗi không xác định');
+    }
   }
-  // Nếu OK, trả về data
   return response.json();
 };
 
 /**
- * Lấy danh sách thuốc (Kết nối với GET /list)
+ * Lấy danh sách thuốc (Giữ nguyên)
  */
 export const getMedicines = async (): Promise<Thuoc[]> => {
-  console.log('GỌI API: getMedicines (Kết nối API thật)');
-  
   try {
-    // 1. Gọi API /api/v1/thuoc/list
     const response = await fetch(`${API_BASE_URL}/list`);
     const data = await handleResponse(response);
-    
-    // 2. Backend trả về mảng, ta gõ kiểu cho nó
     return data as Thuoc[]; 
   } catch (error) {
     console.error('Lỗi khi tải danh sách thuốc:', error);
@@ -37,10 +37,21 @@ export const getMedicines = async (): Promise<Thuoc[]> => {
 };
 
 /**
- * Thêm thuốc mới (Kết nối với POST /add)
+ * [ĐÃ SỬA] Thêm thuốc
  */
-export const addMedicine = async (thuocData: any): Promise<Thuoc> => {
-  console.log('GỌI API: addMedicine (Kết nối API thật)', thuocData);
+export const addMedicine = async (thuocData: Partial<Thuoc>): Promise<Thuoc> => {
+  // [SỬA LỖI Ở ĐÂY] "Dịch" từ PascalCase (FE) sang camelCase (BE yêu cầu)
+  const dataForBackend = {
+    tenThuoc: thuocData.TenThuoc,
+    donViTinh: thuocData.DonViTinh,
+    soLuongTon: thuocData.SoLuongTon,
+    giaNhap: thuocData.GiaNhap,
+    giaBan: thuocData.GiaBan,
+    hanSuDung: thuocData.HanSuDung,
+    ngayNhap: thuocData.NgayNhap,
+    maLoai: thuocData.MaLoai,
+    nhaCungCap: thuocData.NhaCungCap,
+  };
 
   try {
     const response = await fetch(`${API_BASE_URL}/add`, {
@@ -48,7 +59,7 @@ export const addMedicine = async (thuocData: any): Promise<Thuoc> => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(thuocData),
+      body: JSON.stringify(dataForBackend), // Gửi dữ liệu đã "dịch"
     });
     return await handleResponse(response);
   } catch (error) {
@@ -58,18 +69,31 @@ export const addMedicine = async (thuocData: any): Promise<Thuoc> => {
 };
 
 /**
- * Cập nhật thuốc (Kết nối với PUT /edit/:maThuoc)
+ * [ĐÃ SỬA] Cập nhật thuốc
  */
-export const updateMedicine = async (maThuoc: string, data: any): Promise<Thuoc> => {
-  console.log('GỌI API: updateMedicine (Kết nối API thật)', maThuoc, data);
+export const updateMedicine = async (maThuoc: string, data: Partial<Thuoc>): Promise<Thuoc> => {
+  // [SỬA LỖI Ở ĐÂY] "Dịch" từ PascalCase (FE) sang camelCase (BE yêu cầu)
+  const dataForBackend = {
+    maThuoc: maThuoc, // BE (thuoc.js) cũng cần maThuoc trong body
+    tenThuoc: data.TenThuoc,
+    donViTinh: data.DonViTinh,
+    soLuongTon: data.SoLuongTon,
+    giaNhap: data.GiaNhap,
+    giaBan: data.GiaBan,
+    hanSuDung: data.HanSuDung,
+    ngayNhap: data.NgayNhap,
+    maLoai: data.MaLoai,
+    nhaCungCap: data.NhaCungCap,
+  };
 
   try {
-    const response = await fetch(`${API_BASE_URL}/edit/${maThuoc}`, {
+    // BE (thuoc.js) dùng đường dẫn /fix
+    const response = await fetch(`${API_BASE_URL}/fix`, { 
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(dataForBackend), // Gửi dữ liệu đã "dịch"
     });
     return await handleResponse(response);
   } catch (error) {
@@ -79,17 +103,14 @@ export const updateMedicine = async (maThuoc: string, data: any): Promise<Thuoc>
 };
 
 /**
- * Xóa thuốc (Kết nối với DELETE /delete/:maThuoc)
+ * Xóa thuốc (Giữ nguyên)
  */
 export const deleteMedicine = async (maThuoc: string): Promise<void> => {
-  console.log('GỌI API: deleteMedicine (Kết nối API thật)', maThuoc);
-
   try {
     const response = await fetch(`${API_BASE_URL}/delete/${maThuoc}`, {
       method: 'DELETE',
     });
-    // API xóa thường trả về message, không phải data
-    await handleResponse(response); 
+    return await handleResponse(response);
   } catch (error) {
     console.error('Lỗi khi xóa thuốc:', error);
     throw error;
