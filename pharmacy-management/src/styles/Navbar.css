@@ -1,9 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+
 .navbar {
   background: linear-gradient(to right, #3b82f6, #1d4ed8);
   color: white;
   padding: 10px 30px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  font-family: sans-serif;
+ font-family: 'Quicksand', sans-serif;
+ font-weight: 700;
 }
 
 .navbar-top {
@@ -11,43 +15,60 @@
   align-items: center;
   justify-content: space-between;
 }
+a {
+  text-decoration: none; 
+  color: #ffffff; 
+}
+
 
 .navbar-logo {
   display: flex;
+  position: absolute;
   align-items: center;
   gap: 8px;
 }
 
 .navbar-logo img {
-  height: 35px;
+  height: 150px;
 }
 
 .navbar-category {
   background-color: white;
   border: none;
-  border-radius: 5px;
+  
+  margin-left: 15%;
+  border-radius: 13px;
   padding: 6px 14px;
-  font-weight: 500;
+  width:150px;
+  font-size: 15px;
+  height: 45px;
+  font-family: 'Quicksand', sans-serif;
+ font-weight: 650;
   cursor: pointer;
+
 }
 
 .navbar-search {
-  flex: 1;
-  margin: 0 20px;
+
+  
+  height: 45px;
+  width: 40%;
   display: flex;
+  margin-right: 200px;
+  
 }
 
 .navbar-search input {
   flex: 1;
   padding: 6px 10px;
   border: none;
-  border-radius: 5px 0 0 5px;
+  border-radius: 13px 0px 0px 13px;
 }
 
 .search-btn {
   background-color: white;
   border: none;
-  border-radius: 0 5px 5px 0;
+  border-radius: 0 13px 13px 0;
   padding: 6px 12px;
   cursor: pointer;
 }
@@ -64,25 +85,37 @@
   padding: 6px 10px;
   border-radius: 8px;
 }
-
+.navbarlogin{
+  display:flex;
+  height: 30px;
+}
+.notice-navbar{
+  width: 80%;
+}
 .navbar-menu {
   display: flex;
   gap: 20px;
   padding-top: 10px;
-  background-color: white;
+  
   border-radius: 10px;
   padding: 10px 20px;
   margin-top: 8px;
 }
 
 .navbar-menu a {
-  color: #1e3a8a;
+  color: #ffffff;
   text-decoration: none;
-  font-weight: 500;
+  font-family: 'Quicksand', sans-serif;
+ font-weight: 700;
 }
+.navbar-menu a:hover {
+  
+  background-color: #f0f9ff; 
 
+  color: #1e3a8a; 
+}
 .navbar-menu a.active {
-  background: #dcfce7;
+
   padding: 4px 10px;
   border-radius: 6px;
 }
