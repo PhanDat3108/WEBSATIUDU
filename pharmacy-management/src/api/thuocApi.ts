@@ -64,7 +64,7 @@ export const updateMedicine = async (maThuoc: string, data: any): Promise<Thuoc>
   console.log('GỌI API: updateMedicine (Kết nối API thật)', maThuoc, data);
 
   try {
-    const response = await fetch(`${API_BASE_URL}/edit/${maThuoc}`, {
+    const response = await fetch(`${API_BASE_URL}/fix/${maThuoc}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

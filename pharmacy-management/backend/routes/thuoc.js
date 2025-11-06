@@ -154,4 +154,43 @@ router.delete("/delete/:maThuoc", (req, res) => {
   });
 });
 
+// thongke
+router.get("/stats", (req, res) => {
+  const sqlTongLoai = "SELECT COUNT(*) AS tongLoai FROM LoaiThuoc"; 
+  const sqlTongTon = "SELECT SUM(SoLuongTon) AS tongSoLuongTon FROM Thuoc";
+  const sqlSapHetHang = "SELECT COUNT(*) AS sapHetHang FROM Thuoc WHERE SoLuongTon <= 10";
+  const sqlSapHetHan = "SELECT COUNT(*) AS sapHetHan FROM Thuoc WHERE HanSuDung BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)";
+  const sqlHetHan = "SELECT COUNT(*) AS hetHan FROM Thuoc WHERE HanSuDung < CURDATE()";
+
+  const data = {};
+
+
+  db.query(sqlTongLoai, (err, rows1) => {
+    if (err) return res.status(500).json({ message: "Lỗi khi lấy tổng số loại thuốc!" });
+    data.tongLoai = rows1[0]?.tongLoai || 0;
+
+    db.query(sqlTongTon, (err2, rows2) => {
+      if (err2) return res.status(500).json({ message: "Lỗi khi lấy tổng số lượng tồn!" });
+      data.tongSoLuongTon = rows2[0]?.tongSoLuongTon || 0;
+
+      db.query(sqlSapHetHang, (err3, rows3) => {
+        if (err3) return res.status(500).json({ message: "Lỗi khi lấy thuốc sắp hết hàng!" });
+        data.sapHetHang = rows3[0]?.sapHetHang || 0;
+
+        db.query(sqlSapHetHan, (err4, rows4) => {
+          if (err4) return res.status(500).json({ message: "Lỗi khi lấy thuốc sắp hết hạn!" });
+          data.sapHetHan = rows4[0]?.sapHetHan || 0;
+
+          db.query(sqlHetHan, (err5, rows5) => {
+            if (err5) return res.status(500).json({ message: "Lỗi khi lấy thuốc đã hết hạn!" });
+            data.hetHan = rows5[0]?.hetHan || 0;
+
+            res.status(200).json(data);
+          });
+        });
+      });
+    });
+  });
+});
+
 export default router;
