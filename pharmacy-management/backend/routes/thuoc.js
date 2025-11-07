@@ -3,34 +3,33 @@ import db from "../config/db.js";
 
 const router = express.Router();
 //Router thêm thuốc
+// POST /api/v1/medicines/add
 router.post("/add", (req, res) => {
-  const {
-    TenThuoc,
-    DonViTinh,
-    SoLuongTon,
-    GiaNhap,
-    HanSuDung,
-    NhaCungCap,
-    NgayNhap,
-    MaLoai,
-    GiaBan
-  } = req.body;
+  const { TenThuoc, DonViTinh, MaLoai, MaNhaCungCap } = req.body;
 
-  if (!TenThuoc || !DonViTinh || !HanSuDung || !MaLoai || !GiaBan) {
+  if (!TenThuoc || !DonViTinh || !MaLoai || !MaNhaCungCap) {
     return res.status(400).json({ message: "Thiếu thông tin bắt buộc!" });
   }
 
-  db.query("SELECT COUNT(*) AS total FROM Thuoc", (err, result) => {
-    if (err) return res.status(500).json({ message: "Lỗi DB" });
+  // Lấy mã lớn nhất hiện tại trong bảng để tạo mã mới
+  db.query("SELECT MAX(MaThuoc) AS maxId FROM Thuoc", (err, result) => {
+    if (err) return res.status(500).json({ message: "Lỗi DB khi tạo mã thuốc" });
 
-    const MaThuoc = "T" + String(result[0].total + 1).padStart(3, "0");
+    let maxId = result[0].maxId; 
+    let nextNumber = 1;
+
+    if (maxId) {
+      nextNumber = parseInt(maxId.slice(1)) + 1; 
+    }
+
+    const MaThuoc = "T" + String(nextNumber).padStart(3, "0"); 
 
     const sql = `
       INSERT INTO Thuoc (
-        MaThuoc, TenThuoc, DonViTinh, SoLuongTon,
-        GiaNhap, HanSuDung, NhaCungCap, NgayNhap, MaLoai, GiaBan
+        MaThuoc, TenThuoc, DonViTinh, MaLoai, MaNhaCungCap,
+        SoLuongTon, GiaNhap, GiaBan
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     db.query(
@@ -39,86 +38,59 @@ router.post("/add", (req, res) => {
         MaThuoc,
         TenThuoc,
         DonViTinh,
-        SoLuongTon || 0,
-        GiaNhap || 0,
-        HanSuDung,
-        NhaCungCap || null,
-        NgayNhap || new Date(),
         MaLoai,
-        GiaBan
+        MaNhaCungCap,
+        0, 
+        0, 
+        0  
       ],
       (err2) => {
         if (err2) {
-          console.error(" Lỗi thêm thuốc:", err2);
+          console.error("Lỗi thêm thuốc:", err2);
           return res.status(500).json({ message: "Lỗi khi thêm thuốc!" });
         }
         res.status(201).json({ message: "Thêm thuốc thành công!", MaThuoc });
       }
     );
   });
-
 });
-//sửa thuốc
-router.put("/fix", (req, res) => {
-  const {
-    MaThuoc,
-    TenThuoc,
-    DonViTinh,
-    SoLuongTon,
-    GiaNhap,
-    HanSuDung,
-    NhaCungCap,
-    NgayNhap,
-    MaLoai,
-    GiaBan
-  } = req.body;
 
-  if (!MaThuoc) {
-    return res.status(400).json({ message: "Thiếu mã thuốc để sửa!" });
-  }
+//sửa thuốc
+router.put("/fix/:MaThuoc", (req, res) => {
+  const { MaThuoc } = req.params;
+  const { TenThuoc, DonViTinh, MaLoai, MaNhaCungCap } = req.body;
+
+  if (!MaThuoc) return res.status(400).json({ message: "Thiếu mã thuốc để sửa!" });
 
   const sql = `
     UPDATE Thuoc
-    SET TenThuoc = ?, DonViTinh = ?, SoLuongTon = ?, GiaNhap = ?,
-        HanSuDung = ?, NhaCungCap = ?, NgayNhap = ?, MaLoai = ?, GiaBan = ?
+    SET TenThuoc = ?, DonViTinh = ?, MaLoai = ?, MaNhaCungCap = ?
     WHERE MaThuoc = ?
   `;
 
-  db.query(sql, [
-    TenThuoc,
-    DonViTinh,
-    SoLuongTon || 0,
-    GiaNhap || 0,
-    HanSuDung,
-    NhaCungCap || null,
-    NgayNhap || new Date(),
-    MaLoai,
-    GiaBan,
-    MaThuoc
-  ], (err, result) => {
-    if (err) {
-      console.error("Lỗi khi sửa thuốc:", err);
-      return res.status(500).json({ message: "Lỗi khi sửa thuốc!" });
-    }
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "Không tìm thấy thuốc cần sửa!" });
-    }
+  db.query(sql, [TenThuoc, DonViTinh, MaLoai, MaNhaCungCap, MaThuoc], (err, result) => {
+    if (err) return res.status(500).json({ message: "Lỗi khi sửa thuốc!" });
+    if (result.affectedRows === 0) return res.status(404).json({ message: "Không tìm thấy thuốc cần sửa!" });
     res.status(200).json({ message: "Sửa thuốc thành công!", MaThuoc });
   });
 });
+
+
+
 // hiển thị thuốc
 router.get("/list", (req, res) => {
   const sql = `
-  SELECT 
-    t.MaThuoc, t.TenThuoc, t.DonViTinh, t.SoLuongTon, 
-    t.GiaNhap, t.GiaBan, 
-    n.TenNhaCungCap AS TenNhaCungCap,
-    l.TenLoai AS TenLoai
-  FROM Thuoc t
-  JOIN NhaCungCap n ON t.MaNhaCungCap = n.MaNhaCungCap
-  JOIN LoaiThuoc l ON t.MaLoai = l.MaLoai
-  ORDER BY t.MaThuoc ASC
-`;
+    SELECT 
+  t.MaThuoc, t.TenThuoc, t.DonViTinh, t.SoLuongTon, 
+  t.GiaNhap, t.GiaBan, 
+  n.TenNhaCungCap AS TenNhaCungCap,
+  l.TenLoai AS TenLoai
+FROM Thuoc t
+JOIN NhaCungCap n ON t.MaNhaCungCap = n.MaNhaCungCap
+JOIN LoaiThuoc l ON t.MaLoai = l.MaLoai
+ORDER BY t.MaThuoc ASC
+
+  `;
 
   db.query(sql, (err, rows) => {
     if (err) {
