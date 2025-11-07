@@ -50,7 +50,7 @@ const Reports: React.FC = () => {
                 <td>{thuoc.MaThuoc}</td>
                 <td>{thuoc.TenThuoc}</td>
                 <td>{thuoc.SoLuongTon}</td>
-                <td>{new Date(thuoc.HanSuDung).toLocaleDateString()}</td>
+                
               </tr>
             ))}
           </tbody>

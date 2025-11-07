@@ -1,6 +1,6 @@
 // src/components/AdminForms/MedicineForm.tsx
 import React, { useState } from 'react';
-import { Thuoc } from '../../interfaces';
+import { Thuoc } from '../../interfaces'; //
 import { addMedicine, updateMedicine } from '../../api/thuocApi';
 import styles from '../../styles/Form.module.css';
 
@@ -10,19 +10,20 @@ interface MedicineFormProps {
   onClose: () => void;
 }
 
-const getTodayString = () => new Date().toISOString().split('T')[0];
-
 export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, onClose }) => {
+  
+  // [CẬP NHẬT] Lấy tất cả thông tin để hiển thị
   const [formData, setFormData] = useState<Partial<Thuoc>>({
+    MaThuoc: medicine?.MaThuoc || '', // Hiển thị khi sửa
     TenThuoc: medicine?.TenThuoc || '',
     DonViTinh: medicine?.DonViTinh || 'Viên',
+    MaLoai: medicine?.MaLoai || '',
+    MaNhaCungCap: medicine?.MaNhaCungCap || '',
+    
+    // Các trường chỉ hiển thị, không sửa
     SoLuongTon: medicine?.SoLuongTon || 0,
     GiaNhap: medicine?.GiaNhap || 0,
     GiaBan: medicine?.GiaBan || 0,
-    HanSuDung: medicine?.HanSuDung ? medicine.HanSuDung.split('T')[0] : getTodayString(),
-    NgayNhap: medicine?.NgayNhap ? medicine.NgayNhap.split('T')[0] : getTodayString(),
-    MaLoai: medicine?.MaLoai || '',
-    NhaCungCap: medicine?.NhaCungCap || '',
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,21 +42,26 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
     setIsSubmitting(true);
     setFormError(null);
 
+    // [GIỮ NGUYÊN] Dữ liệu gửi đi CHỈ chứa các trường được phép sửa
+    const dataToSave: Partial<Thuoc> = {
+      TenThuoc: formData.TenThuoc,
+      DonViTinh: formData.DonViTinh,
+      MaLoai: formData.MaLoai,
+      MaNhaCungCap: formData.MaNhaCungCap,
+    };
+    
+    // Khi thêm mới (medicine = null), API sẽ tự gán MaThuoc và các giá trị số = 0
+    // Khi cập nhật (updateMedicine), API sẽ chỉ cập nhật 4 trường trong dataToSave.
+
     try {
-      if (medicine) {
+      if (medicine && medicine.MaThuoc) {
         // Chế độ Sửa
-        // Gửi formData (PascalCase)
-        await updateMedicine(medicine.MaThuoc, formData);
+        await updateMedicine(medicine.MaThuoc, dataToSave);
       } else {
-        // Chế độ Thêm mới
-        // [SỬA LỖI Ở ĐÂY]
-        // Gửi formData (PascalCase)
-        // Lỗi TS2559 của bạn sẽ biến mất.
-        await addMedicine(formData);
+        // Chế độ Thêm
+        await addMedicine(dataToSave); 
       }
-      
-      alert('Lưu thành công!');
-      onSave(); // Tải lại dữ liệu ở component cha
+      onSave(); // Gọi hàm onSave để tải lại dữ liệu
     } catch (err) {
       setFormError((err as Error).message);
     } finally {
@@ -65,9 +71,24 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
 
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
-      
-      {/* Hàng 1: Tên thuốc, Đơn vị tính, Số lượng tồn */}
       <div className={styles.formGrid}>
+        
+        {/* [MỚI] Hàng 1: Chỉ hiển thị khi ở chế độ "Sửa" */}
+        {medicine && (
+          <div className={styles.formGroup}>
+            <label htmlFor="MaThuoc">Mã Thuốc</label>
+            <input
+              type="text"
+              id="MaThuoc"
+              name="MaThuoc"
+              value={formData.MaThuoc}
+              disabled // Không cho sửa
+              className={styles.disabledInput} // Thêm class để CSS nhận diện
+            />
+          </div>
+        )}
+
+        {/* Hàng 2: Tên Thuốc, Đơn Vị Tính (Luôn cho sửa) */}
         <div className={styles.formGroup}>
           <label htmlFor="TenThuoc">Tên Thuốc *</label>
           <input
@@ -82,78 +103,22 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
         
         <div className={styles.formGroup}>
           <label htmlFor="DonViTinh">Đơn vị tính *</label>
-          <input
-            type="text"
+          <select
             id="DonViTinh"
             name="DonViTinh"
             value={formData.DonViTinh}
             onChange={handleChange}
             required
-          />
+          >
+            <option value="Viên">Viên</option>
+            <option value="Vỉ">Vỉ</option>
+            <option value="Hộp">Hộp</option>
+            <option value="Chai">Chai</option>
+            <option value="Tuýp">Tuýp</option>
+          </select>
         </div>
         
-        <div className={styles.formGroup}>
-          <label htmlFor="SoLuongTon">Số lượng tồn</label>
-          <input
-            type="number"
-            id="SoLuongTon"
-            name="SoLuongTon"
-            value={formData.SoLuongTon}
-            onChange={handleChange}
-            min="0"
-          />
-        </div>
-
-        {/* Hàng 2: Giá nhập, Giá bán, Hạn sử dụng */}
-        <div className={styles.formGroup}>
-          <label htmlFor="GiaNhap">Giá nhập</label>
-          <input
-            type="number"
-            id="GiaNhap"
-            name="GiaNhap"
-            value={formData.GiaNhap}
-            onChange={handleChange}
-            min="0"
-          />
-        </div>
-        
-        <div className={styles.formGroup}>
-          <label htmlFor="GiaBan">Giá bán *</label>
-          <input
-            type="number"
-            id="GiaBan"
-            name="GiaBan"
-            value={formData.GiaBan}
-            onChange={handleChange}
-            min="0"
-            required
-          />
-        </div>
-        
-        <div className={styles.formGroup}>
-          <label htmlFor="HanSuDung">Hạn sử dụng *</label>
-          <input
-            type="date"
-            id="HanSuDung"
-            name="HanSuDung"
-            value={formData.HanSuDung}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        
-        {/* Hàng 3: Ngày nhập, Mã loại, Mã NCC */}
-        <div className={styles.formGroup}>
-          <label htmlFor="NgayNhap">Ngày nhập</label>
-          <input
-            type="date"
-            id="NgayNhap"
-            name="NgayNhap"
-            value={formData.NgayNhap}
-            onChange={handleChange}
-          />
-        </div>
-        
+        {/* Hàng 3: Mã loại, Mã NCC (Luôn cho sửa) */}
         <div className={styles.formGroup}>
           <label htmlFor="MaLoai">Mã Loại *</label>
           <input
@@ -168,21 +133,58 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
         </div>
         
         <div className={styles.formGroup}>
-          <label htmlFor="NhaCungCap">Mã Nhà Cung Cấp *</label>
+          <label htmlFor="MaNhaCungCap">Mã Nhà Cung Cấp *</label>
           <input
             type="text"
-            id="NhaCungCap"
-            name="NhaCungCap"
-            value={formData.NhaCungCap}
+            id="MaNhaCungCap"
+            name="MaNhaCungCap"
+            value={formData.MaNhaCungCap}
             onChange={handleChange}
             placeholder="VD: NCC001 (Sẽ là Dropdown)"
             required
           />
         </div>
-        
-        <div className={styles.formGroup}>
-          {/* (Trống) */}
-        </div>
+
+        {/* [MỚI] Hàng 4: Các trường chỉ hiển thị khi sửa */}
+        {medicine && (
+          <>
+            <div className={styles.formGroup}>
+              <label htmlFor="SoLuongTon">Số lượng tồn</label>
+              <input
+                type="number"
+                id="SoLuongTon"
+                name="SoLuongTon"
+                value={formData.SoLuongTon}
+                disabled // Không cho sửa
+                className={styles.disabledInput}
+              />
+            </div>
+            
+            <div className={styles.formGroup}>
+              <label htmlFor="GiaNhap">Giá nhập (VNĐ)</label>
+              <input
+                type="number"
+                id="GiaNhap"
+                name="GiaNhap"
+                value={formData.GiaNhap}
+                disabled // Không cho sửa
+                className={styles.disabledInput}
+              />
+            </div>
+            
+            <div className={styles.formGroup}>
+              <label htmlFor="GiaBan">Giá bán (VNĐ)</label>
+              <input
+                type="number"
+                id="GiaBan"
+                name="GiaBan"
+                value={formData.GiaBan}
+                disabled // Không cho sửa
+                className={styles.disabledInput}
+              />
+            </div>
+          </>
+        )}
 
       </div> {/* Đóng .formGrid */}
 
@@ -194,7 +196,7 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
 
       <div className={styles.buttonGroup}>
         <button type="submit" className={styles.saveButton} disabled={isSubmitting}>
-          {isSubmitting ? 'Đang lưu...' : 'Lưu lại'}
+          {isSubmitting ? 'Đang lưu...' : 'Lưu'}
         </button>
         <button type="button" className={styles.cancelButton} onClick={onClose}>
           Hủy
