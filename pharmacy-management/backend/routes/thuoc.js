@@ -107,19 +107,26 @@ router.put("/fix", (req, res) => {
   });
 });
 // hiển thị thuốc
-router.get("/list", (req, res) => {
+router.get("/", (req, res) => {
   const sql = `
     SELECT 
-      MaThuoc, TenThuoc, DonViTinh, SoLuongTon, GiaNhap, 
-      HanSuDung, NhaCungCap, NgayNhap, MaLoai, GiaBan
-    FROM Thuoc
-    ORDER BY MaThuoc ASC
+      t.MaThuoc, t.TenThuoc, t.DonViTinh, t.SoLuongTon, 
+      t.GiaNhap, t.GiaBan, 
+      n.TenNhaCungCap AS NhaCungCap,
+      l.TenLoai AS LoaiThuoc
+    FROM Thuoc t
+    JOIN NhaCungCap n ON t.MaNhaCungCap = n.MaNhaCungCap
+    JOIN LoaiThuoc l ON t.MaLoai = l.MaLoai
+    ORDER BY t.MaThuoc ASC
   `;
 
   db.query(sql, (err, rows) => {
     if (err) {
-      console.error(" Lỗi khi lấy danh sách thuốc:", err);
+      console.error("Lỗi khi lấy danh sách thuốc:", err);
       return res.status(500).json({ message: "Lỗi khi lấy danh sách thuốc!" });
+    }
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Không có thuốc nào trong kho!" });
     }
     res.json(rows);
   });
