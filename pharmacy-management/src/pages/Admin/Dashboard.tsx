@@ -67,17 +67,7 @@ const Dashboard: React.FC = () => {
     return <div className={styles.container}><p style={{ color: 'red' }}>Lỗi: {error}</p></div>;
   }
 
-  // Dữ liệu cho biểu đồ doanh thu
-  const revenueChartData = {
-    labels: revenue.map(r => r.thang),
-    datasets: [
-      {
-        label: 'Doanh thu',
-        data: revenue.map(r => r.doanhThu),
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-      },
-    ],
-  };
+
 
   return (
     <div className={styles.container}>
@@ -100,15 +90,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Charts and Warnings */}
-      <div className={styles.mainGrid}>
-        <div className={styles.chartContainer}>
-          <h2>Biểu đồ doanh thu</h2>
-          {revenue.length > 0 ? (
-            <Bar data={revenueChartData} />
-          ) : (
-            <p>Không có dữ liệu doanh thu để hiển thị.</p>
-          )}
-        </div>
+ 
         
         <div className={styles.warningList}>
           <h2>Cảnh báo</h2>
@@ -125,7 +107,7 @@ const Dashboard: React.FC = () => {
           )}
         </div>
       </div>
-    </div>
+    
   );
 };
 

@@ -1,6 +1,6 @@
 // src/pages/Admin/MedicineManagement.tsx
 import React, { useState, useEffect } from 'react';
-import { Thuoc } from '../../interfaces';
+import { Thuoc } from '../../interfaces'; //
 import { getMedicines, deleteMedicine } from '../../api/thuocApi';
 import { MedicineForm } from '../../components/AdminForms/MedicineForm';
 import Modal from '../../components/common/Modal';
@@ -13,7 +13,6 @@ const MedicineManagement: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMedicine, setSelectedMedicine] = useState<Thuoc | null>(null);
 
-  // ... (Tất cả các hàm logic: loadMedicines, handleOpenModal... giữ nguyên) ...
   const loadMedicines = async () => {
     try {
       setIsLoading(true);
@@ -43,44 +42,45 @@ const MedicineManagement: React.FC = () => {
 
   const handleSave = () => {
     handleCloseModal();
-    loadMedicines();
+    loadMedicines(); // Tải lại danh sách sau khi lưu
   };
 
   const handleDelete = async (maThuoc: string) => {
-    if (window.confirm('Bạn có chắc muốn xóa thuốc này?')) {
+    if (window.confirm('Bạn có chắc chắn muốn xóa thuốc này?')) {
       try {
         await deleteMedicine(maThuoc);
-        alert('Đã xóa thành công!');
-        loadMedicines();
+        loadMedicines(); // Tải lại danh sách
       } catch (err) {
-        alert('Lỗi khi xóa: ' + (err as Error).message);
+        setError((err as Error).message);
       }
     }
   };
 
+  // Hàm render nội dung bảng
   const renderContent = () => {
     if (isLoading) {
-      return <tr><td colSpan={7} className={styles.tableCell}>Đang tải dữ liệu, vui lòng chờ...</td></tr>;
+      return <tr><td colSpan={8} className={styles.loadingCell}>Đang tải...</td></tr>;
     }
     if (error) {
-      return <tr><td colSpan={7} className={styles.tableCell} style={{ color: 'red' }}>Lỗi: {error}</td></tr>;
+      return <tr><td colSpan={8} className={styles.errorCell}>{error}</td></tr>;
     }
     if (medicines.length === 0) {
-      return <tr><td colSpan={7} className={styles.tableCell}>Không tìm thấy dữ liệu thuốc.</td></tr>;
+      return <tr><td colSpan={8} className={styles.emptyCell}>Không có dữ liệu thuốc.</td></tr>;
     }
 
-    return medicines.map((med, index) => (
-      <tr 
-        key={med.MaThuoc} 
-        className={`${styles.tableRow} ${index % 2 === 1 ? styles.tableRowEven : ''}`}
-      >
-        <td className={styles.tableCell}>{med.MaThuoc}</td>
-        <td className={styles.tableCell}>{med.TenThuoc}</td>
-        <td className={styles.tableCell}>{med.SoLuongTon}</td>
-        <td className={styles.tableCell}>{med.DonViTinh}</td>
-        <td className={styles.tableCell}>{new Date(med.HanSuDung).toLocaleDateString()}</td>
-        <td className={styles.tableCell}>{med.GiaBan}</td>
-        <td className={styles.actionCell}> 
+    return medicines.map((med) => (
+      <tr key={med.MaThuoc}>
+        <td>{med.MaThuoc}</td>
+        <td>{med.TenThuoc}</td>
+        {/* [MỚI] Thêm cột Tên Loại (lấy từ join) */}
+        <td>{med.TenLoai || 'N/A'}</td> 
+        {/* [MỚI] Thêm cột Tên Nhà Cung Cấp (lấy từ join) */}
+        <td>{med.TenNhaCungCap || 'N/A'}</td> 
+        <td>{med.SoLuongTon}</td>
+        <td>{med.DonViTinh}</td>
+        {/* Định dạng lại giá bán cho dễ đọc */}
+        <td>{med.GiaBan.toLocaleString('vi-VN')} VNĐ</td>
+        <td className={styles.actionButtons}>
           <button onClick={() => handleOpenModal(med)} className={styles.editButton}>Sửa</button>
           <button onClick={() => handleDelete(med.MaThuoc)} className={styles.deleteButton}>Xóa</button>
         </td>
@@ -91,9 +91,8 @@ const MedicineManagement: React.FC = () => {
 
   return (
     <>
-      {/* THAY ĐỔI HIỆU ỨNG Ở ĐÂY */}
       <div className={styles.container}>
-        <h1 className={styles.title}>Quản lý Thuốc</h1>
+        <h1 className={styles.title}>Quản lý Danh sách thuốc</h1>
         <button onClick={() => handleOpenModal(null)} className={styles.addButton}>
           Thêm thuốc mới
         </button>
@@ -102,9 +101,12 @@ const MedicineManagement: React.FC = () => {
             <tr>
               <th className={styles.tableHeader}>Mã Thuốc</th>
               <th className={styles.tableHeader}>Tên Thuốc</th>
+              {/* [MỚI] Thêm cột header Tên Loại */}
+              <th className={styles.tableHeader}>Tên Loại</th>
+              {/* [MỚI] Thêm cột header Tên NCC */}
+              <th className={styles.tableHeader}>Tên NCC</th>
               <th className={styles.tableHeader}>Số lượng tồn</th>
               <th className={styles.tableHeader}>Đơn vị</th>
-              <th className={styles.tableHeader}>Hạn sử dụng</th>
               <th className={styles.tableHeader}>Giá bán</th>
               <th className={styles.tableHeader}>Hành động</th>
             </tr>
@@ -115,7 +117,7 @@ const MedicineManagement: React.FC = () => {
         </table>
       </div>
 
-      {/* Modal giữ nguyên, không bị ảnh hưởng */}
+      {/* Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
