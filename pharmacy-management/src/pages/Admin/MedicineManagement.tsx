@@ -82,7 +82,7 @@ const MedicineManagement: React.FC = () => {
         <td>{med.GiaBan.toLocaleString('vi-VN')} VNĐ</td>
         <td className={styles.actionButtons}>
           <button onClick={() => handleOpenModal(med)} className={styles.editButton}>Sửa</button>
-          <button onClick={() => handleDelete(med.MaThuoc)} className={styles.deleteButton}>Xóa</button>
+          
         </td>
       </tr>
     ));
