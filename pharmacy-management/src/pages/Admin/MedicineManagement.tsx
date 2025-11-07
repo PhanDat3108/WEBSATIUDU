@@ -78,8 +78,8 @@ const MedicineManagement: React.FC = () => {
         <td className={styles.tableCell}>{med.TenThuoc}</td>
         <td className={styles.tableCell}>{med.SoLuongTon}</td>
         <td className={styles.tableCell}>{med.DonViTinh}</td>
+        <td className={styles.tableCell}>{new Date(med.HanSuDung).toLocaleDateString()}</td>
         <td className={styles.tableCell}>{med.GiaBan}</td>
-        <td className={styles.tableCell}>{med.TenNhaCungCap}</td>
         <td className={styles.actionCell}> 
           <button onClick={() => handleOpenModal(med)} className={styles.editButton}>Sửa</button>
           <button onClick={() => handleDelete(med.MaThuoc)} className={styles.deleteButton}>Xóa</button>
