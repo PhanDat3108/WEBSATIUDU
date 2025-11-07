@@ -6,6 +6,8 @@ import authRoutes from "./routes/auth.js";
 import benhNhanRoutes from "./routes/benhnhan.js"
 import cors from "cors"; 
 import nhanVienRouter from "./routes/nhanvien.js";
+import loaiThuocRouter from "./routes/loaithuoc.js";
+import nhaCungCapRouter from "./routes/nhacungcap.js";
 
 
 
@@ -21,6 +23,9 @@ app.use(express.json());
 app.use("/api/v1/nhanvien", nhanVienRouter);
 app.use("/api/v1/thuoc", thuocRoutes); 
 app.use("/api/v1/benhnhan", benhNhanRoutes);
+app.use("/api/v1/loaithuoc", loaiThuocRouter);
+app.use("/api/v1/nhacungcap", nhaCungCapRouter);
+
 app.use("/api/auth", authRoutes);
 
 
