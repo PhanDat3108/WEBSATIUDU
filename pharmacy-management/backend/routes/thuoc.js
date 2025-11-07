@@ -107,18 +107,18 @@ router.put("/fix", (req, res) => {
   });
 });
 // hiển thị thuốc
-router.get("/", (req, res) => {
+router.get("/list", (req, res) => {
   const sql = `
-    SELECT 
-      t.MaThuoc, t.TenThuoc, t.DonViTinh, t.SoLuongTon, 
-      t.GiaNhap, t.GiaBan, 
-      n.TenNhaCungCap AS NhaCungCap,
-      l.TenLoai AS LoaiThuoc
-    FROM Thuoc t
-    JOIN NhaCungCap n ON t.MaNhaCungCap = n.MaNhaCungCap
-    JOIN LoaiThuoc l ON t.MaLoai = l.MaLoai
-    ORDER BY t.MaThuoc ASC
-  `;
+  SELECT 
+    t.MaThuoc, t.TenThuoc, t.DonViTinh, t.SoLuongTon, 
+    t.GiaNhap, t.GiaBan, 
+    n.TenNhaCungCap AS TenNhaCungCap,
+    l.TenLoai AS TenLoai
+  FROM Thuoc t
+  JOIN NhaCungCap n ON t.MaNhaCungCap = n.MaNhaCungCap
+  JOIN LoaiThuoc l ON t.MaLoai = l.MaLoai
+  ORDER BY t.MaThuoc ASC
+`;
 
   db.query(sql, (err, rows) => {
     if (err) {
@@ -132,72 +132,6 @@ router.get("/", (req, res) => {
   });
 });
 
-// xoá thuốc
-router.delete("/delete/:MaThuoc", (req, res) => {
-  const { MaThuoc } = req.params;
 
-  if (!MaThuoc) {
-    return res.status(400).json({ message: "Thiếu mã thuốc để xoá!" });
-  }
-
-  db.query("SELECT * FROM Thuoc WHERE MaThuoc = ?", [MaThuoc], (err, rows) => {
-    if (err) {
-      console.error(" Lỗi khi kiểm tra thuốc:", err);
-      return res.status(500).json({ message: "Lỗi kiểm tra thuốc!" });
-    }
-
-    if (rows.length === 0) {
-      return res.status(404).json({ message: "Không tìm thấy thuốc để xoá!" });
-    }
-
-    db.query("DELETE FROM Thuoc WHERE MaThuoc = ?", [MaThuoc], (err2) => {
-      if (err2) {
-        console.error("Lỗi khi xoá thuốc:", err2);
-        return res.status(500).json({ message: "Lỗi khi xoá thuốc!" });
-      }
-
-      res.json({ message: "Xoá thuốc thành công!", MaThuoc });
-    });
-  });
-});
-
-// thongke
-router.get("/stats", (req, res) => {
-  const TongLoai = "SELECT COUNT(*) AS TongLoai FROM LoaiThuoc"; 
-  const TongTon = "SELECT SUM(SoLuongTon) AS TongSoLuongTon FROM Thuoc";
-  const SapHetHang = "SELECT COUNT(*) AS SapHetHang FROM Thuoc WHERE SoLuongTon <= 10";
-  const SapHetHan = "SELECT COUNT(*) AS SapHetHan FROM Thuoc WHERE HanSuDung BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)";
-  const HetHan = "SELECT COUNT(*) AS HetHan FROM Thuoc WHERE HanSuDung < CURDATE()";
-
-  const data = {};
-
-
-  db.query(TongLoai, (err, rows1) => {
-    if (err) return res.status(500).json({ message: "Lỗi khi lấy tổng số loại thuốc!" });
-    data.TongLoai = rows1[0]?.TongLoai || 0;
-
-    db.query(TongTon, (err2, rows2) => {
-      if (err2) return res.status(500).json({ message: "Lỗi khi lấy tổng số lượng tồn!" });
-      data.TongSoLuongTon = rows2[0]?.TongSoLuongTon || 0;
-
-      db.query(SapHetHang, (err3, rows3) => {
-        if (err3) return res.status(500).json({ message: "Lỗi khi lấy thuốc sắp hết hàng!" });
-        data.SapHetHang = rows3[0]?.SapHetHang || 0;
-
-        db.query(SapHetHan, (err4, rows4) => {
-          if (err4) return res.status(500).json({ message: "Lỗi khi lấy thuốc sắp hết hạn!" });
-          data.SapHetHan = rows4[0]?.SapHetHan || 0;
-
-          db.query(HetHan, (err5, rows5) => {
-            if (err5) return res.status(500).json({ message: "Lỗi khi lấy thuốc đã hết hạn!" });
-            data.HetHan = rows5[0]?.HetHan || 0;
-
-            res.status(200).json(data);
-          });
-        });
-      });
-    });
-  });
-});
 
 export default router;
