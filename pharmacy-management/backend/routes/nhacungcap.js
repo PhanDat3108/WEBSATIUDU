@@ -10,4 +10,20 @@ router.get("/listname", (req, res) => {
     res.json(rows);
   });
 });
+
+router.get("/list", (req, res) => {
+  const sql = `
+    SELECT 
+     MaNhaCungCap,TenNhaCungCap,DiaChi,SoDienThoai,Email
+    FROM NhaCungCap
+    ORDER BY MaNhaCungCap ASC
+  `;
+  db.query(sql, (err, rows) => {
+    if (err) {
+      console.error("Lỗi khi lấy danh sách nhà cung cấp:", err);
+      return res.status(500).json({ message: "Lỗi khi lấy danh sách nhà cung cấp" });
+    }
+    res.json(rows);
+  });
+});
 export default router;
