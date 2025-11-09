@@ -70,7 +70,7 @@ const AppContent: React.FC = () => {
           {/* [MỚI] Thêm 3 routes mới */}
           <Route path="suppliers" element={<NhaCungCapManagement />} />
           <Route path="categories" element={<LoaiThuocManagement />} />
-          <Route path="history" element={<div>Trang Lịch sử Import/Export (Chưa tạo)</div>} />
+          
 
           <Route path="patients" element={<PatientManagement />} />
           <Route path="employees" element={<NhanVienManagement />} />

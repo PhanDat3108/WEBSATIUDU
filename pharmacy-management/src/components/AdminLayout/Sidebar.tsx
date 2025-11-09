@@ -66,7 +66,17 @@ const AdminSidebar: React.FC = () => {
         { key: '/admin/employees', icon: '👨‍💼', label: 'Quản lý nhân viên' }, // (Giữ nguyên)
         { key: '/admin/reports', icon: '📊', label: 'Thống kê' }, // (Giữ nguyên)
         { key: '/admin/revenue', icon: '💰', label: 'Thu nhập' }, // (Giữ nguyên)
-        { key: '/admin/history', icon: '📜', label: 'Lịch sử import/export' },
+        { 
+        key: 'kho-giao-dich', // [MỤC CHA MỚI] Kho & Giao Dịch
+        icon: '📦', 
+        label: 'Kho & Giao Dịch',
+        children: [
+            // Thằng quản lý phiếu nhập (Nhập Kho)
+            { key: '/admin/import', label: 'Quản lý Nhập Kho' }, 
+            { key: '/admin/export', label: 'Quản lý Xuất Thuốc' }, // Thêm mục này cho đầy đủ
+        ]
+    },
+     
     ];
 
     // [MỚI] Hàm xử lý click menu cha
