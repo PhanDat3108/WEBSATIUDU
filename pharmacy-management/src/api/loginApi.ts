@@ -6,12 +6,12 @@ import {
   RegisterResponse 
 } from '../interfaces';
 
-// [SỬA 1] Sửa URL base. 
-// Dùng đường dẫn tương đối. Proxy trong package.json sẽ lo phần còn lại.
+// [SỬA LẠI] Dùng đường dẫn tương đối, proxy sẽ xử lý
 const API_BASE_URL = '/api/v1/auth'; 
 
 /**
- * [SỬA 2] Thêm hàm handleResponse để xử lý lỗi từ Backend
+ * [SỬA LẠI] Thêm hàm handleResponse để xử lý lỗi từ Backend
+ * (Nó sẽ báo lỗi "Thiếu tài khoản..." thay vì chỉ "Bad Request")
  */
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
@@ -32,7 +32,7 @@ const handleResponse = async (response: Response) => {
 
 /**
  * API Đăng nhập (Gửi lên BE)
- * [SỬA 3] Nhận camelCase (từ form), gửi PascalCase (cho BE)
+ * [SỬA LẠI] Nhận camelCase (từ form), gửi PascalCase (cho BE)
  */
 export const loginAPI = async (credentials: { taiKhoan: string, matKhau: string }): Promise<LoginResponse> => {
   
@@ -53,7 +53,7 @@ export const loginAPI = async (credentials: { taiKhoan: string, matKhau: string 
 
 /**
  * API Đăng ký (Gửi lên BE)
- * [SỬA 4] Nhận camelCase (từ form), gửi PascalCase (cho BE)
+ * [SỬA LẠI] Nhận camelCase (từ form), gửi PascalCase (cho BE)
  */
 export const registerAPI = async (userData: { tenNhanVien: string, taiKhoan: string, matKhau: string, vaiTro: string }): Promise<RegisterResponse> => {
   
