@@ -1,6 +1,8 @@
 import React from "react";
-import { Form, Input, Button, message } from "antd";
+// [SỬA 1] Import 'App' (để dùng message) và 'useNavigate'
+import { Form, Input, Button, App } from "antd"; 
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom"; // <-- Thêm import
 import { loginAPI } from "../../../api/loginApi";
 
 interface LoginFormValues {
@@ -10,12 +12,26 @@ interface LoginFormValues {
 
 const LoginForm: React.FC = () => {
   const [form] = Form.useForm();
+  const navigate = useNavigate(); // <-- [SỬA 2] Thêm hook navigate
+  const { message } = App.useApp(); // <-- [SỬA 3] Lấy message từ hook (để sửa warning)
 
   const onFinish = async (values: LoginFormValues) => {
     try {
-      const response = await loginAPI(values);
+      // response bây giờ sẽ là: { token: "...", user: { MaNhanVien: "...", ... } }
+      const response = await loginAPI(values); 
+
       message.success("Đăng nhập thành công!");
-      localStorage.setItem("user", JSON.stringify(response));
+
+      // [SỬA 4] Lưu các mục riêng lẻ (đúng cách)
+      // Code này giờ sẽ chạy đúng vì response.user đã tồn tại
+      localStorage.setItem("token", response.token);
+      localStorage.setItem("maNhanVien", response.user.MaNhanVien);
+      localStorage.setItem("tenNhanVien", response.user.TenNhanVien);
+      localStorage.setItem("vaiTro", response.user.VaiTro);
+      
+      // [SỬA 5] Chuyển hướng người dùng đến trang dashboard
+      navigate("/admin/dashboard");
+
     } catch (error: any) {
       message.error(error.message || "Đăng nhập thất bại!");
     }

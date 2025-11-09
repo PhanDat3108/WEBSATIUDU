@@ -69,7 +69,26 @@ export interface ChiTietNhap {
   // Dữ liệu join từ BE
   TenThuoc?: string;
 }
+export interface ChiTietNhapLichSu {
+  MaPhieuNhap: string;
+  NgayNhap: string;      
+  TenThuoc: string;
+  TenNhaCungCap: string;
+  SoLuongNhap: number;
+  DonGiaNhap: number;
+  HanSuDung: string;   }
+  export interface ChiTietNhapCreate {
+  MaThuoc: string;
+  SoLuongNhap: number;
+  DonGiaNhap: number;
+  HanSuDung: string; 
+}
 
+export interface PhieuNhapCreatePayload {
+  MaNhaCungCap: string;
+  MaNhanVien: string;
+  chiTiet: ChiTietNhapCreate[];
+}
 /**
  * 1.6. Phiếu xuất (PhieuXuat)
  * [BỔ SUNG] Thêm LoaiXuat.
@@ -202,4 +221,46 @@ export interface BaoCaoTonKho {
 export interface DuLieuDoanhThu {
   Thang: string;
   DoanhThu: number;
+}
+// src/interfaces/index.ts
+
+// ... (Giữ nguyên các interface cũ của bạn) ...
+
+// === CÁC INTERFACE CHO ĐĂNG NHẬP / ĐĂNG KÝ ===
+
+/**
+ * Dùng cho API Đăng nhập (Gửi lên BE)
+ */
+export interface LoginPayload {
+  TaiKhoan: string;
+  MatKhau: string;
+}
+
+/**
+ * Dùng cho API Đăng nhập (Nhận từ BE)
+ */
+export interface LoginResponse {
+  token: string;
+  user: {
+    MaNhanVien: string;
+    TenNhanVien: string;
+    VaiTro: string;
+  };
+}
+
+/**
+ * Dùng cho API Đăng ký (Gửi lên BE)
+ * (Tệp RegisterForm.tsx của bạn cũng cần 'RegisterPayload' này)
+ */
+export interface RegisterPayload {
+  TenNhanVien: string;
+  TaiKhoan: string;
+  MatKhau: string;
+  VaiTro: string;
+}
+
+
+export interface RegisterResponse {
+  message: string;
+  MaNhanVien: string;
 }
