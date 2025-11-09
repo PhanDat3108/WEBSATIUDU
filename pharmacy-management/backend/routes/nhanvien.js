@@ -1,5 +1,6 @@
 import express from "express";
 import db from "../config/db.js";
+import bcrypt from "bcryptjs";
 
 const router = express.Router();
 
@@ -23,6 +24,10 @@ router.post("/add", (req, res) => {
     return res.status(400).json({ message: "Thiếu thông tin bắt buộc!" });
   }
 
+  // [SỬA 1] Mã hóa mật khẩu
+  const salt = bcrypt.genSaltSync(10);
+  const hashedPassword = bcrypt.hashSync(MatKhau, salt);
+
   db.query("SELECT COUNT(*) AS total FROM NhanVien", (err, result) => {
     if (err) return res.status(500).json({ message: "Lỗi DB" });
 
@@ -33,7 +38,8 @@ router.post("/add", (req, res) => {
       VALUES (?, ?, ?, ?, ?)
     `;
 
-    db.query(sql, [MaNhanVien, TenNhanVien, TaiKhoan, MatKhau, VaiTro], (err2) => {
+
+    db.query(sql, [MaNhanVien, TenNhanVien, TaiKhoan, hashedPassword, VaiTro], (err2) => {
       if (err2) {
         console.error("Lỗi khi thêm nhân viên:", err2);
         return res.status(500).json({ message: "Lỗi khi thêm nhân viên!" });
@@ -42,7 +48,6 @@ router.post("/add", (req, res) => {
     });
   });
 });
-
 //sua
 router.put("/fix", (req, res) => {
   const { MaNhanVien, TenNhanVien, TaiKhoan, MatKhau, VaiTro } = req.body;

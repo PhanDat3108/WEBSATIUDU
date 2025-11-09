@@ -13,6 +13,7 @@ import NhanVienManagement from '../pages/Admin/NhanVienManagement';
 import Reports from '../pages/Admin/Reports';
 import Revenue from '../pages/Admin/Revenue'; 
 import TestThuoc from "../pages/Admin/Testthuoc";
+import { PhieuNhapManagement } from '../pages/Admin/PhieuNhapManagement'; 
 
 
 
@@ -73,7 +74,7 @@ const AppContent: React.FC = () => {
           <Route path="reports" element={<Reports />} />
           <Route path="revenue" element={<Revenue />} />
           <Route path="chinhthuoc" element={<TestThuoc />} />
-          
+          <Route path="import" element={<PhieuNhapManagement />} />
 
         </Route>
 
