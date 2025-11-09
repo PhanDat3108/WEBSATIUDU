@@ -50,8 +50,11 @@ export const getLoaiThuoc = async (): Promise<LoaiThuoc[]> => {
  */
 export const getLoaiThuocListname = async (): Promise<Pick<LoaiThuoc, 'MaLoai' | 'TenLoai'>[]> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/listname`);
-    const data = await handleResponse(response);
+    // [SỬA CHÍNH] Sửa '/listname' thành '/' để khớp với file loaithuoc.js
+    const response = await fetch(`${API_BASE_URL}/`);
+    
+    // Giữ nguyên logic handleResponse của bạn
+    const data = await handleResponse(response); 
     return data as LoaiThuoc[];
   } catch (error) {
     console.error('Lỗi khi tải danh sách tên loại thuốc:', error);
@@ -111,3 +114,4 @@ export const deleteLoaiThuoc = async (maLoai: string): Promise<any> => {
     throw error;
   }
 };
+

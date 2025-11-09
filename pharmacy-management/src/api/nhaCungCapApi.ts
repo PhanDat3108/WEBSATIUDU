@@ -98,3 +98,16 @@ export const deleteNhaCungCap = async (maNhaCungCap: string): Promise<any> => {
 export const getNhaCungCapList = async (): Promise<NhaCungCap[]> => {
   return getNhaCungCap();
 }
+export const getNhaCungCapListForDropdown = async (): Promise<Pick<NhaCungCap, 'MaNhaCungCap' | 'TenNhaCungCap'>[]> => {
+  try {
+    // Gọi đến endpoint '/'
+    const response = await fetch(`${API_BASE_URL}/`);
+    
+    // Giữ nguyên logic handleResponse của bạn
+    const data = await handleResponse(response); 
+    return data as NhaCungCap[];
+  } catch (error) {
+    console.error('Lỗi khi tải danh sách tên nhà cung cấp:', error);
+    throw error;
+  }
+};
