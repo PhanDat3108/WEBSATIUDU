@@ -1,0 +1,163 @@
+/* src/styles/PhieuNhapForm.module.css */
+/* Kế thừa từ Form.module.css nhưng thêm style cho bảng */
+
+.form {
+  width: 100%;
+  max-width: 800px; /* Rộng hơn form thường để chứa bảng */
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  max-height: 80vh; /* Giới hạn chiều cao */
+  overflow-y: auto; /* Cho phép cuộn nếu nội dung quá dài */
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup label {
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box; /* Quan trọng */
+}
+
+.disabledInput {
+  background-color: #eee;
+  color: #777;
+}
+
+/* --- CSS CHO BẢNG --- */
+
+.tableTitle {
+  margin-top: 25px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+.chiTietTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+}
+
+.chiTietTable th,
+.chiTietTable td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.chiTietTable th {
+  background-color: #f2f2f2;
+  font-size: 0.9rem;
+}
+
+/* Căn chỉnh kích thước các cột */
+.chiTietTable th:nth-child(1) { width: 35%; } /* Thuốc */
+.chiTietTable th:nth-child(2) { width: 15%; } /* Số lượng */
+.chiTietTable th:nth-child(3) { width: 20%; } /* Đơn giá */
+.chiTietTable th:nth-child(4) { width: 20%; } /* HSD */
+.chiTietTable th:nth-child(5) { width: 10%; } /* Xóa */
+
+.chiTietTable input,
+.chiTietTable select {
+  width: 100%;
+  padding: 8px;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box; /* Rất quan trọng */
+}
+
+.removeRowButton {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.removeRowButton:hover {
+  background: #c80000;
+}
+
+.addRowButton {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+.addRowButton:hover {
+  background-color: #0056b3;
+}
+
+
+/* --- Nút bấm và Lỗi --- */
+.errorText {
+  color: #d93025;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.saveButton,
+.cancelButton {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.saveButton {
+  background-color: #28a745;
+  color: white;
+}
+.saveButton:disabled {
+  background-color: #aaa;
+}
+
+.cancelButton {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ccc;
+}

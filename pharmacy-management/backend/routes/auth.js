@@ -5,30 +5,31 @@ import bcrypt from "bcryptjs";
 const router = express.Router();
 
 //  API đăng ký
-router.post("/register", async (req, res) => {
-  const { tenNhanVien, taiKhoan, matKhau, vaiTro } = req.body;
+router.post("/register", (req, res) => {
+  const { TenNhanVien, TaiKhoan, MatKhau, VaiTro } = req.body;
 
-  if (!tenNhanVien || !taiKhoan || !matKhau || !vaiTro) {
-    return res.status(400).json({ message: "Thiếu thông tin!" });
+  if (!TenNhanVien || !TaiKhoan || !MatKhau || !VaiTro) {
+    return res.status(400).json({ message: "Thiếu thông tin bắt buộc!" });
   }
-  const hash = await bcrypt.hash(matKhau, 10);
+  const salt = bcrypt.genSaltSync(10);
+  const hashedPassword = bcrypt.hashSync(MatKhau, salt);
+
   db.query("SELECT COUNT(*) AS total FROM NhanVien", (err, result) => {
     if (err) return res.status(500).json({ message: "Lỗi DB" });
 
-    const maNhanVien = "NV" + String(result[0].total + 1).padStart(3, "0");
+    const MaNhanVien = "NV" + String(result[0].total + 1).padStart(3, "0");
 
     const sql = `
       INSERT INTO NhanVien (MaNhanVien, TenNhanVien, TaiKhoan, MatKhau, VaiTro)
       VALUES (?, ?, ?, ?, ?)
     `;
-    db.query(sql, [maNhanVien, tenNhanVien, taiKhoan, hash, vaiTro], (err2) => {
+    
+    db.query(sql, [MaNhanVien, TenNhanVien, TaiKhoan, hashedPassword, VaiTro], (err2) => {
       if (err2) {
-        if (err2.code === "ER_DUP_ENTRY") {
-          return res.status(400).json({ message: "Tài khoản đã tồn tại!" });
-        }
-        return res.status(500).json({ message: "Lỗi khi thêm nhân viên!" });
+        console.error("Lỗi đăng ký:", err2);
+        return res.status(500).json({ message: "Lỗi khi đăng ký tài khoản!" });
       }
-      res.status(201).json({ message: "Đăng ký thành công!", maNhanVien });
+      res.status(201).json({ message: "Đăng ký thành công!", MaNhanVien });
     });
   });
 });
