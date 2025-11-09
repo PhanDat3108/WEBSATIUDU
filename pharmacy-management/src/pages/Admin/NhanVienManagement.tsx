@@ -1,7 +1,8 @@
 // src/pages/Admin/NhanVienManagement.tsx
 import React, { useState, useEffect } from 'react';
 import { NhanVien } from '../../interfaces';
-import { getNhanVien, deleteNhanVien } from '../../api/nhanVienApi';
+// [SỬA] Import các hàm đã kết nối
+import { getNhanVien, deleteNhanVien } from '../../api/nhanVienApi'; 
 import { NhanVienForm } from '../../components/AdminForms/NhanVienForm';
 import Modal from '../../components/common/Modal';
 import styles from '../../styles/AdminManagement.module.css';
@@ -17,7 +18,7 @@ const NhanVienManagement: React.FC = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const data = await getNhanVien();
+      const data = await getNhanVien(); // Đã gọi API thật
       setEmployees(data);
     } catch (err) {
       setError((err as Error).message);
@@ -31,8 +32,11 @@ const NhanVienManagement: React.FC = () => {
   }, []);
 
   const handleOpenModal = (employee: NhanVien | null) => {
-    setSelectedEmployee(employee);
-    setIsModalOpen(true);
+    // Chỉ mở modal khi SỬA (employee không null)
+    if (employee) {
+        setSelectedEmployee(employee);
+        setIsModalOpen(true);
+    }
   };
 
   const handleCloseModal = () => {
@@ -48,7 +52,7 @@ const NhanVienManagement: React.FC = () => {
   const handleDelete = async (maNV: string) => {
     if (window.confirm(`Bạn có chắc muốn xóa nhân viên ${maNV}?`)) {
       try {
-        await deleteNhanVien(maNV);
+        await deleteNhanVien(maNV); // Đã gọi API thật
         alert('Xóa thành công!');
         loadEmployees(); // Tải lại danh sách
       } catch (err) {
@@ -66,10 +70,9 @@ const NhanVienManagement: React.FC = () => {
       return <tr><td colSpan={5}>Lỗi: {error}</td></tr>;
     }
     if (employees.length === 0) {
-      return <tr><td colSpan={5}>Không có dữ liệu nhân viên. (Đang chờ BE)</td></tr>;
+      return <tr><td colSpan={5}>Không có dữ liệu nhân viên.</td></tr>;
     }
 
-    // Dữ liệu sẽ được render ở đây khi BE có
     return employees.map((nv) => (
       <tr key={nv.MaNhanVien}>
         <td>{nv.MaNhanVien}</td>
@@ -88,7 +91,7 @@ const NhanVienManagement: React.FC = () => {
     <div className={styles.container}>
       <h1 className={styles.title}>Quản lý Nhân viên</h1>
       
-      {/* Nút Thêm Mới - Tạm thời vô hiệu hóa chờ BE */}
+      {/* [SỬA] Nút Thêm Mới - Đã bị vô hiệu hóa (comment out) theo yêu cầu */}
       {/* <button onClick={() => handleOpenModal(null)} className={styles.addButton}>
         + Thêm nhân viên
       </button> 
