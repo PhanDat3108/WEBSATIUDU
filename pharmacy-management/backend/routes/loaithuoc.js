@@ -14,7 +14,7 @@ router.get("/list", (req, res) => {
   const sql = `
     SELECT 
      Maloai,TenLoai
-    FROM Loaithuoc
+    FROM LoaiThuoc
     ORDER BY MaLoai ASC
   `;
   db.query(sql, (err, rows) => {
