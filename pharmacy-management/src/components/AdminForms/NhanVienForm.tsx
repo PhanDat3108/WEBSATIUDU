@@ -1,9 +1,8 @@
 // src/components/AdminForms/NhanVienForm.tsx
 import React, { useState } from 'react';
-// [SỬA LỖI] Import 'NhanVienUpdateData' từ 'interfaces'
 import { NhanVien, NhanVienUpdateData } from '../../interfaces';
-// [SỬA LỖI] Chỉ import hàm 'updateNhanVien' từ api
-import { updateNhanVien } from '../../api/nhanVienApi';
+// [SỬA] Chỉ import hàm 'updateNhanVien'
+import { updateNhanVien } from '../../api/nhanVienApi'; 
 import styles from '../../styles/Form.module.css';
 
 interface NhanVienFormProps {
@@ -14,7 +13,6 @@ interface NhanVienFormProps {
 
 export const NhanVienForm: React.FC<NhanVienFormProps> = ({ initialData, onFormSubmitSuccess, onCancel }) => {
   
-  // [SỬA LỖI] Sử dụng kiểu 'NhanVienUpdateData'
   const [formData, setFormData] = useState<NhanVienUpdateData>({
     TenNhanVien: initialData.TenNhanVien,
     TaiKhoan: initialData.TaiKhoan,
@@ -26,7 +24,6 @@ export const NhanVienForm: React.FC<NhanVienFormProps> = ({ initialData, onFormS
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    // [SỬA LỖI] Thêm kiểu cho 'prev'
     setFormData((prev: NhanVienUpdateData) => ({ ...prev, [name]: value }));
   };
 
@@ -35,6 +32,7 @@ export const NhanVienForm: React.FC<NhanVienFormProps> = ({ initialData, onFormS
     setIsSubmitting(true);
     setError(null);
     try {
+      // [SỬA] Gọi hàm updateNhanVien với MaNhanVien và formData
       await updateNhanVien(initialData.MaNhanVien, formData);
       alert('Cập nhật thành công!');
       onFormSubmitSuccess();
@@ -88,6 +86,7 @@ export const NhanVienForm: React.FC<NhanVienFormProps> = ({ initialData, onFormS
           onChange={handleChange}
           required
         />
+        {/* (Bạn có thể đổi thành <select> nếu VaiTrò là cố định) */}
       </div>
 
       {/* Nút bấm */}

@@ -78,7 +78,7 @@ const PatientManagement: React.FC = () => {
         <td>{p.DiaChi}</td>
         <td>
           <button onClick={() => handleOpenModal(p)} className={styles.editButton}>Sửa</button>
-          <button onClick={() => handleDelete(p.MaBenhNhan)} className={styles.deleteButton}>Xóa</button>
+          
         </td>
       </tr>
     ));

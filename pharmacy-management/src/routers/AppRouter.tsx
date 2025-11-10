@@ -1,6 +1,6 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate,useLocation } from 'react-router-dom';
 
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 // Import Pages & Layouts
 import AdminLayout from '../components/AdminLayout/AdminLayout'; 
@@ -15,7 +15,9 @@ import Revenue from '../pages/Admin/Revenue';
 import TestThuoc from "../pages/Admin/Testthuoc";
 import { PhieuNhapManagement } from '../pages/Admin/PhieuNhapManagement'; 
 
-
+// [MỚI] Import 2 trang mới
+import NhaCungCapManagement from '../pages/Admin/NhaCungCapManagement';
+import LoaiThuocManagement from '../pages/Admin/LoaiThuocManagement';
 
 
 const MOCK_ADMIN_AUTHENTICATED = true; 
@@ -32,8 +34,6 @@ const ProtectedRoute: React.FC<{ children: React.ReactElement }> = ({ children }
     return children;
 };
 
-
-
 const AppRouter: React.FC = () => {
   return (
     <Router>
@@ -48,9 +48,6 @@ const AppContent: React.FC = () => {
 
   return (
     <>
-    
-      
-
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<LoginHomePage />} />
@@ -69,6 +66,12 @@ const AppContent: React.FC = () => {
           <Route index element={<AdminDashboard />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="medicines" element={<MedicineManagement />} />
+          
+          {/* [MỚI] Thêm 3 routes mới */}
+          <Route path="suppliers" element={<NhaCungCapManagement />} />
+          <Route path="categories" element={<LoaiThuocManagement />} />
+          
+
           <Route path="patients" element={<PatientManagement />} />
           <Route path="employees" element={<NhanVienManagement />} />
           <Route path="reports" element={<Reports />} />
@@ -78,12 +81,11 @@ const AppContent: React.FC = () => {
 
         </Route>
 
+        {/* Các routes khác (ví dụ: 404) */}
         <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>
-    
     </>
   );
 };
-
 
 export default AppRouter;

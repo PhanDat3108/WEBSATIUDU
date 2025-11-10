@@ -75,3 +75,71 @@
 .menuItemIcon {
     margin-right: 10px;
 }
+/* new phần hiệu ứng mở con */
+/* Thêm vào file: src/styles/AdminLayout.module.css */
+
+/* ... (giữ nguyên .sidebar, .menuList, .menuItem, .active...) */
+
+.menuParent {
+  width: 100%;
+}
+
+.menuItem:hover {
+  background-color: #495057;
+}
+
+.menuItem .menuArrow {
+  margin-left: auto;
+  font-size: 0.7em;
+  transition: transform 0.3s ease;
+}
+
+.menuItem .menuArrowOpen {
+  transform: rotate(180deg);
+}
+
+/* Lớp CSS cho menu con */
+.submenu {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  
+  /* [HIỆU ỨNG] */
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+  
+  background-color: #3e444a; /* Hơi tối hơn nền cha */
+}
+
+/* Lớp CSS khi menu con MỞ */
+.submenuOpen {
+  max-height: 200px; /* Đặt 1 chiều cao đủ lớn */
+  transition: max-height 0.3s ease-in;
+}
+
+.submenuItem {
+  padding: 12px 15px 12px 50px; /* Thụt lề vào */
+  font-size: 0.9em;
+  color: #e9ecef;
+  display: block;
+}
+
+.submenuItemLink {
+  text-decoration: none;
+  display: block;
+  width: 100%;
+}
+
+.submenuItem:hover {
+  background-color: #495057;
+}
+
+/* Lớp CSS khi mục con được chọn */
+.submenuActive {
+  background-color: #007bff;
+  font-weight: bold;
+}
+.submenuActive .submenuItem {
+   color: #ffffff;
+}

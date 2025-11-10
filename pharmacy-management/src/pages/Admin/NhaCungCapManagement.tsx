@@ -1,0 +1,132 @@
+// src/pages/Admin/NhaCungCapManagement.tsx
+import React, { useState, useEffect } from 'react';
+import { NhaCungCap } from '../../interfaces';
+// [SỬA] Import thêm hàm add, update, delete
+import { getNhaCungCap, deleteNhaCungCap } from '../../api/nhaCungCapApi';
+import Modal from '../../components/common/Modal';
+import styles from '../../styles/AdminManagement.module.css';
+// [MỚI] Import Form
+import { NhaCungCapForm } from '../../components/AdminForms/NhaCungCapForm';
+
+const NhaCungCapManagement: React.FC = () => {
+  const [suppliers, setSuppliers] = useState<NhaCungCap[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSupplier, setSelectedSupplier] = useState<NhaCungCap | null>(null);
+
+  const loadSuppliers = async () => {
+    try {
+      setIsLoading(true);
+      setError(null); // [SỬA] Xóa lỗi cũ
+      
+      // [SỬA] Gọi API thật
+      const data = await getNhaCungCap(); 
+      setSuppliers(data);
+      
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadSuppliers();
+  }, []);
+
+  const handleOpenModal = (supplier: NhaCungCap | null) => {
+    setSelectedSupplier(supplier);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedSupplier(null);
+  };
+
+  const handleSave = () => {
+    handleCloseModal();
+    loadSuppliers();
+  };
+
+  // [MỚI] Hàm Xóa
+  const handleDelete = async (maNhaCungCap: string) => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa Nhà cung cấp này?')) {
+      try {
+        await deleteNhaCungCap(maNhaCungCap);
+        loadSuppliers();
+      } catch (err) {
+        setError((err as Error).message);
+      }
+    }
+  };
+
+  const renderContent = () => {
+    if (isLoading) {
+      return <tr><td colSpan={6} className={styles.loadingCell}>Đang tải...</td></tr>;
+    }
+    if (error) {
+      return <tr><td colSpan={6} className={styles.errorCell}>{error}</td></tr>;
+    }
+    if (suppliers.length === 0) { // [SỬA] Bỏ điều kiện !error
+        return <tr><td colSpan={6} className={styles.emptyCell}>Không có dữ liệu nhà cung cấp.</td></tr>;
+    }
+
+    return suppliers.map((item) => (
+      <tr key={item.MaNhaCungCap}>
+        <td>{item.MaNhaCungCap}</td>
+        <td>{item.TenNhaCungCap}</td>
+        <td>{item.DiaChi}</td>
+        <td>{item.SoDienThoai}</td>
+        <td>{item.Email}</td>
+        <td className={styles.actionButtons}>
+          <button onClick={() => handleOpenModal(item)} className={styles.editButton}>Sửa</button>
+          {/* [MỚI] Thêm sự kiện Xóa */}
+          <button onClick={() => handleDelete(item.MaNhaCungCap)} className={styles.deleteButton}>Xóa</button>
+        </td>
+      </tr>
+    ));
+  };
+
+  return (
+    <>
+      <div className={styles.container}>
+        <h1 className={styles.title}>Quản lý Nhà Cung Cấp</h1>
+        <button onClick={() => handleOpenModal(null)} className={styles.addButton}>
+          Thêm Nhà Cung Cấp
+        </button>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th className={styles.tableHeader}>Mã NCC</th>
+              <th className={styles.tableHeader}>Tên Nhà Cung Cấp</th>
+              <th className={styles.tableHeader}>Địa chỉ</th>
+              <th className={styles.tableHeader}>Số điện thoại</th>
+              <th className={styles.tableHeader}>Email</th>
+              <th className={styles.tableHeader}>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {renderContent()}
+          </tbody>
+        </table>
+      </div>
+
+      {/* [SỬA] Thay thế div bằng Form */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        title={selectedSupplier ? 'Sửa Nhà Cung Cấp' : 'Thêm Nhà Cung Cấp'}
+      >
+        <NhaCungCapForm
+            supplier={selectedSupplier}
+            onSave={handleSave}
+            onClose={handleCloseModal}
+        />
+      </Modal>
+    </>
+  );
+};
+
+export default NhaCungCapManagement;
