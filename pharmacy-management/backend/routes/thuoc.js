@@ -81,10 +81,11 @@ router.put("/fix/:MaThuoc", (req, res) => {
 });
 // hiển thị thuốc
 router.get("/list", (req, res) => {
-  const sql = `
+ const sql = `
     SELECT 
   t.MaThuoc, t.TenThuoc, t.DonViTinh, t.SoLuongTon, 
   t.GiaNhap, t.GiaBan, 
+  t.MaNhaCungCap, -- <-- THÊM DÒNG NÀY
   n.TenNhaCungCap AS TenNhaCungCap,
   l.TenLoai AS TenLoai
 FROM Thuoc t
