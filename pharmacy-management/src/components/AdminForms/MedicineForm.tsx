@@ -62,10 +62,19 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    // [FIX] Xử lý giá trị number
+    if (name === 'GiaBan') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value === '' ? 0 : parseFloat(value) // Chuyển sang số
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -81,15 +90,25 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
       setFormError("Vui lòng chọn một nhà cung cấp.");
       return;
     }
+    
+    // [FIX] Kiểm tra giá bán
+    if (formData.GiaBan === undefined || formData.GiaBan < 0) {
+       setFormError("Giá bán không hợp lệ.");
+      return;
+    }
+
 
     setIsSubmitting(true);
 
     try {
+      // [FIX] Thêm "GiaBan" vào dataToSave.
+      // Backend của bạn đã hỗ trợ nhận GiaBan ở cả route "add" và "fix".
       const dataToSave: Partial<Thuoc> = {
         TenThuoc: formData.TenThuoc,
         DonViTinh: formData.DonViTinh,
         MaLoai: formData.MaLoai,
         MaNhaCungCap: formData.MaNhaCungCap,
+        GiaBan: formData.GiaBan || 0 // Đảm bảo gửi giá trị
       };
 
       if (medicine && medicine.MaThuoc) {
@@ -194,7 +213,22 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
           </select>
         </div>
         
-        {/* Các trường còn lại */}
+        {/* [FIX] Di chuyển Giá Bán ra ngoài và cho phép chỉnh sửa */}
+        <div className={styles.formGroup}>
+          <label htmlFor="GiaBan">Giá bán (VNĐ)</label>
+          <input
+            type="number"
+            id="GiaBan"
+            name="GiaBan"
+            value={formData.GiaBan}
+            onChange={handleChange} // Cho phép thay đổi
+            min="0" // Đảm bảo giá không âm
+            required
+            // Đã loại bỏ 'disabled' và 'className'
+          />
+        </div>
+
+        {/* Các trường còn lại (chỉ hiển thị ở Edit Mode và vẫn disabled) */}
         {isEditMode && (
           <>
             <div className={styles.formGroup}>
@@ -221,17 +255,8 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
               />
             </div>
             
-            <div className={styles.formGroup}>
-              <label htmlFor="GiaBan">Giá bán (VNĐ)</label>
-              <input
-                type="number"
-                id="GiaBan"
-                name="GiaBan"
-                value={formData.GiaBan}
-                disabled
-                className={styles.disabledInput}
-              />
-            </div>
+            {/* [FIX] Đã di chuyển ô Giá Bán ra ngoài khối này */}
+            
           </>
         )}
 
