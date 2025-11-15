@@ -80,6 +80,50 @@ a {
   text-decoration: none;
 }
 
+.navbar-icons button {
+  margin-left: 15px;
+}
+
+.nut-tui-hang-navbar {
+  background: #1e3a8a;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 18px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nut-tui-hang-navbar:hover {
+  background: #1e3a8a;
+  filter: brightness(1.1);
+}
+
+.nut-tui-hang-navbar:active {
+  transform: scale(0.98);
+}
+
+.badge-tui-hang {
+  background: #d32f2f;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 11px;
+  position: absolute;
+  top: -8px;
+  right: -8px;
+}
+
 .cart-btn {
   background: #1e3a8a;
   padding: 6px 10px;

@@ -1,0 +1,24 @@
+/* src/styles/DanhSachSanPham.module.css */
+.product-list-grid {
+  display: grid;
+  /* Tự động điều chỉnh số cột, 
+     minmax(220px, 1fr) nghĩa là:
+     - Cột nhỏ nhất 220px
+     - Lớn nhất 1fr (chia đều không gian còn lại)
+  */
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px; 
+  padding: 24px;
+  max-width: 1300px;
+  margin: 20px auto; /* Căn giữa và tạo khoảng cách */
+}
+
+.message, .messageError {
+  text-align: center;
+  font-size: 1.2rem;
+  padding: 40px;
+}
+
+.messageError {
+  color: red;
+}
