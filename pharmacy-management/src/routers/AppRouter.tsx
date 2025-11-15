@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 // Import Pages & Layouts
 import AdminLayout from '../components/AdminLayout/AdminLayout'; 
 import AdminDashboard from '../pages/Admin/Dashboard';
-import HomePage from '../pages/HomePage';
+import HomePage from '../pages/Pharmacist/HomePage';
 import LoginHomePage from "../pages/Login";
 import MedicineManagement from '../pages/Admin/MedicineManagement';
 import PatientManagement from '../pages/Admin/PatientManagement';
@@ -18,8 +18,9 @@ import { PhieuNhapManagement } from '../pages/Admin/PhieuNhapManagement';
 // [MỚI] Import 2 trang mới
 import NhaCungCapManagement from '../pages/Admin/NhaCungCapManagement';
 import LoaiThuocManagement from '../pages/Admin/LoaiThuocManagement';
+import {XuatNoiBoManagement} from "../pages/Admin/XuatNoiBoManagement"
 
-
+ 
 const MOCK_ADMIN_AUTHENTICATED = true; 
 const ADMIN_LOGIN_PATH = '/login';
 
@@ -78,6 +79,8 @@ const AppContent: React.FC = () => {
           <Route path="revenue" element={<Revenue />} />
           <Route path="chinhthuoc" element={<TestThuoc />} />
           <Route path="import" element={<PhieuNhapManagement />} />
+          <Route path="export" element={<XuatNoiBoManagement />} />
+
 
         </Route>
 

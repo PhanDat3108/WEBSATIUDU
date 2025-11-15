@@ -9,6 +9,8 @@ import nhanVienRouter from "./routes/nhanvien.js";
 import loaiThuocRouter from "./routes/loaithuoc.js";
 import nhaCungCapRouter from "./routes/nhacungcap.js";
 import phieuNhap from "./routes/nhapthuoc.js";
+import phieuXuatRoutes from './routes/phieuxuat.js';
+import xuatNoiBoRoutes from './routes/xuatnoibo.js';
 
 
 
@@ -27,6 +29,8 @@ app.use("/api/v1/benhnhan", benhNhanRoutes);
 app.use("/api/v1/loaithuoc", loaiThuocRouter);
 app.use("/api/v1/nhacungcap", nhaCungCapRouter);
 app.use("/api/v1/phieunhap", phieuNhap);
+app.use("/api/v1/phieuxuat", phieuXuatRoutes);
+app.use("/api/v1/xuatnoibo", xuatNoiBoRoutes);
 
 
 app.use("/api/v1/auth", authRoutes);

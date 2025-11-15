@@ -113,11 +113,22 @@ router.post("/add", (req, res) => {
     return res.status(400).json({ message: "Thiếu thông tin bắt buộc của bệnh nhân!" });
   }
 
-  db.query("SELECT COUNT(*) AS total FROM BenhNhan", (err, result) => {
-    if (err) return res.status(500).json({ message: "Lỗi DB" });
+  const maxIdQuery =
+    "SELECT MAX(CAST(SUBSTRING(MaBenhNhan, 3) AS UNSIGNED)) AS maxNumber FROM BenhNhan WHERE MaBenhNhan LIKE 'BN%'";
 
-    const MaBenhNhan = "BN" + String(result[0].total + 1).padStart(3, "0");
+  db.query(maxIdQuery, (err, result) => {
+    if (err) {
+      console.error("Lỗi DB khi tạo mã bệnh nhân:", err);
+      return res.status(500).json({ message: "Lỗi DB khi tạo mã bệnh nhân" });
+    }
 
+    let maxNumber = result && result.length > 0 ? result[0].maxNumber : 0;
+    if (maxNumber === null) {
+      maxNumber = 0;
+    }
+    let nextNumber = maxNumber + 1;
+
+    const MaBenhNhan = "BN" + String(nextNumber).padStart(3, "0");
     const sql = `
       INSERT INTO BenhNhan (
         MaBenhNhan, TenBenhNhan, NgaySinh, GioiTinh, SoDienThoai, DiaChi

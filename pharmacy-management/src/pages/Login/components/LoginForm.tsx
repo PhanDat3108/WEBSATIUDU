@@ -30,7 +30,11 @@ const LoginForm: React.FC = () => {
       localStorage.setItem("vaiTro", response.user.VaiTro);
       
       // [SỬA 5] Chuyển hướng người dùng đến trang dashboard
-      navigate("/admin/dashboard");
+  if (response.user && response.user.VaiTro === 'admin') {
+  navigate('/admin'); 
+} else {
+  navigate('/home'); 
+}
 
     } catch (error: any) {
       message.error(error.message || "Đăng nhập thất bại!");

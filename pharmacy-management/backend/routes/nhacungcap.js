@@ -36,18 +36,21 @@ router.post("/add", (req, res) => {
   }
 
 
-  db.query("SELECT MAX(MaNhaCungCap) AS maxId FROM NhaCungCap", (err, result) => {
-    if (err) return res.status(500).json({ message: "Lỗi DB khi tạo mã NCC" });
+  const maxIdQuery =
+    "SELECT MAX(CAST(SUBSTRING(MaNhaCungCap, 4) AS UNSIGNED)) AS maxNumber FROM NhaCungCap WHERE MaNhaCungCap LIKE 'NCC%'";
 
-    let maxId = result[0].maxId; 
-    let nextNumber = 1;
-    if (maxId) {
-      try {
-        nextNumber = parseInt(maxId.slice(3)) + 1; 
-      } catch(e) {
-         return res.status(500).json({ message: "Lỗi khi phân tích mã NCC" });
-      }
+  db.query(maxIdQuery, (err, result) => {
+    if (err) {
+      console.error("Lỗi DB khi tạo mã NCC:", err);
+      return res.status(500).json({ message: "Lỗi DB khi tạo mã NCC" });
     }
+
+    let maxNumber = result && result.length > 0 ? result[0].maxNumber : 0;
+    if (maxNumber === null) {
+      maxNumber = 0;
+    }
+    let nextNumber = maxNumber + 1;
+
     const MaNhaCungCap = "NCC" + String(nextNumber).padStart(3, "0"); 
 
     const sql = `
