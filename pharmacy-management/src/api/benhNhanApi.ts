@@ -26,12 +26,12 @@ export const updatePatient = async (maBenhNhan: string, data: Partial<BenhNhan>)
   // 'data' (từ form) chỉ chứa Ten, NgaySinh...
   // 'maBenhNhan' được lấy từ tham số hàm
   const dataForBackend = {
-    maBenhNhan: maBenhNhan,          // <-- Lấy từ tham số `maBenhNhan`
-    tenBenhNhan: data.TenBenhNhan,   // <-- Lấy từ `data` (formData)
-    ngaySinh: data.NgaySinh,         
-    gioiTinh: data.GioiTinh,         
-    soDienThoai: data.SoDienThoai,   
-    diaChi: data.DiaChi              
+    MaBenhNhan: maBenhNhan,          // <-- Lấy từ tham số `maBenhNhan`
+    TenBenhNhan: data.TenBenhNhan,   // <-- Lấy từ `data` (formData)
+    NgaySinh: data.NgaySinh,         
+    GioiTinh: data.GioiTinh,         
+    SoDienThoai: data.SoDienThoai,   
+    DiaChi: data.DiaChi              
   };
 
   // BE của bạn dùng route "/fix"

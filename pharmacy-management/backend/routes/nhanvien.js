@@ -28,10 +28,22 @@ router.post("/add", (req, res) => {
   const salt = bcrypt.genSaltSync(10);
   const hashedPassword = bcrypt.hashSync(MatKhau, salt);
 
-  db.query("SELECT COUNT(*) AS total FROM NhanVien", (err, result) => {
-    if (err) return res.status(500).json({ message: "Lỗi DB" });
+  const maxIdQuery =
+    "SELECT MAX(CAST(SUBSTRING(MaNhanVien, 3) AS UNSIGNED)) AS maxNumber FROM NhanVien WHERE MaNhanVien LIKE 'NV%'";
 
-    const MaNhanVien = "NV" + String(result[0].total + 1).padStart(3, "0");
+  db.query(maxIdQuery, (err, result) => {
+    if (err) {
+      console.error("Lỗi DB khi tạo mã nhân viên:", err);
+      return res.status(500).json({ message: "Lỗi DB khi tạo mã nhân viên" });
+    }
+
+    let maxNumber = result && result.length > 0 ? result[0].maxNumber : 0;
+    if (maxNumber === null) {
+      maxNumber = 0;
+    }
+    let nextNumber = maxNumber + 1;
+
+    const MaNhanVien = "NV" + String(nextNumber).padStart(3, "0");
 
     const sql = `
       INSERT INTO NhanVien (MaNhanVien, TenNhanVien, TaiKhoan, MatKhau, VaiTro)
@@ -58,11 +70,11 @@ router.put("/fix", (req, res) => {
 
   const sql = `
     UPDATE NhanVien
-    SET TenNhanVien = ?, TaiKhoan = ?, MatKhau = ?, VaiTro = ?
+    SET TenNhanVien = ?, TaiKhoan = ?,VaiTro = ?
     WHERE MaNhanVien = ?
   `;
 
-  db.query(sql, [TenNhanVien, TaiKhoan, MatKhau, VaiTro, MaNhanVien], (err, result) => {
+  db.query(sql, [TenNhanVien, TaiKhoan,  VaiTro, MaNhanVien], (err, result) => {
     if (err) {
       console.error("Lỗi khi sửa nhân viên:", err);
       return res.status(500).json({ message: "Lỗi khi sửa thông tin nhân viên!" });

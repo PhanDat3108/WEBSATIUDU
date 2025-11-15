@@ -36,20 +36,22 @@ router.post("/add", (req, res) => {
     return res.status(400).json({ message: "Thiếu Tên Loại!" });
   }
 
-  // Tự động tạo MaLoai (VD: L001, L002)
-  db.query("SELECT MAX(MaLoai) AS maxId FROM LoaiThuoc", (err, result) => {
-    if (err) return res.status(500).json({ message: "Lỗi DB khi tạo mã loại" });
+ const maxIdQuery =
+    "SELECT MAX(CAST(SUBSTRING(MaLoai, 2) AS UNSIGNED)) AS maxNumber FROM LoaiThuoc WHERE MaLoai LIKE 'L%'";
 
-    let maxId = result[0].maxId; // VD: "L001"
-    let nextNumber = 1;
-    if (maxId) {
-      try {
-        nextNumber = parseInt(maxId.slice(1)) + 1; // Lấy "001" -> 1 + 1 = 2
-      } catch(e) {
-        return res.status(500).json({ message: "Lỗi khi phân tích mã loại" });
-      }
+  db.query(maxIdQuery, (err, result) => {
+    if (err) {
+      console.error("Lỗi DB khi tạo mã loại:", err);
+      return res.status(500).json({ message: "Lỗi DB khi tạo mã loại" });
     }
-    const MaLoai = "L" + String(nextNumber).padStart(3, "0"); // "L002"
+
+    let maxNumber = result && result.length > 0 ? result[0].maxNumber : 0;
+    if (maxNumber === null) {
+      maxNumber = 0;
+    }
+    let nextNumber = maxNumber + 1;
+
+    const MaLoai = "LT" + String(nextNumber).padStart(3, "0");
 
     const sql = "INSERT INTO LoaiThuoc (MaLoai, TenLoai) VALUES (?, ?)";
     db.query(sql, [MaLoai, TenLoai], (err2) => {

@@ -69,7 +69,7 @@ router.post("/login", (req, res) => {
         VaiTro: user.VaiTro 
       }, 
       process.env.JWT_SECRET || "fallback_secret_key_123", // Phải dùng biến môi trường!
-      { expiresIn: "1h" } // Token hết hạn sau 1 giờ
+      { expiresIn: "30s" } // Token hết hạn sau 1 giờ
     );
 
     // [SỬA 5] Trả về cấu trúc lồng nhau (nested) mà frontend mong đợi

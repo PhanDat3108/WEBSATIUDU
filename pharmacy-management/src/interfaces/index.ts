@@ -266,3 +266,33 @@ export interface RegisterResponse {
   message: string;
   MaNhanVien: string;
 }
+/**
+ * 1.15. Dữ liệu cho Lịch sử Xuất Nội Bộ (Bỏ/Khác)
+ */
+export interface XuatNoiBoHistory {
+  MaPhieuXuat: string;
+  NgayXuat: string; // ISO date
+  LoaiXuat: string; // Bỏ | Khác
+  TenThuoc: string;
+  SoLuongXuat: number;
+  DonGiaXuat: number; // Giá vốn
+  TenNhanVien: string;
+}
+
+/**
+ * 1.16. Dữ liệu CHI TIẾT để TẠO phiếu xuất nội bộ
+ */
+export interface ChiTietXuatNoiBoCreate {
+  MaThuoc: string;
+  SoLuongXuat: number;
+  DonGiaXuat: number; // Giá vốn (lấy từ GiaNhap)
+}
+
+/**
+ * 1.17. Dữ liệu TỔNG QUÁT để TẠO phiếu xuất nội bộ
+ */
+export interface PhieuXuatNoiBoCreatePayload {
+  MaNhanVien: string;
+  LoaiXuat: string; // Bỏ | Khác
+  chiTiet: ChiTietXuatNoiBoCreate[];
+}

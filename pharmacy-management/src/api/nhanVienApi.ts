@@ -50,12 +50,12 @@ export const createNhanVien = async (data: NhanVienCreateData): Promise<NhanVien
 export const updateNhanVien = async (maNV: string, data: NhanVienUpdateData): Promise<NhanVien> => {
   try {
     // BE (nhanvien.js) dùng /edit và lấy MaNhanVien từ body
-    const response = await fetch(`${API_BASE_URL}/edit`, { 
+    const response = await fetch(`${API_BASE_URL}/fix`, { 
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...data,
-        MaNhanVien: maNV // Thêm MaNhanVien vào body
+        MaNhanVien: maNV 
       }),
     });
     return await handleResponse(response);
