@@ -1,0 +1,69 @@
+/* src/styles/TheSanPham.module.css */
+.card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: 100%; /* Đảm bảo các card cao bằng nhau */
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.card-image {
+  width: 100%;
+  height: 200px; 
+  object-fit: cover; /* Giữ tỷ lệ ảnh */
+}
+
+.card-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* Quan trọng: Đẩy nút xuống dưới */
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: #333;
+  /* Giới hạn 2 dòng chữ */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 44px; /* ~ chiều cao 2 dòng */
+}
+
+.card-price {
+  font-size: 1.15rem;
+  font-weight: bold;
+  color: #d9534f; /* Màu đỏ cho giá */
+  margin-top: auto; /* Quan trọng: Đẩy giá + nút xuống */
+  margin-bottom: 12px;
+}
+
+.card-button {
+  background-color: #0275d8; /* Màu xanh dương */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  text-align: center;
+  transition: background-color 0.2s;
+  width: 100%; /* Nút rộng bằng card */
+}
+
+.card-button:hover {
+  background-color: #025aa5;
+}

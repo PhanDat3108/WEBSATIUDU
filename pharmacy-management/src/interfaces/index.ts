@@ -20,6 +20,8 @@ export interface Thuoc {
   // Dữ liệu join từ BE (Rất hữu ích để hiển thị)
   TenLoai?: string;
   TenNhaCungCap?: string;
+  // URL ảnh đại diện cho thuốc (nếu có)
+  HinhAnh?: string;
 }
 
 /**

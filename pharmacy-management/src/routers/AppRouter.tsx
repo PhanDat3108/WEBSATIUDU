@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 // Import Pages & Layouts
 import AdminLayout from '../components/AdminLayout/AdminLayout'; 
 import AdminDashboard from '../pages/Admin/Dashboard';
-import HomePage from '../pages/Pharmacist/HomePage';
+import HomePage from '../pages/Home/HomePage';
 import LoginHomePage from "../pages/Login";
 import MedicineManagement from '../pages/Admin/MedicineManagement';
 import PatientManagement from '../pages/Admin/PatientManagement';
