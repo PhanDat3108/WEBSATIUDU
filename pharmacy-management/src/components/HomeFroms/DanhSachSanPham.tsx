@@ -39,7 +39,7 @@ const DanhSachSanPham: React.FC = () => {
   return (
     <div className={styles['product-list-grid']}>
       {thuocList.map(thuoc => (
-        <TheSanPham key={thuoc.MaThuoc} thuoc={thuoc} />
+        <TheSanPham key={thuoc.MaThuoc} sanPham={thuoc} />
       ))}
     </div>
   );

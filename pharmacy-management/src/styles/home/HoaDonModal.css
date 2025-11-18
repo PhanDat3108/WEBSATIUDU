@@ -1,0 +1,122 @@
+/* src/components/HoaDonModal.css */
+
+.hoadon-overlay {
+  /* Quan trọng: Giữ modal cố định so với màn hình, bất kể đang cuộn chuột ở đâu */
+  position: fixed !important; 
+  top: 0;
+  left: 0;
+  width: 100vw; /* 100% chiều rộng màn hình */
+  height: 100vh; /* 100% chiều cao màn hình */
+  
+  /* Lớp nền màu đen mờ */
+  background-color: rgba(0, 0, 0, 0.6); 
+  backdrop-filter: blur(2px); /* Làm mờ background phía sau 1 chút cho đẹp */
+
+  /* Căn giữa modal */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* Đảm bảo nó nằm trên cùng (Footer thường là z-index thấp, Sidebar khoảng 1000) */
+  z-index: 99999 !important; 
+}
+
+.hoadon-container {
+  background: #fff;
+  width: 400px;
+  max-width: 90%; /* Tránh bị vỡ trên mobile */
+  max-height: 90vh; /* Tránh bị tràn màn hình dọc */
+  overflow-y: auto; /* Cho phép cuộn nếu hóa đơn quá dài */
+  
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  
+  font-family: 'Courier New', Courier, monospace; /* Font giống hóa đơn siêu thị */
+  color: #000;
+  
+  /* Hiệu ứng hiện ra nhẹ nhàng */
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Hiệu ứng animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Các style cũ cho nội dung bên trong --- */
+.hoadon-header {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.hoadon-header h2 {
+  margin: 5px 0;
+  font-size: 18px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.dashed-line {
+  border-top: 2px dashed #333;
+  margin: 15px 0;
+}
+
+.hoadon-table {
+  width: 100%;
+  font-size: 14px;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+}
+
+.hoadon-table th {
+  text-align: left;
+  border-bottom: 1px solid #000;
+  padding: 5px 0;
+}
+
+.hoadon-table td {
+  padding: 8px 0;
+  border-bottom: 1px dotted #ccc;
+}
+
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+
+.hoadon-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.loi-cam-on {
+  text-align: center;
+  font-style: italic;
+  font-size: 13px;
+  margin-top: 20px;
+}
+
+.hoadon-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.hoadon-actions button {
+  flex: 1;
+  padding: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.btn-close { background: #e0e0e0; color: #333; transition: 0.2s; }
+.btn-close:hover { background: #d0d0d0; }
+
+.btn-print { background: #27ae60; color: white; transition: 0.2s; }
+.btn-print:hover { background: #219150; }
