@@ -78,12 +78,14 @@ export interface ChiTietNhapLichSu {
   TenNhaCungCap: string;
   SoLuongNhap: number;
   DonGiaNhap: number;
-  HanSuDung: string;   }
+  HanSuDung: string; 
+SoLuongConLai: number;  }
   export interface ChiTietNhapCreate {
   MaThuoc: string;
   SoLuongNhap: number;
   DonGiaNhap: number;
   HanSuDung: string; 
+
 }
 
 export interface PhieuNhapCreatePayload {

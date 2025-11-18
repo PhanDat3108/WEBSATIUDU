@@ -4,12 +4,9 @@ import { getChiTietNhapList } from '../../api/phieuNhapApi';
 import { ChiTietNhapLichSu } from '../../interfaces';
 import styles from '../../styles/AdminManagement.module.css'; 
 
-// [SỬA] Import Modal MỚI
 import ModalWithAnimation from '../../components/common/ModalWithAnimation'; 
 import { PhieuNhapForm } from '../../components/AdminForms/PhieuNhapForm';
 import modalStyles from '../../styles/Modal.module.css';
-
-// --- Helper Functions (Hàm hỗ trợ) ---
 
 const formatDate = (isoString: string) => {
   if (!isoString) return 'N/A';
@@ -20,7 +17,6 @@ const formatDate = (isoString: string) => {
       year: 'numeric',
     });
   } catch (error) {
-    console.error("Lỗi format ngày:", isoString, error);
     return "Ngày lỗi";
   }
 };
@@ -32,14 +28,10 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
-// --- Main Component (Component chính) ---
-
 export const PhieuNhapManagement = () => {
   const [history, setHistory] = useState<ChiTietNhapLichSu[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // State để quản lý việc mở/đóng Modal MỚI
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchData = async () => {
@@ -59,32 +51,27 @@ export const PhieuNhapManagement = () => {
     fetchData();
   }, []);
 
-  // Hàm xử lý khi bấm nút "Thêm Phiếu Nhập"
   const handleAddClick = () => {
     setIsModalOpen(true); 
   };
   
-  // Hàm để xử lý khi Form được lưu thành công
   const handleSaveSuccess = () => {
-    setIsModalOpen(false); // Đóng Modal
-    fetchData(); // Tải lại danh sách lịch sử
+    setIsModalOpen(false); 
+    fetchData(); 
   };
 
   return (
     <div className={styles.adminManagementPage}>
-      {/* Header của trang */}
       <header className={styles.header}>
-        <h1>Lịch Sử Nhập Thuốc</h1>
+        <h1>Lịch Sử Nhập Thuốc & Quản Lý Lô</h1>
         <button onClick={handleAddClick} className={styles.addButton}>
-          + Thêm Phiếu Nhập
+          + Nhập Hàng Mới
         </button>
       </header>
 
-      {/* Hiển thị trạng thái tải hoặc lỗi */}
       {isLoading && <div className={styles.loading}>Đang tải dữ liệu...</div>}
       {error && <div className={styles.error}>Lỗi: {error}</div>}
 
-      {/* Hiển thị bảng dữ liệu */}
       {!isLoading && !error && (
         <div className={styles.tableContainer}>
           <table className={styles.table}>
@@ -94,27 +81,59 @@ export const PhieuNhapManagement = () => {
                 <th>Ngày Nhập</th>
                 <th>Tên Thuốc</th>
                 <th>Nhà Cung Cấp</th>
-                <th>Số Lượng</th>
-                <th>Đơn Giá Nhập</th>
+                <th>SL Nhập</th>
+                <th>Tồn Lô</th> 
+                <th>Đơn Giá</th>
                 <th>Hạn Sử Dụng</th>
               </tr>
             </thead>
             <tbody>
               {history.length > 0 ? (
-                history.map((item, index) => (
-                  <tr key={`${item.MaPhieuNhap}-${item.TenThuoc}-${index}`}>
-                    <td>{item.MaPhieuNhap}</td>
-                    <td>{formatDate(item.NgayNhap)}</td>
-                    <td>{item.TenThuoc}</td>
-                    <td>{item.TenNhaCungCap}</td>
-                    <td className={styles.numberCell}>{item.SoLuongNhap}</td>
-                    <td className={styles.numberCell}>{formatCurrency(item.DonGiaNhap)}</td>
-                    <td>{formatDate(item.HanSuDung)}</td>
-                  </tr>
-                ))
+                history.map((item, index) => {
+                  // Kiểm tra xem lô này đã bán hết chưa
+                  const isSoldOut = item.SoLuongConLai === 0;
+                  // Kiểm tra sắp hết hạn (ví dụ: còn 30 ngày)
+                  const isExpiringSoon = new Date(item.HanSuDung).getTime() - new Date().getTime() < 30 * 24 * 60 * 60 * 1000;
+
+                  return (
+                    <tr 
+                      key={`${item.MaPhieuNhap}-${item.TenThuoc}-${index}`}
+                      style={{ 
+                        opacity: isSoldOut ? 0.5 : 1, // Làm mờ nếu đã bán hết
+                        backgroundColor: isSoldOut ? '#f9f9f9' : 'white' 
+                      }}
+                    >
+                      <td>{item.MaPhieuNhap}</td>
+                      <td>{formatDate(item.NgayNhap)}</td>
+                      <td style={{ fontWeight: '500' }}>{item.TenThuoc}</td>
+                      <td>{item.TenNhaCungCap}</td>
+                      
+                      <td className={styles.numberCell}>{item.SoLuongNhap}</td>
+                      
+                      {/* [MỚI] Hiển thị số lượng còn lại */}
+                      <td className={styles.numberCell} style={{ 
+                          fontWeight: 'bold', 
+                          color: isSoldOut ? '#999' : '#2ecc71' // Xanh lá nếu còn, xám nếu hết
+                      }}>
+                        {item.SoLuongConLai}
+                      </td>
+
+                      <td className={styles.numberCell}>{formatCurrency(item.DonGiaNhap)}</td>
+                      
+                      <td style={{ 
+                          color: (!isSoldOut && isExpiringSoon) ? '#e74c3c' : 'inherit', // Đỏ nếu sắp hết hạn và vẫn còn hàng
+                          fontWeight: (!isSoldOut && isExpiringSoon) ? 'bold' : 'normal'
+                      }}>
+                        {formatDate(item.HanSuDung)}
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
-                  <td colSpan={7}>Chưa có lịch sử nhập hàng.</td>
+                  <td colSpan={8} style={{ textAlign: 'center', padding: '20px' }}>
+                    Chưa có dữ liệu nhập kho.
+                  </td>
                 </tr>
               )}
             </tbody>
@@ -122,12 +141,11 @@ export const PhieuNhapManagement = () => {
         </div>
       )}
 
-      {/* [SỬA] Sử dụng ModalWithAnimation và truyền 'isOpen' */}
       <ModalWithAnimation 
         title="Tạo Phiếu Nhập Mới" 
-        isOpen={isModalOpen} // Truyền state vào prop 'isOpen'
+        isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)}
-        customClass={modalStyles.modalLarge} // Giờ prop này đã hoạt động
+        customClass={modalStyles.modalLarge}
       >
         <PhieuNhapForm
           onClose={() => setIsModalOpen(false)}
@@ -137,4 +155,3 @@ export const PhieuNhapManagement = () => {
     </div>
   );
 };
-export default PhieuNhapManagement;
