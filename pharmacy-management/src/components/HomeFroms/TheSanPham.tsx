@@ -1,37 +1,71 @@
-// src/components/TheSanPham.tsx
-import React from 'react';
-import { Thuoc } from '../../interfaces';
-import styles from '../../styles/home/TheSanPham.module.css';
-import { useTuiHang } from '../../contexts/TuiHangContext';
+import React from "react";
+import { useTuiHang } from "../../contexts/TuiHangContext";
+import { Thuoc } from "../../interfaces";
+// import "../../styles/home/TheSanPham.module.css"; // Kiểm tra lại đường dẫn CSS của bạn
 
-interface Props {
-  thuoc: Thuoc;
+interface TheSanPhamProps {
+  sanPham: Thuoc;
 }
 
-const TheSanPham: React.FC<Props> = ({ thuoc }) => {
-  // LƯU Ý: Chúng ta sẽ tạm thời dùng ảnh placeholder.
-  // Bạn sẽ cần thêm trường HinhAnh vào interface và database sau này.
-  const imageUrl = "https://via.placeholder.com/400x400?text=" + encodeURIComponent(thuoc.TenThuoc);
+const TheSanPham: React.FC<TheSanPhamProps> = ({ sanPham }) => {
   const { themVaoTuiHang } = useTuiHang();
 
+  // [QUAN TRỌNG] Logic tự ghép tên file ảnh
+  // Nếu mã là T001 -> Link sẽ là /images/thuoc/T001.jpg
+  const imageUrl = `/images/thuoc/${sanPham.MaThuoc}.jpg`;
+
+  // Hàm xử lý: Nếu không tìm thấy ảnh thuốc, dùng ảnh mặc định
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const target = e.currentTarget;
+    if (!target.src.includes("default.png")) { // Tránh vòng lặp vô tận
+        target.src = "/images/default.png"; // Bạn nhớ kiếm 1 cái ảnh default.png bỏ vào folder public/images nhé
+    }
+  };
+
   return (
-    <div className={styles['card']} style={{ position: 'relative' }}>
-      <img src={imageUrl} alt={thuoc.TenThuoc} className={styles['card-image']} />
-      <div className={styles['card-body']}>
-        <h3 className={styles['card-title']}>{thuoc.TenThuoc}</h3>
-        <p className={styles['card-price']}>
-          {Number(thuoc.GiaBan || 0).toLocaleString('vi-VN')}₫
-        </p>
-        <button
-          className={styles['card-button']}
-          onClick={() => themVaoTuiHang(thuoc, 1)}
-          aria-label={`Thêm ${thuoc.TenThuoc} vào giỏ`}
-        >
-          Thêm vào giỏ
-        </button>
+    <div className="product-card" style={{border: '1px solid #eee', borderRadius: '8px', padding: '10px', margin: '10px', width: '200px'}}>
+      {/* Vùng chứa ảnh */}
+      <div className="product-image-container" style={{height: '180px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <img
+          src={imageUrl}
+          alt={sanPham.TenThuoc}
+          onError={handleImageError}
+          style={{ 
+            maxWidth: '100%', 
+            maxHeight: '100%', 
+            objectFit: 'contain' 
+          }} 
+        />
+      </div>
+
+      <div className="product-info" style={{marginTop: '10px'}}>
+        <h3 style={{fontSize: '16px', height: '40px', overflow: 'hidden'}} title={sanPham.TenThuoc}>
+          {sanPham.TenThuoc}
+        </h3>
+        
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '5px'}}>
+            <span style={{color: '#d70018', fontWeight: 'bold'}}>
+                {sanPham.GiaBan?.toLocaleString()} đ
+            </span>
+            {/* Nút thêm giỏ hàng */}
+            <button 
+                onClick={() => themVaoTuiHang(sanPham)}
+                style={{
+                    background: '#28a745',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '30px',
+                    height: '30px',
+                    cursor: 'pointer'
+                }}
+            >
+                +
+            </button>
+        </div>
       </div>
     </div>
   );
 };
 
-export default TheSanPham; 
+export default TheSanPham;
