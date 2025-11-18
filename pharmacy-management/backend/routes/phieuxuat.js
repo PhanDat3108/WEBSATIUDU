@@ -4,26 +4,24 @@ import db from "../config/db.js";
 const router = express.Router();
 
 // -----------------------------------------------------------------
-// API 1: LẤY LỊCH SỬ ĐƠN THUỐC (History Page)
-// GET /api/v1/phieuxuat/list-donthuoc
+// API 1: LẤY LỊCH SỬ PHIẾU XUẤT
+// GET /api/v1/phieuxuat/list
 // -----------------------------------------------------------------
-router.get("/list-donthuoc", (req, res) => {
+router.get("/list", (req, res) => {
   const sql = `
     SELECT 
-      dt.MaDonThuoc,
-      dt.NgayLap,
-      bn.TenBenhNhan,
-      nv.TenNhanVien AS TenNguoiLap,
-      dt.TongTien,
-      dt.MaPhieuXuat
-    FROM DonThuoc dt
-    JOIN BenhNhan bn ON dt.MaBenhNhan = bn.MaBenhNhan
-    JOIN NhanVien nv ON dt.MaNhanVien = nv.MaNhanVien
-    ORDER BY dt.NgayLap DESC
+      px.MaPhieuXuat,
+      px.NgayXuat,
+      px.TongTien,
+      px.LoaiXuat,
+      nv.TenNhanVien
+    FROM PhieuXuat px
+    JOIN NhanVien nv ON px.MaNhanVien = nv.MaNhanVien
+    ORDER BY px.NgayXuat DESC
   `;
   db.query(sql, (err, rows) => {
     if (err) {
-      console.error("Lỗi khi lấy lịch sử đơn thuốc:", err);
+      console.error("Lỗi lấy danh sách phiếu xuất:", err);
       return res.status(500).json({ message: "Lỗi máy chủ" });
     }
     res.json(rows);
@@ -31,164 +29,133 @@ router.get("/list-donthuoc", (req, res) => {
 });
 
 // -----------------------------------------------------------------
-// API 2: THÊM MỘT GIAO DỊCH BÁN THUỐC MỚI (Transaction)
+// API 2: XUẤT THUỐC (Áp dụng FEFO - First Expired First Out)
 // POST /api/v1/phieuxuat/add
 // -----------------------------------------------------------------
 router.post("/add", (req, res) => {
-  /*
-    Dữ liệu frontend (req.body) gửi lên dự kiến có dạng:
-    {
-      "MaBenhNhan": "BN001",
-      "MaNhanVien": "NV001", // Lấy từ user đang đăng nhập
-      "LoaiXuat": "Bán", // (Hoặc "Bỏ", "Khác" theo database của bạn)
-      "chiTiet": [
-        { "MaThuoc": "T001", "SoLuong": 10, "DonGiaBan": 55000 },
-        { "MaThuoc": "T002", "SoLuong": 5, "DonGiaBan": 125000 }
-      ]
-    }
-  */
-  const { MaBenhNhan, MaNhanVien, LoaiXuat, chiTiet } = req.body;
+  const { MaNhanVien, LoaiXuat, chiTiet } = req.body;
 
-  // --- 1. Validate Input ---
-  if (!MaBenhNhan || !MaNhanVien || !LoaiXuat || !chiTiet || !Array.isArray(chiTiet) || chiTiet.length === 0) {
-    return res.status(400).json({ message: "Thiếu thông tin bắt buộc (BN, NV, Loại xuất, hoặc chi tiết thuốc)." });
+  // 1. Validate Input cơ bản
+  if (!MaNhanVien || !chiTiet || !Array.isArray(chiTiet) || chiTiet.length === 0) {
+    return res.status(400).json({ message: "Thiếu thông tin nhân viên hoặc chi tiết thuốc." });
   }
 
-  for (const item of chiTiet) {
-    if (!item.MaThuoc || !item.SoLuong || !item.DonGiaBan) {
-      return res.status(400).json({ message: `Thông tin không hợp lệ cho thuốc ${item.MaThuoc}` });
-    }
-    if (Number(item.SoLuong) <= 0 || Number(item.DonGiaBan) < 0) {
-       return res.status(400).json({ message: "Số lượng phải > 0 và Đơn giá không được âm." });
-    }
-  }
-
-  // --- 2. Bắt đầu Transaction ---
+  // 2. Bắt đầu Transaction
   db.beginTransaction(async (err) => {
-    if (err) return res.status(500).json({ message: "Lỗi khi bắt đầu transaction", error: err });
+    if (err) return res.status(500).json({ message: "Lỗi khởi tạo giao dịch", error: err });
 
-    // Hàm rollback (để gọi khi có lỗi)
-    const rollback = (errorMsg, originalError) => {
+    const rollback = (msg) => {
       db.rollback(() => {
-        console.error(errorMsg, originalError);
-        res.status(500).json({ message: errorMsg, error: originalError ? originalError.message : "Lỗi không xác định" });
+        console.error(msg);
+        // Trả về 400 vì đây là lỗi logic (không đủ hàng, thiếu mã thuốc)
+        res.status(400).json({ message: msg });
       });
     };
 
     try {
-      // --- 3. Kiểm tra Tồn Kho (CHECK STOCK) ---
-      // Dùng Promise.all để check tất cả thuốc cùng lúc
-      const stockChecks = chiTiet.map(item => {
-        return new Promise((resolve, reject) => {
-          // Lấy số lượng tồn hiện tại
-          db.query("SELECT SoLuongTon FROM Thuoc WHERE MaThuoc = ?", [item.MaThuoc], (errCheck, rows) => {
-            if (errCheck) return reject(errCheck);
-            if (rows.length === 0) return reject(new Error(`Thuốc với mã ${item.MaThuoc} không tồn tại.`));
-            
-            const soLuongTon = rows[0].SoLuongTon;
-            if (soLuongTon < item.SoLuong) {
-              return reject(new Error(`Không đủ hàng cho thuốc ${item.MaThuoc}. (Tồn: ${soLuongTon}, Cần: ${item.SoLuong})`));
-            }
-            resolve(true);
-          });
-        });
-      });
-      
-      // Chạy tất cả các kiểm tra
-      await Promise.all(stockChecks);
-      
-      // Nếu tất cả đều qua (không bị reject), tiếp tục:
+      // --- BƯỚC A: XỬ LÝ LOGIC FEFO & TRỪ KHO CHI TIẾT ---
+      for (const item of chiTiet) {
+        const { MaThuoc, SoLuong, DonGiaBan } = item;
+        let soLuongCanXuat = Number(SoLuong);
 
-      // --- 4. Tạo MaPhieuXuat (PX001) ---
-      const maxPxResult = await db.promise().query("SELECT MAX(MaPhieuXuat) AS maxId FROM PhieuXuat");
-      let nextPxNumber = 1;
-      const maxPxId = maxPxResult[0][0].maxId;
-      if (maxPxId) {
-        nextPxNumber = parseInt(maxPxId.slice(2)) + 1;
+        if (soLuongCanXuat <= 0) throw new Error(`Số lượng xuất cho thuốc ${MaThuoc} không hợp lệ.`);
+
+        // A1. Tìm các lô thuốc còn hạn và còn hàng (Sắp xếp hạn dùng tăng dần)
+        const [loThuoc] = await db.promise().query(`
+          SELECT MaPhieuNhap, SoLuongConLai, HanSuDung 
+          FROM ChiTietNhap 
+          WHERE MaThuoc = ? AND SoLuongConLai > 0 
+          ORDER BY HanSuDung ASC
+        `, [MaThuoc]);
+
+        // A2. Kiểm tra tổng tồn kho khả dụng
+        const tongTonKhaDung = loThuoc.reduce((acc, lo) => acc + lo.SoLuongConLai, 0);
+        if (tongTonKhaDung < soLuongCanXuat) {
+          throw new Error(`Thuốc ${MaThuoc} không đủ hàng (Tồn lô: ${tongTonKhaDung}, Cần: ${soLuongCanXuat}).`);
+        }
+
+        // A3. Vòng lặp trừ kho từng lô (FEFO)
+        for (const lo of loThuoc) {
+          if (soLuongCanXuat === 0) break;
+
+          let layTuLoNay = 0;
+          if (lo.SoLuongConLai >= soLuongCanXuat) {
+            layTuLoNay = soLuongCanXuat; 
+            soLuongCanXuat = 0;
+          } else {
+            layTuLoNay = lo.SoLuongConLai; 
+            soLuongCanXuat -= lo.SoLuongConLai;
+          }
+
+          // Cập nhật lại số lượng còn lại của lô nhập đó
+          await db.promise().query(
+            "UPDATE ChiTietNhap SET SoLuongConLai = SoLuongConLai - ? WHERE MaPhieuNhap = ? AND MaThuoc = ?",
+            [layTuLoNay, lo.MaPhieuNhap, MaThuoc]
+          );
+        }
       }
-      const MaPhieuXuat = "PX" + String(nextPxNumber).padStart(3, "0");
+
+      // --- BƯỚC B: TẠO PHIẾU XUẤT ---
+      // B1. Tạo mã phiếu xuất (PXxxx)
+      // [FIX TẠO ID] Dùng CAST(SUBSTRING...) an toàn hơn
+      const [maxRes] = await db.promise().query("SELECT MAX(CAST(SUBSTRING(MaPhieuXuat, 3) AS UNSIGNED)) AS maxId FROM PhieuXuat WHERE MaPhieuXuat LIKE 'PX%'");
+      const nextId = (maxRes[0].maxId || 0) + 1;
+      const MaPhieuXuat = "PX" + String(nextId).padStart(3, "0");
+
+      // B2. Tính tổng tiền
+      const TongTien = chiTiet.reduce((sum, item) => sum + (Number(item.SoLuong) * Number(item.DonGiaBan)), 0);
       const NgayXuat = new Date();
 
-      // --- 5. Tính TongTien ---
-      const TongTien = chiTiet.reduce((sum, item) => {
-        return sum + (Number(item.SoLuong) * Number(item.DonGiaBan));
-      }, 0);
+      // B3. Insert PhieuXuat
+      await db.promise().query(
+        "INSERT INTO PhieuXuat (MaPhieuXuat, NgayXuat, TongTien, MaNhanVien, LoaiXuat) VALUES (?, ?, ?, ?, ?)",
+        [MaPhieuXuat, NgayXuat, TongTien, MaNhanVien, LoaiXuat || 'Bán']
+      );
 
-      // --- 6. INSERT vào PhieuXuat ---
-      const sqlPhieuXuat = `
-        INSERT INTO PhieuXuat (MaPhieuXuat, NgayXuat, TongTien, MaNhanVien, LoaiXuat)
-        VALUES (?, ?, ?, ?, ?)
-      `;
-      await db.promise().query(sqlPhieuXuat, [MaPhieuXuat, NgayXuat, TongTien, MaNhanVien, LoaiXuat]);
-
-      // --- 7. INSERT vào ChiTietXuat (Bulk) ---
-      const sqlChiTietXuat = `
-        INSERT INTO ChiTietXuat (MaPhieuXuat, MaThuoc, SoLuongXuat, DonGiaXuat)
-        VALUES ?
-      `;
-      const chiTietXuatValues = chiTiet.map(item => [
+      // --- BƯỚC C: TẠO CHI TIẾT PHIẾU XUẤT ---
+      const chiTietValues = chiTiet.map(item => [
         MaPhieuXuat,
         item.MaThuoc,
         item.SoLuong,
-        item.DonGiaBan // (Theo CSDL 1.7)
+        item.DonGiaBan
       ]);
-      await db.promise().query(sqlChiTietXuat, [chiTietXuatValues]);
-
-      // --- 8. Tạo MaDonThuoc (DT001) ---
-      const maxDtResult = await db.promise().query("SELECT MAX(MaDonThuoc) AS maxId FROM DonThuoc");
-      let nextDtNumber = 1;
-      const maxDtId = maxDtResult[0][0].maxId;
-      if (maxDtId) {
-        nextDtNumber = parseInt(maxDtId.slice(2)) + 1;
-      }
-      const MaDonThuoc = "DT" + String(nextDtNumber).padStart(3, "0");
       
-      // --- 9. INSERT vào DonThuoc ---
-      const sqlDonThuoc = `
-        INSERT INTO DonThuoc (MaDonThuoc, MaPhieuXuat, NgayLap, TongTien, MaBenhNhan, MaNhanVien)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `;
-      await db.promise().query(sqlDonThuoc, [MaDonThuoc, MaPhieuXuat, NgayXuat, TongTien, MaBenhNhan, MaNhanVien]);
+      await db.promise().query(
+        "INSERT INTO ChiTietXuat (MaPhieuXuat, MaThuoc, SoLuongXuat, DonGiaXuat) VALUES ?",
+        [chiTietValues]
+      );
 
-      // --- 10. INSERT vào ChiTietDonThuoc (Bulk) ---
-      const sqlChiTietDonThuoc = `
-        INSERT INTO ChiTietDonThuoc (MaDonThuoc, MaThuoc, SoLuong, DonGiaBan)
-        VALUES ?
-      `;
-      const chiTietDonThuocValues = chiTiet.map(item => [
-        MaDonThuoc,
-        item.MaThuoc,
-        item.SoLuong,
-        item.DonGiaBan // (Theo CSDL 1.11)
-      ]);
-      await db.promise().query(sqlChiTietDonThuoc, [chiTietDonThuocValues]);
-
-      // --- 11. UPDATE Tồn Kho (Quan trọng) ---
-      const updateStockPromises = chiTiet.map(item => {
-        const sqlUpdateThuoc = `
-          UPDATE Thuoc 
-          SET SoLuongTon = SoLuongTon - ?
-          WHERE MaThuoc = ?
-        `;
-        return db.promise().query(sqlUpdateThuoc, [item.SoLuong, item.MaThuoc]);
+      // --- BƯỚC D: CẬP NHẬT TỔNG TỒN KHO (BẢNG THUOC) ---
+      const updatePromises = chiTiet.map(async item => {
+        const [result] = await db.promise().query(
+          "UPDATE Thuoc SET SoLuongTon = SoLuongTon - ? WHERE MaThuoc = ?",
+          [item.SoLuong, item.MaThuoc]
+        );
+        
+        // [FIX CHÍNH] Kiểm tra nếu không có hàng nào bị ảnh hưởng
+        if (result.affectedRows === 0) {
+            // Điều này chỉ xảy ra nếu MaThuoc không tồn tại trong bảng Thuoc
+            throw new Error(`Lỗi Logic: Không tìm thấy Mã Thuốc ${item.MaThuoc} trong bảng Thuoc để cập nhật tổng tồn.`);
+        }
+        return true;
       });
-      await Promise.all(updateStockPromises);
+      
+      await Promise.all(updatePromises);
 
-      // --- 12. COMMIT (Tất cả thành công) ---
-      db.commit(errCommit => {
-        if (errCommit) return rollback("Lỗi khi commit transaction", errCommit);
+      // --- BƯỚC E: COMMIT ---
+      db.commit((errCommit) => {
+        if (errCommit) return rollback("Lỗi khi commit transaction");
         
         res.status(201).json({ 
-          message: "Xuất thuốc và tạo đơn thuốc thành công!",
-          MaDonThuoc: MaDonThuoc,
-          MaPhieuXuat: MaPhieuXuat,
-          TongTien: TongTien
+          message: "Xuất thuốc thành công!",
+          MaPhieuXuat,
+          TongTien
         });
       });
 
-    } catch (transactionError) {
-      // --- 13. ROLLBACK (Nếu có lỗi ở bước 3, 6, 7, 9, 10, 11) ---
-      rollback(transactionError.message, transactionError);
+    } catch (e) {
+      // Dùng e.message để lấy thông báo lỗi chính xác
+      rollback(e.message || "Lỗi xử lý giao dịch", e);
     }
   });
 });

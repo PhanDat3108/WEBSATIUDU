@@ -3,7 +3,7 @@ import db from "../config/db.js";
 
 const router = express.Router();
 
-//lấy danh sách chi tiết phiếu nhập
+// Lấy danh sách chi tiết phiếu nhập
 router.get("/details", (req, res) => {
   const sql = `
     SELECT 
@@ -13,7 +13,8 @@ router.get("/details", (req, res) => {
       ncc.TenNhaCungCap,
       ctn.SoLuongNhap,
       ctn.DonGiaNhap,
-      ctn.HanSuDung
+      ctn.HanSuDung,
+      ctn.SoLuongConLai -- Hiển thị thêm số lượng còn lại trong lô
     FROM ChiTietNhap ctn
     JOIN Thuoc t ON ctn.MaThuoc = t.MaThuoc
     JOIN PhieuNhap pn ON ctn.MaPhieuNhap = pn.MaPhieuNhap
@@ -29,9 +30,12 @@ router.get("/details", (req, res) => {
     res.json(rows);
   });
 });
-router.post("/add", (req, res) => {
 
+// API Thêm phiếu nhập mới (Đã cập nhật cho FEFO)
+router.post("/add", (req, res) => {
   const { MaNhaCungCap, MaNhanVien, chiTiet } = req.body;
+
+  // Validation cơ bản
   if (!MaNhaCungCap || !MaNhanVien || !chiTiet || !Array.isArray(chiTiet) || chiTiet.length === 0) {
     return res.status(400).json({ message: "Thiếu thông tin bắt buộc (Nhà cung cấp, Nhân viên, hoặc chi tiết thuốc)." });
   }
@@ -45,6 +49,7 @@ router.post("/add", (req, res) => {
     }
   }
 
+  // Bắt đầu Transaction
   db.beginTransaction(err => {
     if (err) return res.status(500).json({ message: "Lỗi khi bắt đầu transaction", error: err });
 
@@ -54,18 +59,17 @@ router.post("/add", (req, res) => {
         res.status(500).json({ message: errorMsg });
       });
     };
-    db.query("SELECT MAX(MaPhieuNhap) AS maxId FROM PhieuNhap", (err1, maxIdResult) => {
-      if (err1) return rollback("Lỗi DB khi lấy maxId phiếu nhập", err1);
 
-      let nextNumber = 1;
-      const maxId = maxIdResult[0].maxId; 
-      if (maxId) {
-          try {
-              nextNumber = parseInt(maxId.slice(2)) + 1; 
-          } catch (e) {
-              return rollback("Lỗi khi phân tích MaPhieuNhap", e);
-          }
-      }
+    // [THAY ĐỔI 1] Tạo Mã Phiếu Nhập An Toàn (Dùng SQL thay vì JS thuần)
+    const maxIdQuery = "SELECT MAX(CAST(SUBSTRING(MaPhieuNhap, 3) AS UNSIGNED)) AS maxNumber FROM PhieuNhap WHERE MaPhieuNhap LIKE 'PN%'";
+
+    db.query(maxIdQuery, (err1, result) => {
+      if (err1) return rollback("Lỗi DB khi tạo mã phiếu nhập", err1);
+
+      let maxNumber = (result && result.length > 0) ? result[0].maxNumber : 0;
+      if (maxNumber === null) maxNumber = 0;
+      let nextNumber = maxNumber + 1;
+
       const MaPhieuNhap = "PN" + String(nextNumber).padStart(3, "0");
       const NgayNhap = new Date(); 
 
@@ -73,27 +77,35 @@ router.post("/add", (req, res) => {
         return sum + (Number(item.SoLuongNhap) * Number(item.DonGiaNhap));
       }, 0);
 
+      // Thêm vào bảng PhieuNhap
       const sqlPhieuNhap = `
         INSERT INTO PhieuNhap (MaPhieuNhap, NgayNhap, TongTien, MaNhaCungCap, MaNhanVien)
         VALUES (?, ?, ?, ?, ?)
       `;
+
       db.query(sqlPhieuNhap, [MaPhieuNhap, NgayNhap, TongTien, MaNhaCungCap, MaNhanVien], (err2) => {
         if (err2) return rollback("Lỗi khi thêm phiếu nhập", err2);
 
+        // [THAY ĐỔI 2] Thêm cột SoLuongConLai vào câu lệnh INSERT
         const sqlChiTiet = `
-          INSERT INTO ChiTietNhap (MaPhieuNhap, MaThuoc, SoLuongNhap, DonGiaNhap, HanSuDung)
+          INSERT INTO ChiTietNhap (MaPhieuNhap, MaThuoc, SoLuongNhap, DonGiaNhap, HanSuDung, SoLuongConLai)
           VALUES ?
         `;
+        
+        // Map dữ liệu: SoLuongConLai ban đầu chính bằng SoLuongNhap
         const chiTietValues = chiTiet.map(item => [
           MaPhieuNhap,
           item.MaThuoc,
           item.SoLuongNhap,
           item.DonGiaNhap,
-          item.HanSuDung
+          item.HanSuDung,
+          item.SoLuongNhap // <--- QUAN TRỌNG: Khởi tạo tồn kho lô này
         ]);
         
         db.query(sqlChiTiet, [chiTietValues], (err3) => {
           if (err3) return rollback("Lỗi khi thêm chi tiết phiếu nhập", err3);
+
+          // Cập nhật bảng Thuoc (Tổng tồn kho và Giá nhập mới nhất)
           let updatePromises = chiTiet.map(item => {
             return new Promise((resolve, reject) => {
               const sqlUpdateThuoc = `
@@ -109,6 +121,7 @@ router.post("/add", (req, res) => {
               });
             });
           });
+
           Promise.all(updatePromises)
             .then(() => {
               db.commit(errCommit => {
@@ -122,11 +135,12 @@ router.post("/add", (req, res) => {
               });
             })
             .catch(errUpdate => {
-               return rollback("Lỗi khi cập nhật kho thuốc", errUpdate);
+               return rollback("Lỗi khi cập nhật kho thuốc tổng", errUpdate);
             });
         });
       });
     });
   });
 });
+
 export default router;
