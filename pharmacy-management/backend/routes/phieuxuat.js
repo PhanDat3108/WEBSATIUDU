@@ -2,35 +2,37 @@ import express from "express";
 import db from "../config/db.js";
 
 const router = express.Router();
-console.log(">>> [LOG] Router PhieuXuat đã được load.");
 
-// -----------------------------------------------------------------
-// API 1: LẤY LỊCH SỬ PHIẾU XUẤT (Giữ nguyên)
-// -----------------------------------------------------------------
-router.get("/list", (req, res) => {
+// API: LẤY TOÀN BỘ CHI TIẾT LỊCH SỬ XUẤT (BÁN + BỎ + KHÁC)
+// Dùng để hiển thị bảng trong XuatNoiBoManagement
+router.get("/details-all", (req, res) => {
   const sql = `
     SELECT 
       px.MaPhieuXuat,
       px.NgayXuat,
-      px.TongTien,
       px.LoaiXuat,
-      nv.TenNhanVien
+      nv.TenNhanVien,
+      t.TenThuoc,
+      ctx.SoLuongXuat,
+      ctx.DonGiaXuat,
+      (ctx.SoLuongXuat * ctx.DonGiaXuat) as ThanhTien
     FROM PhieuXuat px
-    JOIN NhanVien nv ON px.MaNhanVien = nv.MaNhanVien
+    JOIN ChiTietXuat ctx ON px.MaPhieuXuat = ctx.MaPhieuXuat
+    JOIN Thuoc t ON ctx.MaThuoc = t.MaThuoc
+    LEFT JOIN NhanVien nv ON px.MaNhanVien = nv.MaNhanVien
     ORDER BY px.NgayXuat DESC
   `;
-  db.query(sql, (err, rows) => {
+
+  db.query(sql, (err, results) => {
     if (err) {
-      console.error("Lỗi lấy danh sách phiếu xuất:", err);
-      return res.status(500).json({ message: "Lỗi máy chủ" });
+      console.error("Lỗi lấy lịch sử xuất chi tiết:", err);
+      return res.status(500).json({ message: "Lỗi máy chủ khi lấy dữ liệu." });
     }
-    res.json(rows);
+    res.json(results);
   });
 });
 
-// -----------------------------------------------------------------
-// API 2: TẠO PHIẾU XUẤT (Bán hàng)
-// -----------------------------------------------------------------
+// API: TẠO PHIẾU XUẤT BÁN HÀNG (Giữ lại nếu bạn dùng cho trang Bán Hàng)
 router.post("/add", async (req, res) => {
   // Payload mong đợi: MaNhanVien, LoaiXuat (mặc định là 'Bán'), 
   // chiTiet: [{ MaThuoc, SoLuongXuat, DonGiaXuat (giá bán) }]
@@ -225,5 +227,4 @@ router.post("/add", async (req, res) => {
     console.log("--- KẾT THÚC GIAO DỊCH TẠO PHIẾU XUẤT (Không release connection) ---");
   }
 });
-
 export default router;

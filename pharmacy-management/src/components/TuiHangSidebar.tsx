@@ -1,7 +1,8 @@
 // src/components/TuiHangSidebar.tsx
 import React, { useState } from 'react';
 import { useTuiHang } from '../contexts/TuiHangContext';
-import { phieuXuatApi, PhieuXuatPayload } from '../api/phieuXuatApi'; // Import API đã sửa
+import { phieuXuatApi} from '../api/phieuXuatApi'; 
+import {PhieuXuatPayload } from '../interfaces/index';
 import HoaDonModal from '../components/HomeFroms/HoaDonModal';
 import './TuiHangSidebar.css';
 
