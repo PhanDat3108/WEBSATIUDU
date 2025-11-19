@@ -39,11 +39,12 @@ const handleResponse = async (response: Response) => {
 };
 
 // 3. Xuất ra object chứa các hàm gọi API
+
 export const phieuXuatApi = {
-  // Hàm lấy danh sách phiếu xuất (nếu cần)
+  // Hàm lấy danh sách phiếu xuất (nếu cần) - giữ nguyên vì nó gọi GET /api/v1/phieuxuat
   getAll: async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}`);
+      const response = await fetch(`${API_BASE_URL}`); 
       return await handleResponse(response);
     } catch (error) {
       console.error('Lỗi lấy danh sách phiếu xuất:', error);
@@ -51,17 +52,16 @@ export const phieuXuatApi = {
     }
   },
 
-  // [QUAN TRỌNG] Hàm tạo phiếu xuất - Nút "Xuất đơn thuốc" sẽ gọi hàm này
+  // [QUAN TRỌNG] SỬA LỖI Ở ĐÂY: Thêm /add vào URL
   create: async (data: PhieuXuatPayload) => {
-    // Lấy token từ localStorage để gửi kèm (nếu Backend yêu cầu bảo mật)
     const token = localStorage.getItem('token'); 
 
     try {
-      const response = await fetch(`${API_BASE_URL}`, {
+      // Đã sửa: Thêm '/add' vào cuối URL
+      const response = await fetch(`${API_BASE_URL}/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // Nếu BE cần xác thực thì bỏ comment dòng dưới:
           // 'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify(data),

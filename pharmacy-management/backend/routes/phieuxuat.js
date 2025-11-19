@@ -2,10 +2,10 @@ import express from "express";
 import db from "../config/db.js";
 
 const router = express.Router();
+console.log(">>> [LOG] Router PhieuXuat đã được load.");
 
 // -----------------------------------------------------------------
-// API 1: LẤY LỊCH SỬ PHIẾU XUẤT
-// GET /api/v1/phieuxuat/list
+// API 1: LẤY LỊCH SỬ PHIẾU XUẤT (Giữ nguyên)
 // -----------------------------------------------------------------
 router.get("/list", (req, res) => {
   const sql = `
@@ -29,135 +29,201 @@ router.get("/list", (req, res) => {
 });
 
 // -----------------------------------------------------------------
-// API 2: XUẤT THUỐC (Áp dụng FEFO - First Expired First Out)
-// POST /api/v1/phieuxuat/add
+// API 2: TẠO PHIẾU XUẤT (Bán hàng)
 // -----------------------------------------------------------------
-router.post("/add", (req, res) => {
+router.post("/add", async (req, res) => {
+  // Payload mong đợi: MaNhanVien, LoaiXuat (mặc định là 'Bán'), 
+  // chiTiet: [{ MaThuoc, SoLuongXuat, DonGiaXuat (giá bán) }]
   const { MaNhanVien, LoaiXuat, chiTiet } = req.body;
+  const loaiXuatValue = LoaiXuat || 'Bán'; 
 
-  // 1. Validate Input cơ bản
+  console.log("--- BẮT ĐẦU GIAO DỊCH TẠO PHIẾU XUẤT (Bán hàng) ---");
+  console.log("Dữ liệu nhận được:", { MaNhanVien, LoaiXuat, chiTiet });
+
   if (!MaNhanVien || !chiTiet || !Array.isArray(chiTiet) || chiTiet.length === 0) {
+    console.error("Lỗi: Thiếu thông tin đầu vào");
     return res.status(400).json({ message: "Thiếu thông tin nhân viên hoặc chi tiết thuốc." });
   }
 
-  // 2. Bắt đầu Transaction
-  db.beginTransaction(async (err) => {
-    if (err) return res.status(500).json({ message: "Lỗi khởi tạo giao dịch", error: err });
+  // Khắc phục lỗi Single Connection: Lấy Promise Connection trực tiếp
+  const conn = db.promise(); 
 
-    const rollback = (msg) => {
-      db.rollback(() => {
-        console.error(msg);
-        // Trả về 400 vì đây là lỗi logic (không đủ hàng, thiếu mã thuốc)
-        res.status(400).json({ message: msg });
-      });
-    };
+  const performRollback = async (error) => {
+    if (conn) {
+      await conn.rollback(); 
+      console.error("BƯỚC 6: ROLLBACK THỰC HIỆN.");
+      console.error("Lỗi chi tiết:", error.message || error);
+      if (error.sqlMessage) {
+           console.error("SQL Message:", error.sqlMessage);
+           console.error("SQL Query:", error.sql);
+      }
+    }
+    res.status(400).json({ message: error.message || "Lỗi xử lý giao dịch. Vui lòng kiểm tra log máy chủ." });
+  };
+  
+  try {
+    // 2. Bắt đầu Transaction trên kết nối đơn
+    await conn.beginTransaction(); 
+    console.log("BƯỚC 1: Bắt đầu Transaction thành công.");
 
-    try {
-      // --- BƯỚC A: XỬ LÝ LOGIC FEFO & TRỪ KHO CHI TIẾT ---
-      for (const item of chiTiet) {
-        const { MaThuoc, SoLuong, DonGiaBan } = item;
-        let soLuongCanXuat = Number(SoLuong);
+    // --- BƯỚC A: XỬ LÝ LOGIC FEFO & TRỪ KHO CHI TIẾT LÔ HÀNG (ChiTietNhap) ---
+    console.log("BƯỚC 2: Bắt đầu xử lý FEFO và trừ tồn lô.");
+    let itemIndex = 0;
+    for (const item of chiTiet) {
+      itemIndex++;
+      // Sử dụng SoLuongXuat và DonGiaXuat từ payload
+      const { MaThuoc, SoLuongXuat, DonGiaXuat } = item; 
+      const maThuocTrim = String(MaThuoc).trim();
+      const soLuongYeuCau = Number(SoLuongXuat);
+      const donGiaBan = Number(DonGiaXuat);
+      
+      // Gán lại DonGiaXuat (giá bán) để đảm bảo nó là number cho tính toán tổng tiền
+      item.DonGiaXuat = donGiaBan;
 
-        if (soLuongCanXuat <= 0) throw new Error(`Số lượng xuất cho thuốc ${MaThuoc} không hợp lệ.`);
+      console.log(`--- Đang xử lý mục ${itemIndex}: Mã Thuốc: ${maThuocTrim}, SL Yêu cầu: ${soLuongYeuCau}, Giá bán: ${donGiaBan} ---`);
 
-        // A1. Tìm các lô thuốc còn hạn và còn hàng (Sắp xếp hạn dùng tăng dần)
-        const [loThuoc] = await db.promise().query(`
-          SELECT MaPhieuNhap, SoLuongConLai, HanSuDung 
-          FROM ChiTietNhap 
-          WHERE MaThuoc = ? AND SoLuongConLai > 0 
-          ORDER BY HanSuDung ASC
-        `, [MaThuoc]);
+      // Kiểm tra tính hợp lệ của số lượng
+      if (soLuongYeuCau <= 0 || isNaN(soLuongYeuCau)) {
+        throw new Error(`Số lượng xuất cho thuốc ${maThuocTrim} không hợp lệ.`);
+      }
+      
+      // A1. Tìm các lô thuốc còn hạn và còn hàng (FEFO)
+      const [loThuocRows] = await conn.query(` 
+        SELECT MaPhieuNhap, SoLuongConLai, HanSuDung 
+        FROM ChiTietNhap 
+        WHERE MaThuoc = ? AND SoLuongConLai > 0 
+        ORDER BY HanSuDung ASC
+      `, [maThuocTrim]);
 
-        // A2. Kiểm tra tổng tồn kho khả dụng
-        const tongTonKhaDung = loThuoc.reduce((acc, lo) => acc + lo.SoLuongConLai, 0);
-        if (tongTonKhaDung < soLuongCanXuat) {
-          throw new Error(`Thuốc ${MaThuoc} không đủ hàng (Tồn lô: ${tongTonKhaDung}, Cần: ${soLuongCanXuat}).`);
+      const loThuoc = loThuocRows.map(lo => ({ ...lo, SoLuongConLai: Number(lo.SoLuongConLai) }));
+      
+      console.log(`A1. Kết quả truy vấn lô hàng (${loThuoc.length} lô tìm thấy):`, loThuoc);
+      
+      let soLuongCanXuat = soLuongYeuCau; 
+      
+      // A2. Kiểm tra tổng tồn kho khả dụng
+      const tongTonKhaDung = loThuoc.reduce((acc, lo) => acc + lo.SoLuongConLai, 0);
+
+      if (tongTonKhaDung < soLuongCanXuat) {
+        throw new Error(`Thuốc ${maThuocTrim} không đủ hàng (Tồn lô: ${tongTonKhaDung}, Cần: ${soLuongCanXuat}).`);
+      }
+      console.log(`A2. Tổng tồn khả dụng: ${tongTonKhaDung}. Đủ để xuất hàng.`);
+
+
+      // A3. Vòng lặp trừ kho từng lô (FEFO)
+      for (const lo of loThuoc) {
+        if (soLuongCanXuat === 0) break; 
+
+        let layTuLoNay = 0;
+        
+        if (lo.SoLuongConLai >= soLuongCanXuat) {
+          layTuLoNay = soLuongCanXuat; 
+          soLuongCanXuat = 0; 
+        } else {
+          layTuLoNay = lo.SoLuongConLai; 
+          soLuongCanXuat -= lo.SoLuongConLai; 
         }
+        
+        console.log(`  A3. Lô ${lo.MaPhieuNhap}: Tồn ban đầu: ${lo.SoLuongConLai}, Lấy ra: ${layTuLoNay}, Còn phải lấy: ${soLuongCanXuat}`);
 
-        // A3. Vòng lặp trừ kho từng lô (FEFO)
-        for (const lo of loThuoc) {
-          if (soLuongCanXuat === 0) break;
+        if (layTuLoNay > 0) {
+            // Cập nhật lại số lượng còn lại của lô nhập đó
+            const [updateLotResult] = await conn.query(
+              "UPDATE ChiTietNhap SET SoLuongConLai = SoLuongConLai - ? WHERE MaPhieuNhap = ? AND MaThuoc = ?",
+              [layTuLoNay, lo.MaPhieuNhap, maThuocTrim]
+            );
+            
+            console.log(`  A3.1. Kết quả UPDATE ChiTietNhap: Rows Affected: ${updateLotResult.affectedRows}`);
 
-          let layTuLoNay = 0;
-          if (lo.SoLuongConLai >= soLuongCanXuat) {
-            layTuLoNay = soLuongCanXuat; 
-            soLuongCanXuat = 0;
-          } else {
-            layTuLoNay = lo.SoLuongConLai; 
-            soLuongCanXuat -= lo.SoLuongConLai;
-          }
-
-          // Cập nhật lại số lượng còn lại của lô nhập đó
-          await db.promise().query(
-            "UPDATE ChiTietNhap SET SoLuongConLai = SoLuongConLai - ? WHERE MaPhieuNhap = ? AND MaThuoc = ?",
-            [layTuLoNay, lo.MaPhieuNhap, MaThuoc]
-          );
+            if (updateLotResult.affectedRows === 0) {
+                throw new Error(`Lỗi cập nhật tồn lô. Mã lô: ${lo.MaPhieuNhap}.`); 
+            }
         }
       }
-
-      // --- BƯỚC B: TẠO PHIẾU XUẤT ---
-      // B1. Tạo mã phiếu xuất (PXxxx)
-      // [FIX TẠO ID] Dùng CAST(SUBSTRING...) an toàn hơn
-      const [maxRes] = await db.promise().query("SELECT MAX(CAST(SUBSTRING(MaPhieuXuat, 3) AS UNSIGNED)) AS maxId FROM PhieuXuat WHERE MaPhieuXuat LIKE 'PX%'");
-      const nextId = (maxRes[0].maxId || 0) + 1;
-      const MaPhieuXuat = "PX" + String(nextId).padStart(3, "0");
-
-      // B2. Tính tổng tiền
-      const TongTien = chiTiet.reduce((sum, item) => sum + (Number(item.SoLuong) * Number(item.DonGiaBan)), 0);
-      const NgayXuat = new Date();
-
-      // B3. Insert PhieuXuat
-      await db.promise().query(
-        "INSERT INTO PhieuXuat (MaPhieuXuat, NgayXuat, TongTien, MaNhanVien, LoaiXuat) VALUES (?, ?, ?, ?, ?)",
-        [MaPhieuXuat, NgayXuat, TongTien, MaNhanVien, LoaiXuat || 'Bán']
-      );
-
-      // --- BƯỚC C: TẠO CHI TIẾT PHIẾU XUẤT ---
-      const chiTietValues = chiTiet.map(item => [
-        MaPhieuXuat,
-        item.MaThuoc,
-        item.SoLuong,
-        item.DonGiaBan
-      ]);
       
-      await db.promise().query(
-        "INSERT INTO ChiTietXuat (MaPhieuXuat, MaThuoc, SoLuongXuat, DonGiaXuat) VALUES ?",
-        [chiTietValues]
-      );
-
-      // --- BƯỚC D: CẬP NHẬT TỔNG TỒN KHO (BẢNG THUOC) ---
-      const updatePromises = chiTiet.map(async item => {
-        const [result] = await db.promise().query(
-          "UPDATE Thuoc SET SoLuongTon = SoLuongTon - ? WHERE MaThuoc = ?",
-          [item.SoLuong, item.MaThuoc]
-        );
-        
-        // [FIX CHÍNH] Kiểm tra nếu không có hàng nào bị ảnh hưởng
-        if (result.affectedRows === 0) {
-            // Điều này chỉ xảy ra nếu MaThuoc không tồn tại trong bảng Thuoc
-            throw new Error(`Lỗi Logic: Không tìm thấy Mã Thuốc ${item.MaThuoc} trong bảng Thuoc để cập nhật tổng tồn.`);
-        }
-        return true;
-      });
-      
-      await Promise.all(updatePromises);
-
-      // --- BƯỚC E: COMMIT ---
-      db.commit((errCommit) => {
-        if (errCommit) return rollback("Lỗi khi commit transaction");
-        
-        res.status(201).json({ 
-          message: "Xuất thuốc thành công!",
-          MaPhieuXuat,
-          TongTien
-        });
-      });
-
-    } catch (e) {
-      // Dùng e.message để lấy thông báo lỗi chính xác
-      rollback(e.message || "Lỗi xử lý giao dịch", e);
+      if (soLuongCanXuat > 0) {
+          throw new Error(`Lỗi logic: Không lấy đủ số lượng thuốc ${maThuocTrim}. Còn thiếu ${soLuongCanXuat}.`);
+      }
     }
-  });
+    console.log("BƯỚC 2: Xử lý FEFO và trừ tồn lô (ChiTietNhap) thành công.");
+
+
+    // --- BƯỚC B: TẠO PHIẾU XUẤT ---
+    console.log("BƯỚC 3: Bắt đầu tạo Phiếu Xuất (PhieuXuat).");
+    const [maxRes] = await conn.query("SELECT MAX(CAST(SUBSTRING(MaPhieuXuat, 3) AS UNSIGNED)) AS maxId FROM PhieuXuat WHERE MaPhieuXuat LIKE 'PX%'");
+    const nextId = (maxRes[0].maxId || 0) + 1;
+    const MaPhieuXuat = "PX" + String(nextId).padStart(3, "0");
+
+    // Tính Tổng Tiền (tổng giá bán)
+    const TongTien = chiTiet.reduce((sum, item) => sum + (Number(item.SoLuongXuat) * Number(item.DonGiaXuat)), 0);
+    const NgayXuat = new Date();
+
+    console.log(`B1/B2. Mã Phiếu Xuất: ${MaPhieuXuat}, Tổng tiền bán: ${TongTien}`);
+
+    await conn.query(
+      "INSERT INTO PhieuXuat (MaPhieuXuat, NgayXuat, TongTien, MaNhanVien, LoaiXuat) VALUES (?, ?, ?, ?, ?)",
+      [MaPhieuXuat, NgayXuat, TongTien, MaNhanVien, loaiXuatValue]
+    );
+    console.log("B3. Insert Phiếu Xuất thành công.");
+
+    // --- BƯỚC C: TẠO CHI TIẾT PHIẾU XUẤT ---
+    console.log("BƯỚC 4: Bắt đầu tạo Chi Tiết Phiếu Xuất (ChiTietXuat).");
+    const chiTietValues = chiTiet.map(item => [
+      MaPhieuXuat,
+      String(item.MaThuoc).trim(),
+      Number(item.SoLuongXuat),
+      Number(item.DonGiaXuat) 
+    ]);
+    
+    await conn.query(
+      "INSERT INTO ChiTietXuat (MaPhieuXuat, MaThuoc, SoLuongXuat, DonGiaXuat) VALUES ?",
+      [chiTietValues]
+    );
+    console.log("BƯỚC 4: Insert Chi Tiết Phiếu Xuất thành công.");
+
+
+    // --- BƯỚC D: CẬP NHẬT TỔNG TỒN KHO (BẢNG THUOC) ---
+    console.log("BƯỚC 5: Bắt đầu cập nhật tổng tồn kho (Thuoc.SoLuongTon).");
+    
+    const updatePromises = chiTiet.map(async item => {
+      const maThuoc = String(item.MaThuoc).trim();
+      // Sử dụng SoLuongXuat
+      const soLuong = Number(item.SoLuongXuat);
+      
+      const [result] = await conn.query(
+        "UPDATE Thuoc SET SoLuongTon = SoLuongTon - ? WHERE MaThuoc = ?",
+        [soLuong, maThuoc]
+      );
+      
+      console.log(`  D. Kết quả UPDATE Thuoc (MaThuoc: ${maThuoc}, SL trừ: ${soLuong}): Rows Affected: ${result.affectedRows}`);
+      
+      if (result.affectedRows === 0) {
+          throw new Error(`Lỗi Logic: Không tìm thấy Mã Thuốc ${maThuoc} để cập nhật tổng tồn kho.`);
+      }
+      return true;
+    });
+    
+    await Promise.all(updatePromises);
+    console.log("BƯỚC 5: Cập nhật tổng tồn kho thành công cho tất cả các mặt hàng.");
+
+
+    // --- BƯỚC E: COMMIT ---
+    await conn.commit();
+    console.log("BƯỚC 7: COMMIT TRANSACTION THÀNH CÔNG.");
+    
+    res.status(201).json({ 
+      message: `Xuất thuốc (Bán hàng) thành công! Mã PX: ${MaPhieuXuat}`,
+      MaPhieuXuat,
+      TongTien
+    });
+
+  } catch (e) {
+    // Bắt lỗi từ bất kỳ bước nào và Rollback
+    await performRollback(e);
+  } finally {
+    // KHÔNG GỌI conn.release() vì đây là Single Connection toàn cục.
+    console.log("--- KẾT THÚC GIAO DỊCH TẠO PHIẾU XUẤT (Không release connection) ---");
+  }
 });
 
 export default router;
