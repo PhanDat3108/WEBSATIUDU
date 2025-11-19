@@ -61,9 +61,31 @@
   font-weight: 600;
   text-align: center;
   transition: background-color 0.2s;
-  width: 100%; /* Nút rộng bằng card */
+  width: 50px; /* Nút rộng bằng card */
 }
 
 .card-button:hover {
   background-color: #025aa5;
+}
+.card {
+  /* Thêm transition để hiệu ứng mượt mà hơn */
+  transition: all 0.3s ease;
+  position: relative;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  /* ... các thuộc tính cũ của bạn ... */
+}
+
+/* [MỚI] Style cho thẻ khi hết hàng */
+.cardHetHang {
+  opacity: 0.7;            /* Làm mờ toàn bộ thẻ */
+  background-color: #f9f9f9;
+  border-color: #ddd;
+}
+
+/* Không cho hover hiệu ứng nổi lên nếu đã hết hàng (tùy chọn) */
+.cardHetHang:hover {
+  transform: none;
+  box-shadow: none;
 }

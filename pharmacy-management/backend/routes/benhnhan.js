@@ -150,5 +150,34 @@ router.post("/add", (req, res) => {
   });
 });
 
+router.post("/add", (req, res) => {
+  const { TenBenhNhan, NgaySinh, GioiTinh, SoDienThoai, DiaChi } = req.body;
 
+  if (!TenBenhNhan || !SoDienThoai) {
+    return res.status(400).json({ message: "Tên và SĐT là bắt buộc" });
+  }
+
+  // Kiểm tra trùng SĐT
+  db.query("SELECT MaBenhNhan FROM BenhNhan WHERE SoDienThoai = ?", [SoDienThoai], (err, exists) => {
+    if (err) return res.status(500).json({ message: "Lỗi server" });
+    if (exists.length > 0) {
+        return res.status(409).json({ message: "Số điện thoại này đã tồn tại trong hệ thống!" });
+    }
+
+    // Tạo mã tự động BNxxx
+    db.query("SELECT MAX(CAST(SUBSTRING(MaBenhNhan, 3) AS UNSIGNED)) as maxId FROM BenhNhan", (err2, result) => {
+        if (err2) return res.status(500).json({ message: "Lỗi tạo mã" });
+        
+        const nextId = (result[0].maxId || 0) + 1;
+        const MaBenhNhan = "BN" + String(nextId).padStart(3, "0");
+
+        const sqlInsert = `INSERT INTO BenhNhan (MaBenhNhan, TenBenhNhan, NgaySinh, GioiTinh, SoDienThoai, DiaChi) VALUES (?, ?, ?, ?, ?, ?)`;
+        
+        db.query(sqlInsert, [MaBenhNhan, TenBenhNhan, NgaySinh, GioiTinh, SoDienThoai, DiaChi], (err3) => {
+            if (err3) return res.status(500).json({ message: "Lỗi thêm bệnh nhân" });
+            res.status(201).json({ message: "Thêm bệnh nhân thành công", MaBenhNhan });
+        });
+    });
+  });
+});
 export default router;
