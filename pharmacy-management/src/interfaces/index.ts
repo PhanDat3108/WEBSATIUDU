@@ -298,3 +298,15 @@ export interface PhieuXuatNoiBoCreatePayload {
   LoaiXuat: string; // Bỏ | Khác
   chiTiet: ChiTietXuatNoiBoCreate[];
 }
+export interface ChiTietXuatPayload {
+  MaThuoc: string;
+  SoLuongXuat: number;
+  DonGiaXuat: number;
+}
+
+export interface PhieuXuatPayload {
+  MaNhanVien: string;
+  LoaiXuat: string;
+  TongTien: number;
+  chiTiet: ChiTietXuatPayload[];
+}
