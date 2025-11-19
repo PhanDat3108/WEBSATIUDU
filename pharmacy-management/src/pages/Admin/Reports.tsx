@@ -1,9 +1,16 @@
-// src/pages/Admin/Reports.tsx
 import React, { useState, useEffect } from 'react';
 import { getBaoCaoTonKho, getExpiryChartData } from '../../api/reportApi';
-import { BaoCaoTonKho, Thuoc } from '../../interfaces';
+import { BaoCaoTonKho } from '../../interfaces';
 import styles from '../../styles/AdminManagement.module.css';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+
+interface ThuocReport {
+  MaThuoc: string;
+  TenThuoc: string;
+  SoLuongTon: number;
+  DonViTinh: string;
+  HanSuDung?: string; 
+}
 
 const Reports: React.FC = () => {
   const [report, setReport] = useState<BaoCaoTonKho | null>(null);
@@ -11,7 +18,7 @@ const Reports: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const COLORS = ['#00C49F', '#FFBB28', '#FF8042'];
+  const COLORS = ['#00C49F', '#FFBB28', '#FF8042']; 
 
   useEffect(() => {
     const loadReport = async () => {
@@ -26,11 +33,14 @@ const Reports: React.FC = () => {
 
         setReport(reportData);
 
+       
         const formattedChartData = [
             { name: 'Bình thường', value: expiryData.BinhThuong },
             { name: 'Sắp hết hạn', value: expiryData.SapHetHan },
-            { name: 'Đã hết hạn', value: expiryData.DaHetHan },
+            { name: 'Đã hết hạn (Cần hủy)', value: expiryData.DaHetHan },
         ];
+        
+        
         setChartData(formattedChartData.filter(item => item.value > 0));
 
       } catch (err) {
@@ -43,32 +53,49 @@ const Reports: React.FC = () => {
     loadReport();
   }, []);
 
-  const renderThuocTable = (title: string, data: Thuoc[]) => (
-    <div className={styles.reportSection}>
-      <h2>{title} ({data ? data.length : 0})</h2>
+  const formatDate = (isoString?: string) => {
+    if (!isoString) return '';
+    return new Date(isoString).toLocaleDateString('vi-VN');
+  };
+
+  const renderThuocTable = (title: string, data: any[], showExpiry: boolean = false) => (
+    <div className={styles.reportSection} style={{marginTop: '20px'}}>
+      <h2 style={{fontSize: '1.2rem', color: '#333', marginBottom: '10px', borderLeft: '5px solid #1890ff', paddingLeft: '10px'}}>
+        {title} <span style={{fontWeight: 'normal', color: '#666'}}>({data ? data.length : 0})</span>
+      </h2>
       {data && data.length > 0 ? (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Mã Thuốc</th>
-              <th>Tên Thuốc</th>
-              <th>Số lượng tồn</th>
-              <th>Đơn vị</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map(thuoc => (
-              <tr key={thuoc.MaThuoc}>
-                <td>{thuoc.MaThuoc}</td>
-                <td>{thuoc.TenThuoc}</td>
-                <td>{thuoc.SoLuongTon}</td>
-                <td>{thuoc.DonViTinh}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className={styles.tableContainer}>
+            <table className={styles.table}>
+            <thead>
+                <tr>
+                <th>Mã Thuốc</th>
+                <th>Tên Thuốc</th>
+                <th>Số lượng tồn (Lô)</th>
+                <th>Đơn vị</th>
+                {showExpiry && <th>Hạn Sử Dụng</th>}
+                </tr>
+            </thead>
+            <tbody>
+                {data.map((thuoc, idx) => (
+                <tr key={`${thuoc.MaThuoc}-${idx}`}>
+                    <td>{thuoc.MaThuoc}</td>
+                    <td>{thuoc.TenThuoc}</td>
+                    <td style={{fontWeight: 'bold', color: showExpiry && title.includes('đã hết hạn') ? 'red' : 'inherit'}}>
+                        {thuoc.SoLuongTon}
+                    </td>
+                    <td>{thuoc.DonViTinh}</td>
+                    {showExpiry && (
+                        <td style={{color: title.includes('đã hết hạn') ? 'red' : '#faad14', fontWeight: '500'}}>
+                            {formatDate(thuoc.HanSuDung)}
+                        </td>
+                    )}
+                </tr>
+                ))}
+            </tbody>
+            </table>
+        </div>
       ) : (
-        <p>Không có dữ liệu.</p>
+        <p style={{fontStyle: 'italic', color: '#888'}}>Không có thuốc nào trong danh mục này.</p>
       )}
     </div>
   );
@@ -79,63 +106,67 @@ const Reports: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Báo cáo Tổng quan</h1>
+      <h1 className={styles.title}>Báo cáo Tồn kho & Hạn dùng</h1>
       
-      {/* Phần thẻ tóm tắt */}
-      <div className={styles.summaryGrid}>
-        <div className={styles.summaryCard}>
-          <h2>Tổng số loại thuốc</h2>
-          <p>{report.TongSoLoaiThuoc}</p>
+    
+      <div className={styles.summaryGrid} style={{display: 'flex', gap: '20px', marginBottom: '20px'}}>
+        <div className={styles.summaryCard} style={{flex: 1, padding: '20px', background: '#e6f7ff', borderRadius: '8px'}}>
+          <h3>Tổng số loại thuốc</h3>
+          <p style={{fontSize: '2rem', fontWeight: 'bold', color: '#1890ff', margin: '10px 0'}}>{report.TongSoLoaiThuoc}</p>
         </div>
-        <div className={styles.summaryCard}>
-          <h2>Tổng số lượng tồn</h2>
-          <p>{report.TongSoLuongTon}</p>
+        <div className={styles.summaryCard} style={{flex: 1, padding: '20px', background: '#f6ffed', borderRadius: '8px'}}>
+          <h3>Tổng lượng tồn kho</h3>
+          <p style={{fontSize: '2rem', fontWeight: 'bold', color: '#52c41a', margin: '10px 0'}}>{report.TongSoLuongTon}</p>
         </div>
       </div>
 
-      {/* Phần biểu đồ */}
+    
       <div className={styles.chartSection} style={{ 
           backgroundColor: 'white', 
           padding: '20px', 
           borderRadius: '8px', 
-          marginBottom: '20px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          marginBottom: '30px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
           minHeight: '350px'
       }}>
-          <h2>Tỷ lệ hạn sử dụng thuốc</h2>
-          <div style={{ width: '100%', height: 300 }}>
-            <ResponsiveContainer>
-                <PieChart>
-                    <Pie
-                        data={chartData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        // [SỬA LỖI TẠI ĐÂY] Dùng 'any' để bỏ qua lỗi kiểm tra type
-                        label={({ name, percent }: any) => 
-                          `${name} ${(percent * 100).toFixed(0)}%`
-                        }
-                        outerRadius={100}
-                        fill="#8884d8"
-                        dataKey="value"
-                    >
-                        {chartData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                    </Pie>
-                    <Tooltip formatter={(value: any) => [value, "Số lượng"]} />
-                    <Legend />
-                </PieChart>
-            </ResponsiveContainer>
-          </div>
+          <h2 style={{textAlign: 'center', marginBottom: '20px'}}>Tỷ lệ tình trạng hạn sử dụng (Theo số lượng tồn)</h2>
+          
+          {chartData.length > 0 ? (
+            <div style={{ width: '100%', height: 300 }}>
+                <ResponsiveContainer>
+                    <PieChart>
+                        <Pie
+                            data={chartData}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={true}
+                            label={({ name, percent }: any) => 
+                            `${name}: ${(percent * 100).toFixed(0)}%`
+                            }
+                            outerRadius={100}
+                            fill="#8884d8"
+                            dataKey="value"
+                        >
+                            {chartData.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                        </Pie>
+                        <Tooltip formatter={(value: any) => [value, "Số lượng tồn"]} />
+                        <Legend />
+                    </PieChart>
+                </ResponsiveContainer>
+            </div>
+          ) : (
+            <div style={{textAlign: 'center', color: '#999', padding: '50px'}}>
+                Chưa có dữ liệu tồn kho hoặc tất cả thuốc đã hết hàng.
+            </div>
+          )}
       </div>
       
-      {renderThuocTable('Thuốc sắp hết hàng (Tồn <= 10)', report.ThuocSapHetHang)}
-      {renderThuocTable('Thuốc sắp hết hạn (30 ngày)', report.ThuocSapHetHan)}
-      {renderThuocTable('Thuốc đã hết hạn', report.ThuocDaHetHan)}
+      {renderThuocTable('Thuốc đã hết hạn (Cần tiêu hủy)', report.ThuocDaHetHan, true)}
+      {renderThuocTable('Thuốc sắp hết hạn (Trong 30 ngày)', report.ThuocSapHetHan, true)}
+      {renderThuocTable('Thuốc sắp hết hàng (Tồn <= 10)', report.ThuocSapHetHang, false)}
+      
     </div>
   );
 };

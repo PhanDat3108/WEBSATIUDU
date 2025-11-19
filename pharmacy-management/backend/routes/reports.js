@@ -4,9 +4,8 @@ import db from "../config/db.js";
 const router = express.Router();
 
 // API 1: Lấy dữ liệu cho biểu đồ tròn (Tình trạng hạn sử dụng)
-// Logic: Dựa trên bảng ChiTietNhap để biết lô nào hết hạn/sắp hết hạn
 router.get("/expiry-status", (req, res) => {
-  const SAP_HET_HAN_DAYS = 30; // Cảnh báo trước 30 ngày
+  const SAP_HET_HAN_DAYS = 30; 
 
   const sql = `
     SELECT
@@ -15,9 +14,10 @@ router.get("/expiry-status", (req, res) => {
         WHEN HanSuDung BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL ? DAY) THEN 'SapHetHan'
         ELSE 'BinhThuong'
       END AS TinhTrang,
-      COUNT(*) as SoLuongLo, -- Đếm số lượng lô thuốc (batch)
-      SUM(SoLuongNhap) AS TongSoLuongNhap -- Hoặc tính theo tổng số lượng nhập
+      -- Chỉ tính tổng số lượng CÒN LẠI trong kho, không tính số lượng nhập ban đầu
+      SUM(SoLuongConLai) AS TongSoLuongTon 
     FROM ChiTietNhap
+    WHERE SoLuongConLai > 0 -- [QUAN TRỌNG] Chỉ lấy các lô còn hàng
     GROUP BY TinhTrang
   `;
 
@@ -27,7 +27,6 @@ router.get("/expiry-status", (req, res) => {
       return res.status(500).json({ message: "Lỗi máy chủ" });
     }
 
-    // Format dữ liệu trả về cho Frontend dễ dùng
     const responseData = {
       BinhThuong: 0,
       SapHetHan: 0,
@@ -35,21 +34,21 @@ router.get("/expiry-status", (req, res) => {
     };
 
     result.forEach((row) => {
-      if (row.TinhTrang === 'BinhThuong') responseData.BinhThuong = row.TongSoLuongNhap;
-      if (row.TinhTrang === 'SapHetHan') responseData.SapHetHan = row.TongSoLuongNhap;
-      if (row.TinhTrang === 'DaHetHan') responseData.DaHetHan = row.TongSoLuongNhap;
+      // Ép kiểu về number để đảm bảo biểu đồ hiển thị được
+      const value = Number(row.TongSoLuongTon);
+      if (row.TinhTrang === 'BinhThuong') responseData.BinhThuong = value;
+      if (row.TinhTrang === 'SapHetHan') responseData.SapHetHan = value;
+      if (row.TinhTrang === 'DaHetHan') responseData.DaHetHan = value;
     });
 
     res.json(responseData);
   });
 });
 
-// API 2: Lấy báo cáo tổng quan tồn kho (Số liệu tổng & Danh sách cảnh báo)
+// API 2: Lấy báo cáo tổng quan tồn kho
 router.get("/tonkho", async (req, res) => {
   try {
-    // Chúng ta sẽ chạy nhiều query song song bằng Promise để lấy đủ dữ liệu
-    
-    // 1. Lấy tổng số loại thuốc và tổng lượng tồn kho
+    // 1. Tổng quan: Tổng số loại thuốc và tổng lượng tồn kho (dựa trên bảng Thuoc)
     const querySummary = new Promise((resolve, reject) => {
       db.query(
         "SELECT COUNT(*) AS TongLoai, SUM(SoLuongTon) AS TongTon FROM Thuoc",
@@ -57,39 +56,50 @@ router.get("/tonkho", async (req, res) => {
       );
     });
 
-    // 2. Lấy danh sách thuốc sắp hết hàng (Ví dụ: Tồn kho <= 10)
+    // 2. Thuốc sắp hết hàng (Dựa trên định mức tồn kho <= 10)
     const querySapHetHang = new Promise((resolve, reject) => {
       db.query(
-        "SELECT MaThuoc, TenThuoc, SoLuongTon, DonViTinh FROM Thuoc WHERE SoLuongTon <= 10 ORDER BY SoLuongTon ASC",
+        "SELECT MaThuoc, TenThuoc, SoLuongTon, DonViTinh FROM Thuoc WHERE SoLuongTon <= 10 AND SoLuongTon > 0 ORDER BY SoLuongTon ASC",
         (err, res) => (err ? reject(err) : resolve(res))
       );
     });
 
-    // 3. Lấy danh sách thuốc sắp hết hạn (Trong 30 ngày tới)
+    // 3. Thuốc sắp hết hạn (Trong 30 ngày tới) - Chỉ lấy lô còn hàng
     const querySapHetHan = new Promise((resolve, reject) => {
        const sql = `
-        SELECT DISTINCT t.MaThuoc, t.TenThuoc, t.SoLuongTon, ctn.HanSuDung
+        SELECT 
+            t.MaThuoc, 
+            t.TenThuoc, 
+            ctn.SoLuongConLai as SoLuongTon, -- Hiển thị số lượng tồn của lô đó
+            ctn.HanSuDung,
+            t.DonViTinh
         FROM ChiTietNhap ctn
         JOIN Thuoc t ON ctn.MaThuoc = t.MaThuoc
         WHERE ctn.HanSuDung BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+          AND ctn.SoLuongConLai > 0 -- [QUAN TRỌNG] Không báo cáo lô đã bán hết
         ORDER BY ctn.HanSuDung ASC
        `;
        db.query(sql, (err, res) => (err ? reject(err) : resolve(res)));
     });
 
-    // 4. Lấy danh sách thuốc đã hết hạn
+    // 4. Thuốc đã hết hạn - Chỉ lấy lô còn hàng (cần tiêu hủy)
     const queryDaHetHan = new Promise((resolve, reject) => {
         const sql = `
-         SELECT DISTINCT t.MaThuoc, t.TenThuoc, t.SoLuongTon, ctn.HanSuDung
+         SELECT 
+            t.MaThuoc, 
+            t.TenThuoc, 
+            ctn.SoLuongConLai as SoLuongTon, -- Hiển thị số lượng tồn của lô đó
+            ctn.HanSuDung,
+            t.DonViTinh
          FROM ChiTietNhap ctn
          JOIN Thuoc t ON ctn.MaThuoc = t.MaThuoc
          WHERE ctn.HanSuDung < CURDATE()
+           AND ctn.SoLuongConLai > 0 -- [QUAN TRỌNG] Không báo cáo lô đã bán hết
          ORDER BY ctn.HanSuDung ASC
         `;
         db.query(sql, (err, res) => (err ? reject(err) : resolve(res)));
      });
 
-    // Chạy tất cả và đợi kết quả
     const [summary, sapHetHang, sapHetHan, daHetHan] = await Promise.all([
       querySummary,
       querySapHetHang,
@@ -97,7 +107,6 @@ router.get("/tonkho", async (req, res) => {
       queryDaHetHan
     ]);
 
-    // Trả về 1 object tổng hợp
     res.json({
       TongSoLoaiThuoc: summary.TongLoai || 0,
       TongSoLuongTon: summary.TongTon || 0,
