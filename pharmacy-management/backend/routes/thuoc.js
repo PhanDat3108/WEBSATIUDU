@@ -151,5 +151,26 @@ ORDER BY t.MaThuoc ASC
     return res.json(rows); // Trả về mảng rỗng nếu không có gì
   });
 });
-
+router.get("/", (req, res) => {
+  const sql = `
+    SELECT 
+      t.MaThuoc, 
+      t.TenThuoc, 
+      t.DonViTinh, 
+      t.GiaBan, 
+      t.HinhAnh, 
+      lt.TenLoai,
+      -- Tính tổng số lượng còn lại trong kho
+      COALESCE(SUM(ctn.SoLuongConLai), 0) AS SoLuongTon
+    FROM Thuoc t
+    LEFT JOIN LoaiThuoc lt ON t.MaLoai = lt.MaLoai
+    LEFT JOIN ChiTietNhap ctn ON t.MaThuoc = ctn.MaThuoc
+    GROUP BY t.MaThuoc, t.TenThuoc, t.DonViTinh, t.GiaBan, t.HinhAnh, lt.TenLoai
+  `;
+  
+  db.query(sql, (err, data) => {
+    if (err) return res.status(500).json(err);
+    res.json(data);
+  });
+});
 export default router;

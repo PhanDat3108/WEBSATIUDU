@@ -1,67 +1,94 @@
-import React from "react";
+import React from 'react';
+import { Thuoc } from '../../interfaces';
+import styles from '../../styles/home/TheSanPham.module.css';
 import { useTuiHang } from "../../contexts/TuiHangContext";
-import { Thuoc } from "../../interfaces";
-// import "../../styles/home/TheSanPham.module.css"; // Kiểm tra lại đường dẫn CSS của bạn
 
-interface TheSanPhamProps {
+// [QUAN TRỌNG] Định nghĩa Interface khớp với DanhSachSanPham
+// Bên kia gọi sanPham={...} nên ở đây phải khai báo là sanPham
+interface Props {
   sanPham: Thuoc;
 }
 
-const TheSanPham: React.FC<TheSanPhamProps> = ({ sanPham }) => {
+const TheSanPham: React.FC<Props> = ({ sanPham }) => {
   const { themVaoTuiHang } = useTuiHang();
 
-  // [QUAN TRỌNG] Logic tự ghép tên file ảnh
-  // Nếu mã là T001 -> Link sẽ là /images/thuoc/T001.jpg
+  // 1. Logic xử lý ảnh (Tự động lấy ảnh theo mã hoặc ảnh mặc định)
+  // Nếu file ảnh chưa có, bạn có thể thay đường dẫn mặc định khác
   const imageUrl = `/images/thuoc/${sanPham.MaThuoc}.jpg`;
-
-  // Hàm xử lý: Nếu không tìm thấy ảnh thuốc, dùng ảnh mặc định
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    const target = e.currentTarget;
-    if (!target.src.includes("default.png")) { // Tránh vòng lặp vô tận
-        target.src = "/images/default.png"; // Bạn nhớ kiếm 1 cái ảnh default.png bỏ vào folder public/images nhé
-    }
+    // Nếu lỗi ảnh, gán về ảnh mặc định (đảm bảo bạn có file này hoặc sửa link)
+    e.currentTarget.src = "/images/default.png"; 
   };
 
+  // 2. Logic xử lý Tồn kho (Từ API Backend gửi về)
+  const tonKho = Number(sanPham.SoLuongTon || 0);
+  const isHetHang = tonKho <= 0;
+
   return (
-    <div className="product-card" style={{border: '1px solid #eee', borderRadius: '8px', padding: '10px', margin: '10px', width: '200px'}}>
-      {/* Vùng chứa ảnh */}
-      <div className="product-image-container" style={{height: '180px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+    <div className={styles.card} style={isHetHang ? { opacity: 0.6 } : {}}>
+      
+      {/* Badge thông báo Hết hàng đè lên ảnh */}
+      {isHetHang && (
+         <div style={{ 
+             position: 'absolute', 
+             top: '40%', left: '50%', transform: 'translate(-50%, -50%)', 
+             zIndex: 10, 
+             background: 'rgba(0,0,0,0.7)', color: '#fff', 
+             padding: '5px 10px', borderRadius: '4px', fontWeight: 'bold', fontSize: '12px'
+         }}>
+            HẾT HÀNG
+         </div>
+      )}
+
+      <div style={{ padding: 12, position: 'relative' }}>
         <img
+          className={styles['card-image']}
           src={imageUrl}
           alt={sanPham.TenThuoc}
           onError={handleImageError}
-          style={{ 
-            maxWidth: '100%', 
-            maxHeight: '100%', 
-            objectFit: 'contain' 
-          }} 
+          style={{ width: '100%', height: '150px', objectFit: 'contain' }}
         />
       </div>
 
-      <div className="product-info" style={{marginTop: '10px'}}>
-        <h3 style={{fontSize: '16px', height: '40px', overflow: 'hidden'}} title={sanPham.TenThuoc}>
-          {sanPham.TenThuoc}
-        </h3>
-        
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '5px'}}>
-            <span style={{color: '#d70018', fontWeight: 'bold'}}>
-                {sanPham.GiaBan?.toLocaleString()} đ
-            </span>
-            {/* Nút thêm giỏ hàng */}
-            <button 
-                onClick={() => themVaoTuiHang(sanPham)}
-                style={{
-                    background: '#28a745',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: '30px',
-                    height: '30px',
-                    cursor: 'pointer'
-                }}
-            >
-                +
-            </button>
+      <div className={styles['card-body']}>
+        <div>
+          <h4 className={styles['card-title']} title={sanPham.TenThuoc} style={{
+              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+          }}>
+            {sanPham.TenThuoc}
+          </h4>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '8px' }}>
+          <div>
+            <div className={styles['card-price']}>
+                {sanPham.GiaBan?.toLocaleString()}₫
+            </div>
+            
+            {/* [MỚI] Dòng hiển thị số lượng tồn kho */}
+            <div style={{ 
+               fontSize: '12px', 
+               fontWeight: '700',
+               marginTop: '4px',
+               color: isHetHang ? '#d9534f' : '#28a745' 
+            }}>
+              {isHetHang ? 'Tạm hết' : `Kho: ${tonKho}`}
+            </div>
+          </div>
+
+          <button 
+            className={styles['card-button']} 
+            onClick={() => !isHetHang && themVaoTuiHang(sanPham)}
+            title={isHetHang ? "Sản phẩm đã hết" : "Thêm vào giỏ"}
+            disabled={isHetHang} 
+            style={{
+                
+                cursor: isHetHang ? 'not-allowed' : 'pointer',
+                backgroundColor: isHetHang ? '#ccc' : undefined
+            }}
+          >
+            +
+          </button>
         </div>
       </div>
     </div>
