@@ -1,8 +1,8 @@
 // src/components/TuiHangSidebar.tsx
 import React, { useState } from 'react';
 import { useTuiHang } from '../contexts/TuiHangContext';
-import { phieuXuatApi} from '../api/phieuXuatApi'; 
-import {PhieuXuatPayload } from '../interfaces/index';
+// Import API vừa tạo ở trên
+import { createDonThuoc, CreateDonThuocPayload } from '../api/donThuocApi'; 
 import HoaDonModal from '../components/HomeFroms/HoaDonModal';
 import './TuiHangSidebar.css';
 
@@ -20,57 +20,62 @@ const TuiHangSidebar: React.FC = () => {
   const [hienThiHoaDon, setHienThiHoaDon] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // 1. Sự kiện bấm nút "Xuất đơn thuốc"
+  // Sự kiện mở Modal Hóa Đơn
   const handleXuatDonThuoc = () => {
     if (danhSachSanPham.length === 0) {
-      alert("Giỏ hàng đang trống, không thể xuất đơn!");
+      alert("Giỏ hàng đang trống!");
       return;
     }
-    // Hiển thị bảng hóa đơn để xem trước
     setHienThiHoaDon(true);
   };
 
-  // 2. Sự kiện bấm "In & Lưu" trên Hóa đơn
-  const handleXacNhanLuu = async () => {
+  // --- HÀM QUAN TRỌNG: Xử lý sau khi điền thông tin khách hàng ---
+  const handleXacNhanLuu = async (maBenhNhan: string | null) => {
     try {
       setLoading(true);
       
-      // Lấy thông tin nhân viên đang đăng nhập (nếu có lưu trong localStorage)
-      // Nếu chưa làm chức năng login hoàn chỉnh, tạm thời dùng "NV001"
+      // 1. Lấy nhân viên (giả định)
       const userStr = localStorage.getItem("user");
       const user = userStr ? JSON.parse(userStr) : null;
       const maNhanVien = user?.MaNhanVien || "NV001"; 
 
-      // Chuẩn bị dữ liệu đúng chuẩn Backend yêu cầu
-      const payload: PhieuXuatPayload = {
+      // 2. Chuẩn bị dữ liệu đúng form Backend yêu cầu
+      const payload: CreateDonThuocPayload = {
         MaNhanVien: maNhanVien,
-        LoaiXuat: "BanLe", // Có thể thay đổi tùy nghiệp vụ
-        TongTien: layTongTien(),
+        MaBenhNhan: maBenhNhan, // Mã KH vừa tạo ở Modal (hoặc null)
         chiTiet: danhSachSanPham.map(sp => ({
           MaThuoc: sp.MaThuoc,
-          SoLuongXuat: sp.soLuong,
-          DonGiaXuat: sp.GiaBan
+          SoLuong: sp.soLuong,
+          GiaBan: sp.GiaBan
         }))
       };
 
-      // Gọi API
-      console.log("Đang gửi dữ liệu:", payload);
-      await phieuXuatApi.create(payload);
-
-      // Thành công
-      alert("✅ Xuất đơn thuốc thành công!");
+      console.log("Đang gửi yêu cầu bán hàng...", payload);
       
-      // Lệnh in của trình duyệt
-      window.print();
+      // 3. Gửi xuống Backend
+      // Backend sẽ tự động: Tạo Mã PX -> Tạo Mã DT -> Trừ Kho -> Lưu DB
+      const ketQua = await createDonThuoc(payload);
 
-      // Reset giỏ hàng và đóng modal
+      // 4. Backend trả về thành công => Hiển thị mã
+      const msg = `
+      ✅ BÁN HÀNG THÀNH CÔNG!
+      -------------------------
+      Mã Đơn Thuốc: ${ketQua.MaDonThuoc}
+      Mã Phiếu Xuất: ${ketQua.MaPhieuXuat}
+      Tổng tiền: ${ketQua.TongTien.toLocaleString()} VNĐ
+      `;
+      alert(msg);
+      
+      // 5. In hóa đơn và dọn dẹp
+      window.print();
       xoaTuiHang();
       setHienThiHoaDon(false);
       setMoRong(false);
 
     } catch (error: any) {
-      console.error("Lỗi xuất đơn:", error);
-      alert("❌ Lỗi: " + (error.message || "Không thể lưu đơn thuốc"));
+      console.error("Lỗi:", error);
+      // Nếu lỗi (ví dụ hết hàng), hiển thị thông báo từ Backend
+      alert(`❌ LỖI: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -78,66 +83,50 @@ const TuiHangSidebar: React.FC = () => {
 
   return (
     <>
-      {/* Overlay che màn hình khi sidebar mở */}
+      {/* ... (Phần giao diện Sidebar giữ nguyên như cũ) ... */}
       {moRong && <div className="tui-hang-overlay" onClick={() => setMoRong(false)} />}
-
-      {/* Sidebar Giỏ hàng */}
+      
       <div className={`tui-hang-sidebar ${moRong ? 'mo-rong' : 'dong-gon'}`}>
         <div className="tui-hang-header">
-          <h3>🛒 Đơn thuốc</h3>
-          <button className="nut-dong" onClick={() => setMoRong(false)}>✕</button>
+            <h3>🛒 Đơn thuốc</h3>
+            <button className="nut-dong" onClick={() => setMoRong(false)}>✕</button>
         </div>
-
-        {danhSachSanPham.length === 0 ? (
-          <div className="tui-hang-trong">Chưa có thuốc nào</div>
-        ) : (
-          <>
-            <div className="tui-hang-danh-sach">
-              {danhSachSanPham.map((sanPham) => (
-                <div className="tui-hang-san-pham" key={sanPham.MaThuoc}>
-                  <div className="san-pham-thong-tin">
-                    <h4 className="san-pham-ten">{sanPham.TenThuoc}</h4>
-                    <p className="san-pham-gia">{sanPham.GiaBan?.toLocaleString()}₫</p>
-                  </div>
-                  <div className="san-pham-so-luong">
-                    <button className="nut-so-luong" onClick={() => capNhatSoLuong(sanPham.MaThuoc, sanPham.soLuong - 1)}>−</button>
-                    <input 
-                      type="number" 
-                      className="nhap-so-luong"
-                      value={sanPham.soLuong} 
-                      onChange={(e) => capNhatSoLuong(sanPham.MaThuoc, parseInt(e.target.value) || 1)}
-                    />
-                    <button className="nut-so-luong" onClick={() => capNhatSoLuong(sanPham.MaThuoc, sanPham.soLuong + 1)}>+</button>
-                  </div>
-                  <div className="san-pham-tong-tien">
-                    {(sanPham.GiaBan * sanPham.soLuong).toLocaleString()}₫
-                  </div>
-                  <button className="nut-xoa" onClick={() => xoaKhoiTuiHang(sanPham.MaThuoc)}>✕</button>
+        {/* Danh sách sản phẩm... */}
+         {danhSachSanPham.length > 0 ? (
+             <>
+                <div className="tui-hang-danh-sach">
+                 {danhSachSanPham.map((sanPham) => (
+                    <div className="tui-hang-san-pham" key={sanPham.MaThuoc}>
+                        <div className="san-pham-thong-tin">
+                            <h4 className="san-pham-ten">{sanPham.TenThuoc}</h4>
+                            <p className="san-pham-gia">{sanPham.GiaBan?.toLocaleString()}₫</p>
+                        </div>
+                        <div className="san-pham-so-luong">
+                            <button className="nut-so-luong" onClick={() => capNhatSoLuong(sanPham.MaThuoc, sanPham.soLuong - 1)}>−</button>
+                            <span className="so-luong-hien-thi">{sanPham.soLuong}</span>
+                            <button className="nut-so-luong" onClick={() => capNhatSoLuong(sanPham.MaThuoc, sanPham.soLuong + 1)}>+</button>
+                        </div>
+                        <button className="nut-xoa" onClick={() => xoaKhoiTuiHang(sanPham.MaThuoc)}>✕</button>
+                    </div>
+                 ))}
                 </div>
-              ))}
-            </div>
-
-            <div className="tui-hang-footer">
-              <div className="tui-hang-tong-cong">
-                <strong>Tổng cộng:</strong>
-                <span className="gia-tong">{layTongTien().toLocaleString()}₫</span>
-              </div>
-              {/* Nút Xuất đơn thuốc */}
-              <button className="nut-thanh-toan" onClick={handleXuatDonThuoc}>
-                Xuất đơn thuốc
-              </button>
-            </div>
-          </>
-        )}
+                <div className="tui-hang-footer">
+                    <div className="tui-hang-tong-cong">
+                        <strong>Tổng: {layTongTien().toLocaleString()}₫</strong>
+                    </div>
+                    <button className="nut-thanh-toan" onClick={handleXuatDonThuoc}>Xuất đơn thuốc</button>
+                </div>
+             </>
+         ) : <div className="tui-hang-trong">Giỏ hàng trống</div>}
       </div>
 
-      {/* Modal Hóa Đơn */}
+      {/* Modal Hóa Đơn - Truyền hàm xử lý vào */}
       {hienThiHoaDon && (
         <HoaDonModal 
           danhSach={danhSachSanPham}
           tongTien={layTongTien()}
           onClose={() => setHienThiHoaDon(false)}
-          onConfirm={handleXacNhanLuu}
+          onConfirm={handleXacNhanLuu} // <-- KẾT NỐI VÀO ĐÂY
           loading={loading}
         />
       )}

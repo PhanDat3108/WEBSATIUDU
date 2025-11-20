@@ -76,6 +76,25 @@ export const deletePatient = async (maBenhNhan: string): Promise<void> => {
  * Hàm thêm (Tạm thời vô hiệu hóa)
  */
 export const addPatient = async (benhNhanData: Omit<BenhNhan, 'MaBenhNhan'>): Promise<BenhNhan> => {
-  console.log('GỌI API: addPatient (BE CHƯA SẴN SÀNG)', benhNhanData);
-  return Promise.reject(new Error('Chức năng chưa sẵn sàng (đang chờ BE).'));
+  const response = await fetch(`${API_BASE_URL}/add`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(benhNhanData),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Thêm bệnh nhân thất bại');
+  }
+
+  // Backend trả về: { message: "...", MaBenhNhan: "BN..." }
+  const result = await response.json(); 
+  
+  // Trả về object BenhNhan hoàn chỉnh
+  return {
+    ...benhNhanData,
+    MaBenhNhan: result.MaBenhNhan
+  } as BenhNhan;
 };
