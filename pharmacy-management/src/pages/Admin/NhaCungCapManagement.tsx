@@ -1,12 +1,12 @@
 // src/pages/Admin/NhaCungCapManagement.tsx
-import React, { useState, useEffect } from 'react';
-import { NhaCungCap } from '../../interfaces';
+import React, { useState, useEffect } from "react";
+import { NhaCungCap } from "../../interfaces";
 // [SỬA] Import thêm hàm add, update, delete
-import { getNhaCungCap, deleteNhaCungCap } from '../../api/nhaCungCapApi';
-import Modal from '../../components/common/Modal';
-import styles from '../../styles/AdminManagement.module.css';
+import { getNhaCungCap, deleteNhaCungCap } from "../../api/nhaCungCapApi";
+import Modal from "../../components/common/Modal";
+import styles from "../../styles/AdminManagement.module.css";
 // [MỚI] Import Form
-import { NhaCungCapForm } from '../../components/AdminForms/NhaCungCapForm';
+import { NhaCungCapForm } from "../../components/AdminForms/NhaCungCapForm";
 
 const NhaCungCapManagement: React.FC = () => {
   const [suppliers, setSuppliers] = useState<NhaCungCap[]>([]);
@@ -19,11 +19,10 @@ const NhaCungCapManagement: React.FC = () => {
     try {
       setIsLoading(true);
       setError(null); // [SỬA] Xóa lỗi cũ
-      
+
       // [SỬA] Gọi API thật
-      const data = await getNhaCungCap(); 
+      const data = await getNhaCungCap();
       setSuppliers(data);
-      
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -52,7 +51,7 @@ const NhaCungCapManagement: React.FC = () => {
 
   // [MỚI] Hàm Xóa
   const handleDelete = async (maNhaCungCap: string) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa Nhà cung cấp này?')) {
+    if (window.confirm("Bạn có chắc chắn muốn xóa Nhà cung cấp này?")) {
       try {
         await deleteNhaCungCap(maNhaCungCap);
         loadSuppliers();
@@ -64,26 +63,49 @@ const NhaCungCapManagement: React.FC = () => {
 
   const renderContent = () => {
     if (isLoading) {
-      return <tr><td colSpan={6} className={styles.loadingCell}>Đang tải...</td></tr>;
+      return (
+        <tr>
+          <td colSpan={6} className={styles.loadingCell}>
+            Đang tải...
+          </td>
+        </tr>
+      );
     }
     if (error) {
-      return <tr><td colSpan={6} className={styles.errorCell}>{error}</td></tr>;
+      return (
+        <tr>
+          <td colSpan={6} className={styles.errorCell}>
+            {error}
+          </td>
+        </tr>
+      );
     }
-    if (suppliers.length === 0) { // [SỬA] Bỏ điều kiện !error
-        return <tr><td colSpan={6} className={styles.emptyCell}>Không có dữ liệu nhà cung cấp.</td></tr>;
+    if (suppliers.length === 0) {
+      // [SỬA] Bỏ điều kiện !error
+      return (
+        <tr>
+          <td colSpan={6} className={styles.emptyCell}>
+            Không có dữ liệu nhà cung cấp.
+          </td>
+        </tr>
+      );
     }
 
     return suppliers.map((item) => (
       <tr key={item.MaNhaCungCap}>
-        <td>{item.MaNhaCungCap}</td>
+        <td style={{ textAlign: "center" }}>{item.MaNhaCungCap}</td>
         <td>{item.TenNhaCungCap}</td>
         <td>{item.DiaChi}</td>
-        <td>{item.SoDienThoai}</td>
+        <td style={{ textAlign: "center" }}>{item.SoDienThoai}</td>
         <td>{item.Email}</td>
         <td className={styles.actionButtons}>
-          <button onClick={() => handleOpenModal(item)} className={styles.editButton}>Sửa</button>
+          <button onClick={() => handleOpenModal(item)} className={styles.editButton}>
+            Sửa
+          </button>
           {/* [MỚI] Thêm sự kiện Xóa */}
-          <button onClick={() => handleDelete(item.MaNhaCungCap)} className={styles.deleteButton}>Xóa</button>
+          <button onClick={() => handleDelete(item.MaNhaCungCap)} className={styles.deleteButton}>
+            Xóa
+          </button>
         </td>
       </tr>
     ));
@@ -92,24 +114,34 @@ const NhaCungCapManagement: React.FC = () => {
   return (
     <>
       <div className={styles.container}>
-        <h1 className={styles.title}>Quản lý Nhà Cung Cấp</h1>
+        <h1 className={styles.title}>Quản lý nhà cung cấp</h1>
         <button onClick={() => handleOpenModal(null)} className={styles.addButton}>
-          Thêm Nhà Cung Cấp
+          Thêm nhà cung cấp
         </button>
         <table className={styles.table}>
           <thead>
             <tr>
-              <th className={styles.tableHeader}>Mã NCC</th>
-              <th className={styles.tableHeader}>Tên Nhà Cung Cấp</th>
-              <th className={styles.tableHeader}>Địa chỉ</th>
-              <th className={styles.tableHeader}>Số điện thoại</th>
-              <th className={styles.tableHeader}>Email</th>
-              <th className={styles.tableHeader}>Hành động</th>
+              <th className={styles.tableHeader} style={{ width: 30 }}>
+                Mã
+              </th>
+              <th className={styles.tableHeader} style={{ width: 350 }}>
+                Tên nhà cung cấp
+              </th>
+              <th className={styles.tableHeader} style={{ width: 200 }}>
+                Địa chỉ
+              </th>
+              <th className={styles.tableHeader} style={{ width: 30 }}>
+                Số điện thoại
+              </th>
+              <th className={styles.tableHeader} style={{ width: 30 }}>
+                Email
+              </th>
+              <th className={styles.tableHeader} style={{ width: 100 }}>
+                Hành động
+              </th>
             </tr>
           </thead>
-          <tbody>
-            {renderContent()}
-          </tbody>
+          <tbody>{renderContent()}</tbody>
         </table>
       </div>
 
@@ -117,13 +149,9 @@ const NhaCungCapManagement: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        title={selectedSupplier ? 'Sửa Nhà Cung Cấp' : 'Thêm Nhà Cung Cấp'}
+        title={selectedSupplier ? "Sửa Nhà Cung Cấp" : "Thêm Nhà Cung Cấp"}
       >
-        <NhaCungCapForm
-            supplier={selectedSupplier}
-            onSave={handleSave}
-            onClose={handleCloseModal}
-        />
+        <NhaCungCapForm supplier={selectedSupplier} onSave={handleSave} onClose={handleCloseModal} />
       </Modal>
     </>
   );

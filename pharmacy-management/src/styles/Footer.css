@@ -1,0 +1,92 @@
+.footer {
+  background-color: #fff;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+
+.footer-top {
+  background-color: #1976d2;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 50px;
+}
+
+.footer-subscribe input {
+  padding: 10px;
+  border-radius: 8px 0 0 8px;
+  border: none;
+  width: 300px;
+}
+
+.footer-subscribe button {
+  background-color: #0048b5;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+}
+
+.footer-social {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.social-icons img {
+  width: 30px;
+  height: 30px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+  padding: 40px 50px;
+}
+
+.footer-column h4 {
+  color: #003399;
+  margin-bottom: 10px;
+}
+
+.footer-column ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-column li {
+  margin-bottom: 8px;
+}
+
+.logo {
+  color: #003399;
+  font-size: 26px;
+  font-weight: bold;
+}
+
+.logo .z {
+  color: #00bfff;
+  font-weight: bold;
+}
+
+.contact-info li {
+  margin-bottom: 5px;
+}
+
+.hotline {
+  color: #0048b5;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.market-icons img {
+  width: 40px;
+  height: auto;
+  margin: 5px;
+}
