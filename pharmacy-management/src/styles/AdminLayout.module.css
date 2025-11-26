@@ -1,12 +1,14 @@
-/* Định nghĩa các biến màu dùng chung */
+/* ================= VARIABLES ================= */
 :root {
-    --color-sidebar-bg: rgb(38,51,65); /* Nền sidebar: Màu trắng sậm/Gần đen */
-    --color-sidebar-text: #e0e0e0; /* Chữ sidebar: Trắng nhạt */
-    --color-sidebar-hover:rgb(0,147,154); /* Hover menu: Màu tối hơn */
-    --color-main-bg: #57d8e4af; /* Nền chính: Màu trắng nhạt */
-    --color-primary: #007bff; /* Màu xanh nổi bật */
+    --color-sidebar-bg: rgb(38,51,65);
+    --color-sidebar-text: #ffffff;
+    --color-sidebar-hover: rgb(54,65,77);
+    --color-sidebar-active: rgb(0,147,154);
+    --color-main-bg: #ffffff;
+    --color-primary: #007bff;
 }
 
+/* ================= LAYOUT ================= */
 .layoutContainer {
     display: flex;
     min-height: 100vh;
@@ -16,31 +18,35 @@
 .mainContent {
     flex-grow: 1;
     padding: 20px;
-    background-color: var(--color-main-bg);
+    background-color: #eeeaea;
 }
 
-/* --- SIDEBAR CSS --- */
+/* ================= SIDEBAR ================= */
 .sidebar {
-    width: 220px;
+    width: 220px;                    /* FIXED WIDTH */
+    min-width: 220px;                /* KHÔNG BAO GIỜ CO GIÃN */
+    max-width: 220px;                
     background-color: var(--color-sidebar-bg);
-    padding-top: 16px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-    /* Giữ Sidebar cố định khi cuộn */
-    position: sticky; 
+    box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+
+    position: sticky;
     top: 0;
     height: 100vh;
+
     overflow-y: auto;
-   
+    overflow-x: hidden;              /* Ngăn bể layout */
+    padding-top: 20px;
 }
 
 .logo {
-    color: var(--color-sidebar-text);
     text-align: center;
-    margin: 16px 0 30px 0;
-    font-size: 1.5em;
+    color: var(--color-sidebar-text);
+    margin-bottom: 30px;
+    font-size: 22px;
     font-weight: bold;
 }
 
+/* ================= MENU ITEM ================= */
 .menuList {
     list-style: none;
     padding: 0;
@@ -49,97 +55,101 @@
 
 .menuItem {
     color: var(--color-sidebar-text);
-    padding: 12px 20px;
+    padding: 12px 18px;
+    font-size: 15px;
+
     cursor: pointer;
-    transition: all 0.3s ease;
     display: flex;
     align-items: center;
+
     text-decoration: none;
-    font-size: 1.05em;
-    margin-top:20px;
-}
 
-.menuItem:hover {
-    background-color: var(--color-sidebar-hover);
-    color: #ffffff;
-    scale:1.1;
-}
-
-.menuItem.active {
-    background-color: var(--color-sidebar-hover); 
-    border-left: 4px solid var(--color-primary); /* Đường kẻ nổi bật cho mục active */
-    color: #ffffff;
-    scale:1;
+    transition: background 0.25s ease, color 0.25s ease;
 }
 
 .menuItemIcon {
     margin-right: 10px;
-}
-/* new phần hiệu ứng mở con */
-/* Thêm vào file: src/styles/AdminLayout.module.css */
-
-/* ... (giữ nguyên .sidebar, .menuList, .menuItem, .active...) */
-
-.menuParent {
-  width: 100%;
+    font-size: 16px;
 }
 
 .menuItem:hover {
-  background-color: #495057;
+    background-color: var(--color-sidebar-hover);
 }
 
-.menuItem .menuArrow {
-  margin-left: auto;
-  font-size: 0.7em;
-  transition: transform 0.3s ease;
+.active {
+    background-color: var(--color-sidebar-active) !important;
+    font-weight: bold;
 }
 
-.menuItem .menuArrowOpen {
-  transform: rotate(180deg);
+/* Ngăn scale gây lệch layout */
+.menuItem:hover,
+.menuItem.active {
+    transform: none !important;
 }
 
-/* Lớp CSS cho menu con */
+/* ================= MENU CHA ================= */
+.menuParent {
+    width: 100%;
+}
+
+.menuArrow {
+    margin-left: auto;
+    transition: transform 0.25s ease;
+    font-size: 11px;
+}
+
+.menuArrowOpen {
+    transform: rotate(180deg);
+}
+
+/* ================= SUBMENU ================= */
 .submenu {
-  list-style: none;
-  padding-left: 0;
-  margin: 0;
-  
-  /* [HIỆU ỨNG] */
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease-out;
-  
-  background-color: #3e444a; /* Hơi tối hơn nền cha */
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+
+    background-color: rgb(47,56,68);
 }
 
-/* Lớp CSS khi menu con MỞ */
+/* Submenu mở */
 .submenuOpen {
-  max-height: 200px; /* Đặt 1 chiều cao đủ lớn */
-  transition: max-height 0.3s ease-in;
+    max-height: 500px; /* đủ lớn */
 }
 
+/* Item con */
 .submenuItem {
-  padding: 12px 15px 12px 50px; /* Thụt lề vào */
-  font-size: 0.9em;
-  color: #e9ecef;
-  display: block;
-}
-
-.submenuItemLink {
-  text-decoration: none;
-  display: block;
-  width: 100%;
+    padding: 10px 18px 10px 48px; 
+    font-size: 14px;
+    color: #dcdcdc;
 }
 
 .submenuItem:hover {
-  background-color: #495057;
+    background-color: var(--color-sidebar-hover);
 }
 
-/* Lớp CSS khi mục con được chọn */
-.submenuActive {
-  background-color: #007bff;
-  font-weight: bold;
+.submenuActive:hover,
+.submenuActive .submenuItem:hover {
+    background-color: var(--color-primary) !important;
+    color: white !important;
 }
+
+.submenuItemLink {
+    text-decoration: none;
+    display: block;
+    width: 100%;
+}
+
+/* Submenu active */
+.submenuActive {
+    background-color: var(--color-primary) !important;
+    color: white !important;
+    font-weight: bold;
+}
+
 .submenuActive .submenuItem {
-   color: #ffffff;
+    color: white !important;
 }
