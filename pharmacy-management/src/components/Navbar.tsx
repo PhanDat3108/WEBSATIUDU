@@ -80,7 +80,7 @@ const Navbar: React.FC = () => {
 
 
 
-      <nav className="navbar-menu">
+     <nav className="navbar-menu">
 
         <Link to="/" >Trang chủ</Link>
 
@@ -126,7 +126,7 @@ const Navbar: React.FC = () => {
 
   );
 
-};
+}; 
 
 
 
