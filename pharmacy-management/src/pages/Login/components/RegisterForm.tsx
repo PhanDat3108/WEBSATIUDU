@@ -1,8 +1,8 @@
 import React from "react";
-// [SỬA 1] Bỏ 'message' và thêm 'App'
 import { Form, Input, Button, App } from "antd"; 
 import { LockOutlined, MailOutlined, UserOutlined } from "@ant-design/icons";
-import { registerAPI } from "../../../api/loginApi";
+// [SỬA 1] Import đúng object loginApi
+import { loginApi } from "../../../api/loginApi";
 
 interface RegisterFormValues {
   tenNhanVien: string;
@@ -17,32 +17,29 @@ interface RegisterFormProps {
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ onRegisterSuccess }) => {
   const [form] = Form.useForm();
-  // [SỬA 2] Lấy 'message' từ hook App.useApp()
   const { message } = App.useApp(); 
 
   const onFinish = async (values: RegisterFormValues) => {
     try {
-      const response = await registerAPI({
+      // [SỬA 2] Gọi đúng hàm loginApi.register
+      const response = await loginApi.register({
         tenNhanVien: values.tenNhanVien,
         taiKhoan: values.taiKhoan,
         matKhau: values.matKhau,
         vaiTro: "nhanvien",
       });
 
-      // [SỬA 3] Giờ 'message' này đã nhận được theme
       message.success(`Đăng ký thành công! Mã nhân viên: ${response.MaNhanVien}`);
       form.resetFields();
       onRegisterSuccess(); 
 
     } catch (error: any) {
-      // [SỬA 3] Giờ 'message' này đã nhận được theme
       message.error(error.message || "Đăng ký thất bại!");
     }
   };
 
   return (
     <Form form={form} onFinish={onFinish} autoComplete="off" layout="vertical">
-      {/* ... (Nội dung Form giữ nguyên) ... */}
       <Form.Item
         name="tenNhanVien"
         label="Tên nhân viên"

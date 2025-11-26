@@ -1,12 +1,16 @@
-
+// src/routers/AppRouter.tsx
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-// Import Pages & Layouts
+// --- Imports Pages & Components ---
+import LoginPage from '../pages/Login';
+import LoginHomePage from "../pages/Login/components/LoginForm"; // Hoặc đường dẫn đúng tới trang login của bạn
+import RegisterPage from '../pages/Login/components/RegisterPage';
+import HomePage from '../pages/Home/HomePage';
+
+// --- Import Admin Components ---
 import AdminLayout from '../components/AdminLayout/AdminLayout'; 
 import AdminDashboard from '../pages/Admin/Dashboard';
-import HomePage from '../pages/Home/HomePage';
-import LoginHomePage from "../pages/Login";
 import MedicineManagement from '../pages/Admin/MedicineManagement';
 import PatientManagement from '../pages/Admin/PatientManagement';
 import NhanVienManagement from '../pages/Admin/NhanVienManagement';
@@ -14,80 +18,65 @@ import Reports from '../pages/Admin/Reports';
 import Revenue from '../pages/Admin/Revenue'; 
 import TestThuoc from "../pages/Admin/Testthuoc";
 import { PhieuNhapManagement } from '../pages/Admin/PhieuNhapManagement'; 
-
-// [MỚI] Import 2 trang mới
 import NhaCungCapManagement from '../pages/Admin/NhaCungCapManagement';
 import LoaiThuocManagement from '../pages/Admin/LoaiThuocManagement';
-import {XuatNoiBoManagement} from "../pages/Admin/XuatNoiBoManagement"
+import { XuatNoiBoManagement } from "../pages/Admin/XuatNoiBoManagement";
 
- 
-const MOCK_ADMIN_AUTHENTICATED = true; 
-const ADMIN_LOGIN_PATH = '/login';
-
-const isAuthenticatedAdmin = () => {
-    return MOCK_ADMIN_AUTHENTICATED; 
-};
-
-const ProtectedRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
-    if (!isAuthenticatedAdmin()) {
-        return <Navigate to={ADMIN_LOGIN_PATH} replace />;
-    }
-    return children;
-};
+// --- Import Bảo Vệ Route (Quan trọng) ---
+import ProtectedRoute from '../components/ProtectedRoute';
 
 const AppRouter: React.FC = () => {
   return (
     <Router>
-      <AppContent />
-    </Router>
-  );
-};
-
-const AppContent: React.FC = () => {
-  const location = useLocation();
-  const isAdminPage = location.pathname.startsWith("/admin");
-
-  return (
-    <>
       <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<LoginHomePage />} />
-        <Route path="home" element={< HomePage/>} />
+        {/* Redirect trang chủ gốc về Login nếu chưa đăng nhập, hoặc xử lý ở Home */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/" element={<LoginPage />} />
+         
 
 
-        {/* Admin Protected Routes */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute>
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<AdminDashboard />} />
-          <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="medicines" element={<MedicineManagement />} />
-          
-          {/* [MỚI] Thêm 3 routes mới */}
-          <Route path="suppliers" element={<NhaCungCapManagement />} />
-          <Route path="categories" element={<LoaiThuocManagement />} />
-          
-
-          <Route path="patients" element={<PatientManagement />} />
-          <Route path="employees" element={<NhanVienManagement />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="revenue" element={<Revenue />} />
-          <Route path="chinhthuoc" element={<TestThuoc />} />
-          <Route path="import" element={<PhieuNhapManagement />} />
-          <Route path="export" element={<XuatNoiBoManagement />} />
-
-
+        {/* Chỉ cho phép vai trò 'Dược sĩ' hoặc 'Nhân viên' truy cập */}
+        <Route element={<ProtectedRoute allowedRoles={['nhanvien']} />}>
+           
+            <Route path="/home" element={<HomePage />} />
         </Route>
 
-        {/* Các routes khác (ví dụ: 404) */}
-        <Route path="*" element={<div>404 Not Found</div>} />
+
+        {/* Chỉ cho phép vai trò 'Quản lý' hoặc 'Admin' truy cập */}
+        <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+            
+            {/* Bọc tất cả route con bằng AdminLayout */}
+            <Route path="/admin" element={<AdminLayout />}>
+           
+                <Route index element={<AdminDashboard />} />
+                <Route path="dashboard" element={<AdminDashboard />} />
+                
+
+                <Route path="medicines" element={<MedicineManagement />} />
+                <Route path="categories" element={<LoaiThuocManagement />} />
+                <Route path="suppliers" element={<NhaCungCapManagement />} />
+
+     
+                <Route path="import" element={<PhieuNhapManagement />} />
+                <Route path="export" element={<XuatNoiBoManagement />} /> 
+
+         
+                <Route path="employees" element={<NhanVienManagement />} />
+                <Route path="patients" element={<PatientManagement />} />
+
+                <Route path="reports" element={<Reports />} />
+                <Route path="revenue" element={<Revenue />} />
+                
+       
+                <Route path="chinhthuoc" element={<TestThuoc />} />
+            </Route>
+        </Route>
+
+        <Route path="*" element={<Navigate to="/login" replace />} />
+
       </Routes>
-    </>
+    </Router>
   );
 };
 
