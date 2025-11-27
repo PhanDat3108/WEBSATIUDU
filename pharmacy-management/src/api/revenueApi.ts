@@ -1,22 +1,16 @@
 // src/api/revenueApi.ts
-import { DuLieuDoanhThu } from '../interfaces';
+import axios from "axios"; // <--- BẮT BUỘC PHẢI CÓ DÒNG NÀY
 
-export const getRevenueData = async (): Promise<DuLieuDoanhThu[]> => {
-  console.log('GỌI API: getRevenueData (BE CHƯA SẴN SÀNG)');
-  
-  // Trả về mảng rỗng
-  return Promise.resolve([]);
+// Lưu ý: Port 5000 là port mặc định của Backend Node.js bạn đã cấu hình
+// Nếu backend chạy port khác (ví dụ 8080), hãy sửa số 5000 thành 8080
+const API_URL = "http://localhost:8080/api/v1/revenue";
 
-  /* // --- KHI BE SẴN SÀNG ---
-  // try {
-  //   const response = await fetch('/api/v1/reports/revenue');
-  //   if (!response.ok) {
-  //     throw new Error('Lỗi khi tải dữ liệu doanh thu');
-  //   }
-  //   return await response.json();
-  // } catch (error) {
-  //   console.error('Lỗi getRevenueData:', error);
-  //   throw error;
-  // }
-  */
+export const getRevenueStats = async (month?: number, year?: number) => {
+  // Tạo object params để axios tự chuyển thành ?month=...&year=...
+  const params: any = {};
+  if (month) params.month = month;
+  if (year) params.year = year;
+
+  const response = await axios.get(`${API_URL}/stats`, { params });
+  return response.data;
 };
