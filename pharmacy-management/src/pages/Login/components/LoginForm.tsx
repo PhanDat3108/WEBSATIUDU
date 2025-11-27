@@ -37,7 +37,7 @@ const LoginForm: React.FC = () => {
       
       // Kiểm tra các role Admin (khớp với DB của bạn: 'Quản lý', 'Admin'...)
       if (role === 'admin' ) {
-        navigate('/admin/dashboard'); 
+        navigate('/admin/revenue'); 
       } else {
         // Role nhân viên/dược sĩ về trang chủ bán hàng
         navigate('/home'); 

@@ -10,7 +10,7 @@ import HomePage from '../pages/Home/HomePage';
 
 // --- Import Admin Components ---
 import AdminLayout from '../components/AdminLayout/AdminLayout'; 
-import AdminDashboard from '../pages/Admin/Dashboard';
+
 import MedicineManagement from '../pages/Admin/MedicineManagement';
 import PatientManagement from '../pages/Admin/PatientManagement';
 import NhanVienManagement from '../pages/Admin/NhanVienManagement';
@@ -49,10 +49,11 @@ const AppRouter: React.FC = () => {
             {/* Bọc tất cả route con bằng AdminLayout */}
             <Route path="/admin" element={<AdminLayout />}>
            
-                <Route index element={<AdminDashboard />} />
-                <Route path="dashboard" element={<AdminDashboard />} />
                 
+                
+<Route index element={<Revenue />} />
 
+                <Route path="revenue" element={<Revenue />} /> 
                 <Route path="medicines" element={<MedicineManagement />} />
                 <Route path="categories" element={<LoaiThuocManagement />} />
                 <Route path="suppliers" element={<NhaCungCapManagement />} />
@@ -66,7 +67,6 @@ const AppRouter: React.FC = () => {
                 <Route path="patients" element={<PatientManagement />} />
 
                 <Route path="reports" element={<Reports />} />
-                <Route path="revenue" element={<Revenue />} />
                 
        
                 <Route path="chinhthuoc" element={<TestThuoc />} />

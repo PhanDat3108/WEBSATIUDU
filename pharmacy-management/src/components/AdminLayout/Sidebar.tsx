@@ -50,7 +50,7 @@ const AdminSidebar: React.FC = () => {
 
     // [MỚI] Cấu trúc menu mới với menu con
     const menuItems = [
-        { key: '/admin/dashboard', icon: '🏠', label: 'Trang chủ' },
+        { key: '/admin/revenue', icon: '🏠', label: 'Trang chủ' },
         { 
             key: 'ql-thuoc', // Key cha
             icon: '💊', 
@@ -62,10 +62,9 @@ const AdminSidebar: React.FC = () => {
             ]
         },
          // [MỚI]
-        { key: '/admin/patients', icon: '👥', label: 'Quản lý bệnh nhân' }, // (Giữ nguyên)
-        { key: '/admin/employees', icon: '👨‍💼', label: 'Quản lý nhân viên' }, // (Giữ nguyên)
-        { key: '/admin/reports', icon: '📊', label: 'Thống kê' }, // (Giữ nguyên)
-        { key: '/admin/revenue', icon: '💰', label: 'Thu nhập' }, // (Giữ nguyên)
+        { key: '/admin/patients', icon: '👥', label: 'Quản lý bệnh nhân' }, 
+        { key: '/admin/employees', icon: '👨‍💼', label: 'Quản lý nhân viên' }, 
+        { key: '/admin/reports', icon: '📊', label: 'Thống kê' }, 
         { 
         key: 'kho-giao-dich', // [MỤC CHA MỚI] Kho & Giao Dịch
         icon: '📦', 
