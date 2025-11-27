@@ -133,7 +133,7 @@ router.get("/list", (req, res) => {
  const sql = `
     SELECT 
   t.MaThuoc, t.TenThuoc, t.DonViTinh, t.SoLuongTon, 
-  t.GiaNhap, t.GiaBan, 
+  t.GiaNhap, t.GiaBan, t.MaLoai,
   t.MaNhaCungCap,
   n.TenNhaCungCap AS TenNhaCungCap,
   l.TenLoai AS TenLoai
