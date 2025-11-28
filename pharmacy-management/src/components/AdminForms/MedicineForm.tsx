@@ -67,7 +67,7 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
     if (name === 'GiaBan') {
       setFormData(prev => ({
         ...prev,
-        [name]: value === '' ? 0 : parseFloat(value) // Chuyển sang số
+        [name]: value === '' ? 0 : parseFloat(value) // Chuyển sang số,[name] Truy cập động (Dynamic Key)
       }));
     } else {
       setFormData(prev => ({
