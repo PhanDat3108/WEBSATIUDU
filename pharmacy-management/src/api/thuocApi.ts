@@ -3,6 +3,7 @@ import { Thuoc } from '../interfaces';
 // Đường dẫn này khớp với server.js và proxy
 const API_BASE_URL = '/api/v1/thuoc';
 
+
 /**
  * [ĐÃ SỬA LẦN 2] Hàm chung để xử lý response từ fetch
  */
@@ -122,6 +123,24 @@ export const deleteMedicine = async (maThuoc: string): Promise<void> => {
   } catch (error) {
     console.error('Lỗi khi xóa thuốc:', error);
     // [FIX] Ném lại lỗi
+    throw error;
+  }
+};
+export const uploadMedicineImage = async (maThuoc: string, file: File) => {
+  const formData = new FormData();
+  formData.append("image", file); // Key 'image' khớp với backend
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/${maThuoc}/upload-image`, {
+      method: 'POST',
+      body: formData,
+      // LƯU Ý QUAN TRỌNG: Khi dùng fetch với FormData, 
+      // KHÔNG ĐƯỢC set 'Content-Type': 'multipart/form-data' thủ công.
+      // Trình duyệt sẽ tự động làm việc này và thêm boundary cần thiết.
+    });
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Lỗi khi upload ảnh:', error);
     throw error;
   }
 };
