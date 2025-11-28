@@ -232,4 +232,21 @@ router.post('/:id/upload-image', (req, res) => {
         });
     });
 });
+router.get('/danhmuc/:maLoai', (req, res) => {
+    const maLoai = req.params.maLoai;
+
+    const sql = `
+        SELECT * FROM Thuoc 
+        WHERE MaLoai = ?
+    `;
+
+    db.query(sql, [maLoai], (err, data) => {
+        if (err) {
+            console.error("Lỗi SQL:", err);
+            return res.status(500).json({ message: "Lỗi server khi lấy thuốc theo danh mục" });
+        }
+        
+        return res.status(200).json(data);
+    });
+});
 export default router;
