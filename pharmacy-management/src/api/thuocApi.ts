@@ -119,3 +119,4 @@ export const uploadMedicineImage = async (maThuoc: string, file: File) => {
     throw error;
   }
 };
+
