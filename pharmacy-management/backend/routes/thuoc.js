@@ -1,5 +1,9 @@
 import express from "express";
 import db from "../config/db.js";
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 
 const router = express.Router();
 
@@ -172,5 +176,60 @@ router.get("/", (req, res) => {
     if (err) return res.status(500).json(err);
     res.json(data);
   });
+});
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
+
+const imageFolderPath = path.join(__dirname, '../../public/images/thuoc');
+
+if (!fs.existsSync(imageFolderPath)) {
+    fs.mkdirSync(imageFolderPath, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, imageFolderPath);
+    },
+    filename: function (req, file, cb) {
+        const maThuoc = req.params.id;
+        
+        cb(null, `${maThuoc}.jpg`); 
+    }
+});
+
+const upload = multer({ storage: storage });
+
+router.post('/:id/upload-image', (req, res) => {
+    const maThuoc = req.params.id;
+
+    
+    fs.readdir(imageFolderPath, (err, files) => {
+        if (!err) {
+            files.forEach(file => {
+                
+                if (file.startsWith(`${maThuoc}.`) && file !== `${maThuoc}.jpg`) {
+                    fs.unlinkSync(path.join(imageFolderPath, file));
+                }
+            });
+        }
+    });
+
+    const uploadSingle = upload.single('image');
+
+    uploadSingle(req, res, function (err) {
+        if (err instanceof multer.MulterError) {
+            return res.status(500).json({ message: 'Lỗi upload Multer', error: err });
+        } else if (err) {
+            return res.status(500).json({ message: 'Lỗi không xác định', error: err });
+        }
+
+
+        return res.status(200).json({ 
+            message: 'Upload ảnh thành công', 
+            imagePath: `/images/thuoc/${maThuoc}.jpg` 
+        });
+    });
 });
 export default router;
