@@ -1,135 +1,166 @@
-// src/pages/Admin/Revenue.tsx
-import React, { useState, useEffect } from 'react';
-// 1. Import hàm mới và interface
-import { getRevenueData } from '../../api/revenueApi';
-import { DuLieuDoanhThu } from '../../interfaces';
+import React, { useEffect, useState } from "react";
+import { Card, Row, Col, Statistic, Spin, Empty, DatePicker } from "antd";
+import { DollarCircleOutlined, ShoppingCartOutlined, RiseOutlined, FallOutlined, CalendarOutlined } from "@ant-design/icons";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, Cell } from "recharts";
+import dayjs, { Dayjs } from 'dayjs';
+import { getRevenueStats } from "../../api/revenueApi";
 
-// 2. Import components biểu đồ
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  PieChart, Pie, Cell,
-} from 'recharts';
-
-// Giả sử file style
-import styles from '../../styles/AdminDashboard.module.css';
-
-// Kiểu dữ liệu giả cho PieChart (vì ta chưa có API)
-interface TopProduct {
-  name: string;
-  value: number;
-  // SỬA LỖI Ở ĐÂY: Thêm dòng này để sửa lỗi TS2322
-  [key: string]: any;
-}
-// Kiểu dữ liệu giả cho Summary (vì ta chưa có API)
-interface RevenueSummary {
-  total: number;
-  profit: number;
-  itemsSold: number;
-}
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+const formatCurrency = (value: number) =>
+  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(value);
 
 const Revenue: React.FC = () => {
-  // 3. Cập nhật state
-  const [summary, setSummary] = useState<RevenueSummary>({ total: 0, profit: 0, itemsSold: 0 });
-  const [lineChartData, setLineChartData] = useState<DuLieuDoanhThu[]>([]);
-  const [pieChartData, setPieChartData] = useState<TopProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<any>(null);
   
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // State lưu tháng đang chọn (Mặc định là tháng hiện tại)
+  const [selectedMonth, setSelectedMonth] = useState<Dayjs>(dayjs());
 
+  const fetchData = async (date: Dayjs) => {
+    setLoading(true);
+    try {
+      // Lấy tháng và năm từ DatePicker (Lưu ý: dayjs().month() trả về 0-11 nên cần +1)
+      const month = date.month() + 1;
+      const year = date.year();
+      
+      console.log(`Đang tải dữ liệu tháng ${month}/${year}...`);
+      const result = await getRevenueStats(month, year);
+      setData(result);
+    } catch (error) {
+      console.error("Lỗi tải dữ liệu:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Gọi lần đầu khi vào trang
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        
-        // 4. Chỉ gọi hàm getRevenueData
-        const lineData = await getRevenueData();
-        setLineChartData(lineData);
-
-        // 5. Đặt dữ liệu rỗng cho các phần chưa có API
-        setSummary({ total: 0, profit: 0, itemsSold: 0 });
-        setPieChartData([]); // API cho TopSellingProducts chưa được định nghĩa
-
-      } catch (err) {
-        // Lỗi này sẽ hiển thị "Chức năng chưa sẵn sàng"
-        setError((err as Error).message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
+    fetchData(selectedMonth);
   }, []);
 
-  // 6. Render với các trạng thái
-  if (isLoading) {
-    return <div className={styles.container}><p>Đang tải dữ liệu doanh thu...</p></div>;
-  }
+  // Xử lý khi người dùng chọn tháng khác
+  const handleDateChange = (date: Dayjs | null) => {
+    if (date) {
+      setSelectedMonth(date);
+      fetchData(date);
+    }
+  };
 
-  // Hiển thị lỗi (nếu API reject)
-  if (error && lineChartData.length === 0) {
-    return <div className={styles.container}><p style={{ color: 'red' }}>Lỗi: {error}</p></div>;
-  }
-  
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
+
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Phân tích Doanh thu</h1>
+    <div style={{ padding: "24px", backgroundColor: "#f0f2f5", minHeight: "100vh" }}>
       
-      {/* Summary Cards */}
-      <div className={styles.summaryGrid}>
-        <div className={styles.summaryCard}>
-          <h2>Tổng Doanh thu</h2>
-          <p>{summary.total.toLocaleString()} VNĐ</p>
-        </div>
-        <div className={styles.summaryCard}>
-          <h2>Lợi nhuận</h2>
-          <p>{summary.profit.toLocaleString()} VNĐ</p>
-        </div>
-        <div className={styles.summaryCard}>
-          <h2>Sản phẩm đã bán</h2>
-          <p>{summary.itemsSold}</p>
-        </div>
-      </div>
-      
-      {/* Charts */}
-      <div className={styles.mainGrid}>
-        <div className={styles.chartContainer}>
-          <h2>Doanh thu theo thời gian</h2>
-          {lineChartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={lineChartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="thang" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="doanhThu" stroke="#8884d8" activeDot={{ r: 8 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          ) : (
-             <p>Không có dữ liệu doanh thu theo thời gian.</p>
-          )}
-        </div>
+      {/* HEADLINE & BỘ LỌC */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <h2 style={{ margin: 0, fontWeight: "700", color: "#001529" }}>
+          Báo cáo Doanh thu
+        </h2>
         
-        <div className={styles.chartContainer}>
-          <h2>Top sản phẩm bán chạy</h2>
-          {pieChartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie data={pieChartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} fill="#8884d8" label>
-                  {pieChartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          ) : (
-            <p>Không có dữ liệu sản phẩm bán chạy.</p>
-          )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontWeight: 500 }}>Chọn tháng:</span>
+          <DatePicker 
+            picker="month" 
+            value={selectedMonth}
+            onChange={handleDateChange}
+            format="MM/YYYY"
+            allowClear={false}
+            size="large"
+            style={{ width: 200 }}
+          />
         </div>
       </div>
+
+      {loading ? (
+        <div style={{ display: "flex", justifyContent: "center", height: "50vh", alignItems: "center" }}>
+          <Spin size="large" tip="Đang tính toán số liệu..." />
+        </div>
+      ) : !data ? (
+        <Empty description="Không có dữ liệu" />
+      ) : (
+        <>
+          {/* 1. THỐNG KÊ TỔNG QUAN */}
+          <Row gutter={[16, 16]}>
+            <Col xs={24} sm={8}>
+              <Card bordered={false} style={{ borderRadius: 8 }}>
+                <Statistic
+                  title="Doanh thu bán hàng"
+                  value={data.summary.totalRevenue}
+                  formatter={(val) => formatCurrency(Number(val))}
+                  prefix={<DollarCircleOutlined style={{ color: "#1890ff" }} />}
+                  valueStyle={{ color: "#1890ff", fontWeight: "bold" }}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={8}>
+              <Card bordered={false} style={{ borderRadius: 8 }}>
+                <Statistic
+                  title="Lợi nhuận ròng"
+                  value={data.summary.profit}
+                  formatter={(val) => formatCurrency(Number(val))}
+                  prefix={<RiseOutlined style={{ color: "#52c41a" }} />}
+                  valueStyle={{ color: data.summary.profit >= 0 ? "#52c41a" : "#cf1322", fontWeight: "bold" }}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={8}>
+              <Card bordered={false} style={{ borderRadius: 8 }}>
+                <Statistic
+                  title="Số lượng thuốc bán ra"
+                  value={data.summary.totalSold}
+                  prefix={<ShoppingCartOutlined style={{ color: "#faad14" }} />}
+                  suffix="đơn vị"
+                  valueStyle={{ color: "#faad14", fontWeight: "bold" }}
+                />
+              </Card>
+            </Col>
+          </Row>
+
+          {/* 2. BIỂU ĐỒ */}
+          <Row gutter={[16, 16]} style={{ marginTop: "24px" }}>
+            <Col xs={24} lg={16}>
+              <Card title={`Biểu đồ doanh thu tháng ${selectedMonth.format('MM/YYYY')}`} bordered={false} style={{ borderRadius: 8 }}>
+                <div style={{ width: '100%', height: 350 }}>
+                  <ResponsiveContainer>
+                    <AreaChart data={data.chartData}>
+                      <defs>
+                        <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#1890ff" stopOpacity={0.8} />
+                          <stop offset="95%" stopColor="#1890ff" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="date" tickFormatter={(str) => dayjs(str).format('DD/MM')} />
+                      <YAxis tickFormatter={(val) => new Intl.NumberFormat("en", { notation: "compact" }).format(val)} />
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <Tooltip formatter={(val: any) => formatCurrency(val)} labelFormatter={(label) => `Ngày: ${dayjs(label).format('DD/MM/YYYY')}`} />
+                      <Area type="monotone" dataKey="value" stroke="#1890ff" fillOpacity={1} fill="url(#colorRevenue)" name="Doanh thu" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </Card>
+            </Col>
+
+            <Col xs={24} lg={8}>
+              <Card title="Top 5 Thuốc bán chạy" bordered={false} style={{ borderRadius: 8 }}>
+                <div style={{ width: '100%', height: 350 }}>
+                  <ResponsiveContainer>
+                    <BarChart data={data.topProducts} layout="vertical">
+                      <XAxis type="number" hide />
+                      <YAxis dataKey="name" type="category" width={100} style={{ fontSize: '12px' }} />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="value" name="Đã bán" barSize={20} radius={[0, 4, 4, 0]}>
+                        {data.topProducts?.map((entry: any, index: number) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </Card>
+            </Col>
+          </Row>
+        </>
+      )}
     </div>
   );
 };

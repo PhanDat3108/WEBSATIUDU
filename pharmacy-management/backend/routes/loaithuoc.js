@@ -37,7 +37,7 @@ router.post("/add", (req, res) => {
   }
 
  const maxIdQuery =
-    "SELECT MAX(CAST(SUBSTRING(MaLoai, 2) AS UNSIGNED)) AS maxNumber FROM LoaiThuoc WHERE MaLoai LIKE 'L%'";
+    "SELECT MAX(CAST(SUBSTRING(MaLoai, 3) AS UNSIGNED)) AS maxNumber FROM LoaiThuoc WHERE MaLoai LIKE 'L%'";
 
   db.query(maxIdQuery, (err, result) => {
     if (err) {

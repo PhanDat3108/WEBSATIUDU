@@ -6,17 +6,19 @@
  */
 
 .container {
-  padding: 20px;
+  padding: 14px;
   font-family: Arial, sans-serif;
+  box-shadow: none;
   /* Kế thừa màu nền chính từ layout */
-  background-color: var(--color-main-bg, #f9f9f9); /* Dùng màu #f9f9f9 làm dự phòng */
+  background-color: var(--color-main-bg, #ffffff); /* Dùng màu #f9f9f9 làm dự phòng */
 }
 
 .title {
   color: #333;
   /* Kế thừa màu nhấn (hover) của sidebar cho đường gạch chân */
   border-bottom: 2px solid var(--color-sidebar-hover, #007bff);
-  padding-bottom: 10px;
+  font-weight: bold;
+  padding-bottom: 8px;
 }
 
 .addButton {
@@ -28,7 +30,7 @@
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 4px;
   transition: background-color 0.3s;
 }
 
@@ -41,15 +43,20 @@
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow:#000000 ;
   border-radius: 8px;
-  overflow: hidden;
+  border: 1px solid #bababa !important; /* màu của viền bảng */
+}
+
+.table th,
+.table td {
+  border: 1px solid #bababa;  /* màu của viền ô */
+  padding: 4px;
 }
 
 .tableHeader {
   padding: 12px 15px;
-  text-align: left;
-  /* Kế thừa màu nền sidebar cho header của bảng */
+  text-align: center;
   background-color: var(--color-sidebar-bg, #333);
   /* Kế..."
 Dự án nhóm
@@ -91,9 +98,10 @@ Dự án nhóm
   color: white;
   padding: 8px 12px;
   border: none;
+  margin-right: 4px;
   border-radius: 4px;
   cursor: pointer;
-  margin-right: 5px;
+  align-items: center;
   transition: background-color 0.3s;
 }
 
@@ -107,10 +115,15 @@ Dự án nhóm
   padding: 8px 12px;
   border: none;
   border-radius: 4px;
+  align-items: center;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
 .deleteButton:hover {
   background-color: #d32f2f;
+}
+
+.actionButtons {
+  text-align: center;
 }

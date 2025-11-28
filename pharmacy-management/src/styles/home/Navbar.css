@@ -125,9 +125,20 @@ a {
 }
 
 .cart-btn {
-  background: #1e3a8a;
-  padding: 6px 10px;
-  border-radius: 8px;
+  background: #3968e8;
+  padding: 6px 15px; /* Tăng padding ngang một chút cho thoáng */
+  border-radius: 10px;
+  margin-top: -10px;
+  border: none;
+  color: white;
+  cursor: pointer;
+  height:45px;
+  display: flex;
+  align-items: center;
+  gap: 5px; 
+  position: relative;
+  font-size: 16px;    /* Tăng kích thước chữ (mặc định thường là 13-14px) */
+  font-weight: 700;
 }
 .navbarlogin{
   display:flex;
@@ -137,10 +148,13 @@ a {
   width: 80%;
 }
 .navbar-menu {
+  align-items: center;
   display: flex;
   gap: 20px;
+  height: 50px;
+  margin-top: 8px;
   padding-top: 10px;
-  
+  height: 50px;
   border-radius: 10px;
   padding: 10px 20px;
   margin-top: 8px;
@@ -150,10 +164,20 @@ a {
   color: #ffffff;
   text-decoration: none;
   font-family: 'Quicksand', sans-serif;
- font-weight: 700;
+  font-weight: 700;
+  font-size: 15px;
+
+  
+  display: inline-flex;      
+  align-items: center;     
+  justify-content: center;    
+
+  padding: 8px 16px;        
+  border-radius: 25px;      
+  
+  transition: all 0.3s ease;  
 }
 .navbar-menu a:hover {
-  
   background-color: #f0f9ff; 
 
   color: #1e3a8a; 

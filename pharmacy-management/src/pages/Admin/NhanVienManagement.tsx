@@ -1,11 +1,11 @@
 // src/pages/Admin/NhanVienManagement.tsx
-import React, { useState, useEffect } from 'react';
-import { NhanVien } from '../../interfaces';
+import React, { useState, useEffect } from "react";
+import { NhanVien } from "../../interfaces";
 // [SỬA] Import các hàm đã kết nối
-import { getNhanVien, deleteNhanVien } from '../../api/nhanVienApi'; 
-import { NhanVienForm } from '../../components/AdminForms/NhanVienForm';
-import Modal from '../../components/common/Modal';
-import styles from '../../styles/AdminManagement.module.css';
+import { getNhanVien, deleteNhanVien } from "../../api/nhanVienApi";
+import { NhanVienForm } from "../../components/AdminForms/NhanVienForm";
+import Modal from "../../components/common/Modal";
+import styles from "../../styles/AdminManagement.module.css";
 
 const NhanVienManagement: React.FC = () => {
   const [employees, setEmployees] = useState<NhanVien[]>([]);
@@ -34,8 +34,8 @@ const NhanVienManagement: React.FC = () => {
   const handleOpenModal = (employee: NhanVien | null) => {
     // Chỉ mở modal khi SỬA (employee không null)
     if (employee) {
-        setSelectedEmployee(employee);
-        setIsModalOpen(true);
+      setSelectedEmployee(employee);
+      setIsModalOpen(true);
     }
   };
 
@@ -53,24 +53,36 @@ const NhanVienManagement: React.FC = () => {
     if (window.confirm(`Bạn có chắc muốn xóa nhân viên ${maNV}?`)) {
       try {
         await deleteNhanVien(maNV); // Đã gọi API thật
-        alert('Xóa thành công!');
+        alert("Xóa thành công!");
         loadEmployees(); // Tải lại danh sách
       } catch (err) {
         setError((err as Error).message);
-        alert('Xóa thất bại: ' + (err as Error).message);
+        alert("Xóa thất bại: " + (err as Error).message);
       }
     }
   };
 
   const renderContent = () => {
     if (isLoading) {
-      return <tr><td colSpan={5}>Đang tải dữ liệu nhân viên...</td></tr>;
+      return (
+        <tr>
+          <td colSpan={5}>Đang tải dữ liệu nhân viên...</td>
+        </tr>
+      );
     }
     if (error) {
-      return <tr><td colSpan={5}>Lỗi: {error}</td></tr>;
+      return (
+        <tr>
+          <td colSpan={5}>Lỗi: {error}</td>
+        </tr>
+      );
     }
     if (employees.length === 0) {
-      return <tr><td colSpan={5}>Không có dữ liệu nhân viên.</td></tr>;
+      return (
+        <tr>
+          <td colSpan={5}>Không có dữ liệu nhân viên.</td>
+        </tr>
+      );
     }
 
     return employees.map((nv) => (
@@ -80,8 +92,12 @@ const NhanVienManagement: React.FC = () => {
         <td>{nv.TaiKhoan}</td>
         <td>{nv.VaiTro}</td>
         <td>
-          <button onClick={() => handleOpenModal(nv)} className={styles.editButton}>Sửa</button>
-          <button onClick={() => handleDelete(nv.MaNhanVien)} className={styles.deleteButton}>Xóa</button>
+          <button onClick={() => handleOpenModal(nv)} className={styles.editButton}>
+            Sửa
+          </button>
+          <button onClick={() => handleDelete(nv.MaNhanVien)} className={styles.deleteButton}>
+            Xóa
+          </button>
         </td>
       </tr>
     ));
@@ -89,8 +105,8 @@ const NhanVienManagement: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Quản lý Nhân viên</h1>
-      
+      <h1 className={styles.title}>Quản lý nhân viên</h1>
+
       {/* [SỬA] Nút Thêm Mới - Đã bị vô hiệu hóa (comment out) theo yêu cầu */}
       {/* <button onClick={() => handleOpenModal(null)} className={styles.addButton}>
         + Thêm nhân viên
@@ -100,24 +116,18 @@ const NhanVienManagement: React.FC = () => {
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>Mã NV</th>
-            <th>Tên Nhân Viên</th>
-            <th>Tài khoản</th>
-            <th>Vai trò</th>
-            <th>Hành động</th>
+            <th className={styles.tableHeader}>Mã NV</th>
+            <th className={styles.tableHeader}>Tên Nhân Viên</th>
+            <th className={styles.tableHeader}>Tài khoản</th>
+            <th className={styles.tableHeader}>Vai trò</th>
+            <th className={styles.tableHeader}>Hành động</th>
           </tr>
         </thead>
-        <tbody>
-          {renderContent()}
-        </tbody>
+        <tbody>{renderContent()}</tbody>
       </table>
 
       {/* Modal chỉ hoạt động cho chức năng Sửa */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        title="Sửa thông tin nhân viên"
-      >
+      <Modal isOpen={isModalOpen} onClose={handleCloseModal} title="Sửa thông tin nhân viên">
         {selectedEmployee && (
           <NhanVienForm
             initialData={selectedEmployee}

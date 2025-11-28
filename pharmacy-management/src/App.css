@@ -12,14 +12,12 @@
     animation: App-logo-spin infinite 20s linear;
   }
 }
-
-.App-header {
+~ .App-header {
   min-height: auto;
   display: block;
   background-color: transparent;
   color: inherit;
 }
-
 
 .App-link {
   color: #61dafb;

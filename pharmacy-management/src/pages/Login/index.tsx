@@ -5,10 +5,8 @@ import LoginForm from "./components/LoginForm";
 import RegisterForm from "./components/RegisterForm";
 import LoginBackground from "../../assets/backgroundLogin.jpg";
 
-// (Các style giữ nguyên)
 const cardStyle = {
-  width: "100%",
-  maxWidth: 450,
+  width: "450px",
   boxShadow: "0 10px 40px rgba(0,0,0,0.1)",
   borderRadius: "12px",
 };

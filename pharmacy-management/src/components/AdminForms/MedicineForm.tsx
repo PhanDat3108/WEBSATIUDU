@@ -1,15 +1,15 @@
 // src/components/AdminForms/MedicineForm.tsx
-import React, { useState, useEffect } from 'react';
-import { Thuoc, LoaiThuoc, NhaCungCap } from '../../interfaces';
-import styles from '../../styles/Form.module.css';
+import React, { useState, useEffect } from "react";
+import { Thuoc, LoaiThuoc, NhaCungCap } from "../../interfaces";
+import styles from "../../styles/Form.module.css";
 
 // [SỬA LỖI IMPORT]
 // 1. Import hàm thêm/sửa thuốc từ 'thuocApi'
-import { addMedicine, updateMedicine } from '../../api/thuocApi'; 
+import { addMedicine, updateMedicine } from "../../api/thuocApi";
 // 2. Import hàm lấy tên loại thuốc từ 'loaiThuocApi' (File mới của bạn)
-import { getLoaiThuocListname } from '../../api/loaiThuocApi';
+import { getLoaiThuocListname } from "../../api/loaiThuocApi";
 // 3. Import hàm lấy tên NCC từ 'nhaCungCapApi'
-import { getNhaCungCapListForDropdown } from '../../api/nhaCungCapApi';
+import { getNhaCungCapListForDropdown } from "../../api/nhaCungCapApi";
 
 interface MedicineFormProps {
   medicine: Thuoc | null;
@@ -18,13 +18,12 @@ interface MedicineFormProps {
 }
 
 export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, onClose }) => {
-  
   const [formData, setFormData] = useState<Partial<Thuoc>>({
-    MaThuoc: medicine?.MaThuoc || '',
-    TenThuoc: medicine?.TenThuoc || '',
-    DonViTinh: medicine?.DonViTinh || 'Viên',
-    MaLoai: medicine?.MaLoai || '',
-    MaNhaCungCap: medicine?.MaNhaCungCap || '',
+    MaThuoc: medicine?.MaThuoc || "",
+    TenThuoc: medicine?.TenThuoc || "",
+    DonViTinh: medicine?.DonViTinh || "Viên",
+    MaLoai: medicine?.MaLoai || "",
+    MaNhaCungCap: medicine?.MaNhaCungCap || "",
     SoLuongTon: medicine?.SoLuongTon || 0,
     GiaNhap: medicine?.GiaNhap || 0,
     GiaBan: medicine?.GiaBan || 0,
@@ -34,24 +33,23 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
   const [formError, setFormError] = useState<string | null>(null);
 
   // State để lưu danh sách cho dropdown
-  const [loaiThuocList, setLoaiThuocList] = useState<Pick<LoaiThuoc, 'MaLoai' | 'TenLoai'>[]>([]);
-  const [nhaCungCapList, setNhaCungCapList] = useState<Pick<NhaCungCap, 'MaNhaCungCap' | 'TenNhaCungCap'>[]>([]);
+  const [loaiThuocList, setLoaiThuocList] = useState<Pick<LoaiThuoc, "MaLoai" | "TenLoai">[]>([]);
+  const [nhaCungCapList, setNhaCungCapList] = useState<Pick<NhaCungCap, "MaNhaCungCap" | "TenNhaCungCap">[]>([]);
 
   // Dùng useEffect để tải dữ liệu cho dropdown
   useEffect(() => {
     const fetchData = async () => {
       try {
         setFormError(null);
-        
+
         // Gọi API song song
         const [loaiData, nccData] = await Promise.all([
           getLoaiThuocListname(), // Gọi hàm từ loaiThuocApi.ts
-          getNhaCungCapListForDropdown() // Gọi hàm từ nhaCungCapApi.ts
+          getNhaCungCapListForDropdown(), // Gọi hàm từ nhaCungCapApi.ts
         ]);
-        
+
         setLoaiThuocList(loaiData);
         setNhaCungCapList(nccData);
-
       } catch (err: any) {
         console.error("Lỗi khi tải dữ liệu form:", err);
         setFormError(err.message || "Không thể tải dữ liệu cho các ô lựa chọn.");
@@ -62,17 +60,17 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    
+
     // [FIX] Xử lý giá trị number
-    if (name === 'GiaBan') {
-      setFormData(prev => ({
+    if (name === "GiaBan") {
+      setFormData((prev) => ({
         ...prev,
         [name]: value === '' ? 0 : parseFloat(value) // Chuyển sang số,[name] Truy cập động (Dynamic Key)
       }));
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [name]: value
+        [name]: value,
       }));
     }
   };
@@ -90,13 +88,12 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
       setFormError("Vui lòng chọn một nhà cung cấp.");
       return;
     }
-    
+
     // [FIX] Kiểm tra giá bán
     if (formData.GiaBan === undefined || formData.GiaBan < 0) {
-       setFormError("Giá bán không hợp lệ.");
+      setFormError("Giá bán không hợp lệ.");
       return;
     }
-
 
     setIsSubmitting(true);
 
@@ -108,7 +105,7 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
         DonViTinh: formData.DonViTinh,
         MaLoai: formData.MaLoai,
         MaNhaCungCap: formData.MaNhaCungCap,
-        GiaBan: formData.GiaBan || 0 // Đảm bảo gửi giá trị
+        GiaBan: formData.GiaBan || 0, // Đảm bảo gửi giá trị
       };
 
       if (medicine && medicine.MaThuoc) {
@@ -119,7 +116,7 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
       onSave();
       onClose();
     } catch (error: any) {
-      setFormError(error.message || 'Lỗi khi lưu thuốc.');
+      setFormError(error.message || "Lỗi khi lưu thuốc.");
     } finally {
       setIsSubmitting(false);
     }
@@ -130,10 +127,9 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
   return (
     <form onSubmit={handleSubmit} className={styles.formContainer}>
       <div className={styles.formGrid}>
-        
         {isEditMode && (
           <div className={styles.formGroup}>
-            <label htmlFor="MaThuoc">Mã Thuốc</label>
+            <label htmlFor="MaThuoc">Mã thuốc</label>
             <input
               type="text"
               id="MaThuoc"
@@ -146,26 +142,21 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
         )}
 
         <div className={styles.formGroup}>
-          <label htmlFor="TenThuoc">Tên Thuốc</label>
+          <label htmlFor="TenThuoc">Tên thuốc</label>
           <input
             type="text"
             id="TenThuoc"
             name="TenThuoc"
             value={formData.TenThuoc}
+            placeholder="Nhập tên thuốc"
             onChange={handleChange}
             required
           />
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="DonViTinh">Đơn Vị Tính</label>
-          <select
-            id="DonViTinh"
-            name="DonViTinh"
-            value={formData.DonViTinh}
-            onChange={handleChange}
-            required
-          >
+          <label htmlFor="DonViTinh">Đơn vị tính</label>
+          <select id="DonViTinh" name="DonViTinh" value={formData.DonViTinh} onChange={handleChange} required>
             <option value="Viên">Viên</option>
             <option value="Vỉ">Vỉ</option>
             <option value="Hộp">Hộp</option>
@@ -177,42 +168,30 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
 
         {/* Đổi <input> thành <select> */}
         <div className={styles.formGroup}>
-          <label htmlFor="MaLoai">Loại Thuốc</label>
-          <select
-            id="MaLoai"
-            name="MaLoai"
-            value={formData.MaLoai}
-            onChange={handleChange}
-            required
-          >
+          <label htmlFor="MaLoai">Loại thuốc</label>
+          <select id="MaLoai" name="MaLoai" value={formData.MaLoai} onChange={handleChange} required>
             <option value="">-- Chọn loại thuốc --</option>
-            {loaiThuocList.map(loai => (
+            {loaiThuocList.map((loai) => (
               <option key={loai.MaLoai} value={loai.MaLoai}>
                 {loai.TenLoai}
               </option>
             ))}
           </select>
         </div>
-        
+
         {/* Đổi <input> thành <select> */}
         <div className={styles.formGroup}>
-          <label htmlFor="MaNhaCungCap">Nhà Cung Cấp</label>
-          <select
-            id="MaNhaCungCap"
-            name="MaNhaCungCap"
-            value={formData.MaNhaCungCap}
-            onChange={handleChange}
-            required
-          >
+          <label htmlFor="MaNhaCungCap">Nhà cung cấp</label>
+          <select id="MaNhaCungCap" name="MaNhaCungCap" value={formData.MaNhaCungCap} onChange={handleChange} required>
             <option value="">-- Chọn nhà cung cấp --</option>
-            {nhaCungCapList.map(ncc => (
+            {nhaCungCapList.map((ncc) => (
               <option key={ncc.MaNhaCungCap} value={ncc.MaNhaCungCap}>
                 {ncc.TenNhaCungCap}
               </option>
             ))}
           </select>
         </div>
-        
+
         {/* [FIX] Di chuyển Giá Bán ra ngoài và cho phép chỉnh sửa */}
         <div className={styles.formGroup}>
           <label htmlFor="GiaBan">Giá bán (VNĐ)</label>
@@ -232,7 +211,7 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
         {isEditMode && (
           <>
             <div className={styles.formGroup}>
-              <label htmlFor="SoLuongTon">Số Lượng Tồn</label>
+              <label htmlFor="SoLuongTon">Số lượng tồn</label>
               <input
                 type="number"
                 id="SoLuongTon"
@@ -242,7 +221,7 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
                 className={styles.disabledInput}
               />
             </div>
-            
+
             <div className={styles.formGroup}>
               <label htmlFor="GiaNhap">Giá nhập (VNĐ)</label>
               <input
@@ -254,23 +233,16 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
                 className={styles.disabledInput}
               />
             </div>
-            
+
             {/* [FIX] Đã di chuyển ô Giá Bán ra ngoài khối này */}
-            
           </>
         )}
-
-      </div> {/* Đóng .formGrid */}
-
-      {formError && (
-        <div className={styles.errorText}>
-          {formError}
-        </div>
-      )}
-
+      </div>{" "}
+      {/* Đóng .formGrid */}
+      {formError && <div className={styles.errorText}>{formError}</div>}
       <div className={styles.buttonGroup}>
         <button type="submit" className={styles.saveButton} disabled={isSubmitting}>
-          {isSubmitting ? 'Đang lưu...' : 'Lưu'}
+          {isSubmitting ? "Đang lưu..." : "Lưu"}
         </button>
         <button type="button" className={styles.cancelButton} onClick={onClose}>
           Hủy
@@ -279,4 +251,3 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
     </form>
   );
 };
-

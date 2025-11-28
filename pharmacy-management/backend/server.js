@@ -13,6 +13,8 @@ import phieuXuatRoutes from './routes/phieuxuat.js';
 import xuatNoiBoRoutes from './routes/xuatnoibo.js';
 import reportsRoutes from "./routes/reports.js";
 import donThuocRoutes from "./routes/donthuoc.js";
+import revenueRoutes from "./routes/revenue.js"; 
+
 
 
 const app = express();
@@ -34,7 +36,7 @@ app.use("/api/v1/phieuxuat", phieuXuatRoutes);
 app.use("/api/v1/xuatnoibo", xuatNoiBoRoutes);
 app.use("/api/v1/reports", reportsRoutes);
 app.use("/api/v1/donthuoc", donThuocRoutes);
-
+app.use("/api/v1/revenue", revenueRoutes);
 
 
 app.use("/api/v1/auth", authRoutes);

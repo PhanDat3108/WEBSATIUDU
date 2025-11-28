@@ -1,10 +1,10 @@
 // src/pages/Admin/PatientManagement.tsx
-import React, { useState, useEffect } from 'react';
-import { BenhNhan } from '../../interfaces';
-import { getPatients, deletePatient } from '../../api/benhNhanApi';
-import { PatientForm } from '../../components/AdminForms/PatientForm';
-import Modal from '../../components/common/Modal';
-import styles from '../../styles/AdminManagement.module.css';
+import React, { useState, useEffect } from "react";
+import { BenhNhan } from "../../interfaces";
+import { getPatients, deletePatient } from "../../api/benhNhanApi";
+import { PatientForm } from "../../components/AdminForms/PatientForm";
+import Modal from "../../components/common/Modal";
+import styles from "../../styles/AdminManagement.module.css";
 
 const PatientManagement: React.FC = () => {
   const [patients, setPatients] = useState<BenhNhan[]>([]);
@@ -46,39 +46,54 @@ const PatientManagement: React.FC = () => {
   };
 
   const handleDelete = async (maBenhNhan: string) => {
-    if (window.confirm('Bạn có chắc muốn xóa bệnh nhân này?')) {
+    if (window.confirm("Bạn có chắc muốn xóa bệnh nhân này?")) {
       try {
         await deletePatient(maBenhNhan);
-        alert('Đã xóa thành công!');
+        alert("Đã xóa thành công!");
         loadPatients();
       } catch (err) {
-        alert('Lỗi khi xóa: ' + (err as Error).message);
+        alert("Lỗi khi xóa: " + (err as Error).message);
       }
     }
   };
 
   const renderContent = () => {
     if (isLoading) {
-      return <tr><td colSpan={7}>Đang tải dữ liệu, vui lòng chờ...</td></tr>;
+      return (
+        <tr>
+          <td colSpan={7}>Đang tải dữ liệu, vui lòng chờ...</td>
+        </tr>
+      );
     }
     if (error) {
-      return <tr><td colSpan={7} style={{ color: 'red' }}>Lỗi: {error}</td></tr>;
+      return (
+        <tr>
+          <td colSpan={7} style={{ color: "red" }}>
+            Lỗi: {error}
+          </td>
+        </tr>
+      );
     }
     if (patients.length === 0) {
-      return <tr><td colSpan={7}>Không tìm thấy dữ liệu bệnh nhân.</td></tr>;
+      return (
+        <tr>
+          <td colSpan={7}>Không tìm thấy dữ liệu bệnh nhân.</td>
+        </tr>
+      );
     }
 
     return patients.map((p) => (
       <tr key={p.MaBenhNhan}>
-        <td>{p.MaBenhNhan}</td>
+        <td style={{ textAlign: "center" }}>{p.MaBenhNhan}</td>
         <td>{p.TenBenhNhan}</td>
         <td>{new Date(p.NgaySinh).toLocaleDateString()}</td>
-        <td>{p.GioiTinh}</td>
-        <td>{p.SoDienThoai}</td>
+        <td style={{ textAlign: "center" }}>{p.GioiTinh}</td>
+        <td style={{ textAlign: "center" }}>{p.SoDienThoai}</td>
         <td>{p.DiaChi}</td>
-        <td>
-          <button onClick={() => handleOpenModal(p)} className={styles.editButton}>Sửa</button>
-          
+        <td className={styles.actionButtons}>
+          <button onClick={() => handleOpenModal(p)} className={styles.editButton}>
+            Sửa
+          </button>
         </td>
       </tr>
     ));
@@ -94,18 +109,20 @@ const PatientManagement: React.FC = () => {
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>Mã BN</th>
-            <th>Tên Bệnh nhân</th>
-            <th>Ngày sinh</th>
-            <th>Giới tính</th>
-            <th>Điện thoại</th>
-            <th>Địa chỉ</th>
-            <th>Hành động</th>
+            <th className={styles.tableHeader}>Mã</th>
+            <th className={styles.tableHeader} style={{ width: 150 }}>
+              Họ tên
+            </th>
+            <th className={styles.tableHeader}>Ngày sinh</th>
+            <th className={styles.tableHeader}>Giới tính</th>
+            <th className={styles.tableHeader}>Điện thoại</th>
+            <th className={styles.tableHeader} style={{ width: 500 }}>
+              Địa chỉ
+            </th>
+            <th className={styles.tableHeader}>Hành động</th>
           </tr>
         </thead>
-        <tbody>
-          {renderContent()}
-        </tbody>
+        <tbody>{renderContent()}</tbody>
       </table>
 
       {/* SỬA LỖI Ở ĐÂY:
@@ -114,13 +131,9 @@ const PatientManagement: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        title={selectedPatient ? 'Sửa thông tin bệnh nhân' : 'Thêm bệnh nhân mới'}
+        title={selectedPatient ? "Sửa thông tin bệnh nhân" : "Thêm bệnh nhân mới"}
       >
-        <PatientForm
-          patient={selectedPatient}
-          onSave={handleSave}
-          onClose={handleCloseModal}
-        />
+        <PatientForm patient={selectedPatient} onSave={handleSave} onClose={handleCloseModal} />
       </Modal>
     </div>
   );

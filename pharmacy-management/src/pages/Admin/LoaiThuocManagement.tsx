@@ -1,12 +1,12 @@
 // src/pages/Admin/LoaiThuocManagement.tsx
-import React, { useState, useEffect } from 'react';
-import { LoaiThuoc } from '../../interfaces';
+import React, { useState, useEffect } from "react";
+import { LoaiThuoc } from "../../interfaces";
 // [SỬA] Import thêm hàm add, update, delete
-import { getLoaiThuoc, deleteLoaiThuoc } from '../../api/loaiThuocApi';
-import Modal from '../../components/common/Modal';
-import styles from '../../styles/AdminManagement.module.css';
+import { getLoaiThuoc, deleteLoaiThuoc } from "../../api/loaiThuocApi";
+import Modal from "../../components/common/Modal";
+import styles from "../../styles/AdminManagement.module.css";
 // [MỚI] Import Form
-import { LoaiThuocForm } from '../../components/AdminForms/LoaiThuocForm';
+import { LoaiThuocForm } from "../../components/AdminForms/LoaiThuocForm";
 
 const LoaiThuocManagement: React.FC = () => {
   const [categories, setCategories] = useState<LoaiThuoc[]>([]);
@@ -19,11 +19,10 @@ const LoaiThuocManagement: React.FC = () => {
     try {
       setIsLoading(true);
       setError(null); // [SỬA] Xóa lỗi cũ
-      
+
       // [SỬA] Gọi API thật
-      const data = await getLoaiThuoc(); 
+      const data = await getLoaiThuoc();
       setCategories(data);
-      
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -52,7 +51,7 @@ const LoaiThuocManagement: React.FC = () => {
 
   // [MỚI] Hàm Xóa
   const handleDelete = async (maLoai: string) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa loại thuốc này?')) {
+    if (window.confirm("Bạn có chắc chắn muốn xóa loại thuốc này?")) {
       try {
         await deleteLoaiThuoc(maLoai);
         loadCategories();
@@ -64,23 +63,46 @@ const LoaiThuocManagement: React.FC = () => {
 
   const renderContent = () => {
     if (isLoading) {
-      return <tr><td colSpan={3} className={styles.loadingCell}>Đang tải...</td></tr>;
+      return (
+        <tr>
+          <td colSpan={3} className={styles.loadingCell}>
+            Đang tải...
+          </td>
+        </tr>
+      );
     }
     if (error) {
-      return <tr><td colSpan={3} className={styles.errorCell}>{error}</td></tr>;
+      return (
+        <tr>
+          <td colSpan={3} className={styles.errorCell}>
+            {error}
+          </td>
+        </tr>
+      );
     }
-     if (categories.length === 0) { // [SỬA] Bỏ điều kiện !error
-        return <tr><td colSpan={3} className={styles.emptyCell}>Không có dữ liệu loại thuốc.</td></tr>;
+    if (categories.length === 0) {
+      // [SỬA] Bỏ điều kiện !error
+      return (
+        <tr>
+          <td colSpan={3} className={styles.emptyCell}>
+            Không có dữ liệu loại thuốc.
+          </td>
+        </tr>
+      );
     }
 
     return categories.map((item) => (
       <tr key={item.MaLoai}>
-        <td>{item.MaLoai}</td>
+        <td style={{ textAlign: "center" }}>{item.MaLoai}</td>
         <td>{item.TenLoai}</td>
         <td className={styles.actionButtons}>
-          <button onClick={() => handleOpenModal(item)} className={styles.editButton}>Sửa</button>
+          <button onClick={() => handleOpenModal(item)} className={styles.editButton}>
+            Sửa
+          </button>
           {/* [MỚI] Thêm sự kiện Xóa */}
-          <button onClick={() => handleDelete(item.MaLoai)} className={styles.deleteButton}>Xóa</button>
+          <button onClick={() => handleDelete(item.MaLoai)} className={styles.deleteButton}>
+            Xóa
+          </button>
         </td>
       </tr>
     ));
@@ -89,21 +111,25 @@ const LoaiThuocManagement: React.FC = () => {
   return (
     <>
       <div className={styles.container}>
-        <h1 className={styles.title}>Quản lý Loại Thuốc</h1>
+        <h1 className={styles.title}>Quản lý loại thuốc</h1>
         <button onClick={() => handleOpenModal(null)} className={styles.addButton}>
-          Thêm Loại Thuốc
+          Thêm loại thuốc
         </button>
         <table className={styles.table}>
           <thead>
             <tr>
-              <th className={styles.tableHeader}>Mã Loại</th>
-              <th className={styles.tableHeader}>Tên Loại</th>
-              <th className={styles.tableHeader}>Hành động</th>
+              <th className={styles.tableHeader} style={{ width: 80 }}>
+                Mã
+              </th>
+              <th className={styles.tableHeader} style={{ width: 750 }}>
+                Tên loại thuốc
+              </th>
+              <th className={styles.tableHeader} style={{ width: 100 }}>
+                Hành động
+              </th>
             </tr>
           </thead>
-          <tbody>
-            {renderContent()}
-          </tbody>
+          <tbody>{renderContent()}</tbody>
         </table>
       </div>
 
@@ -111,13 +137,9 @@ const LoaiThuocManagement: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        title={selectedCategory ? 'Sửa Loại Thuốc' : 'Thêm Loại Thuốc'}
+        title={selectedCategory ? "Sửa loại thuốc" : "Thêm loại thuốc"}
       >
-        <LoaiThuocForm
-          loaiThuoc={selectedCategory}
-          onSave={handleSave}
-          onClose={handleCloseModal}
-        />
+        <LoaiThuocForm loaiThuoc={selectedCategory} onSave={handleSave} onClose={handleCloseModal} />
       </Modal>
     </>
   );
