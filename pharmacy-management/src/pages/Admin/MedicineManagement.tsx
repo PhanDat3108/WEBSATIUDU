@@ -1,10 +1,10 @@
 // src/pages/Admin/MedicineManagement.tsx
-import React, { useState, useEffect } from "react";
-import { Thuoc } from "../../interfaces"; //
-import { getMedicines, deleteMedicine } from "../../api/thuocApi";
-import { MedicineForm } from "../../components/AdminForms/MedicineForm";
-import Modal from "../../components/common/Modal";
-import styles from "../../styles/AdminManagement.module.css";
+import React, { useState, useEffect } from 'react';
+import { Thuoc } from '../../interfaces'; //
+import { getMedicines, deleteMedicine } from '../../api/thuocApi';
+import { MedicineForm } from '../../components/AdminForms/MedicineForm';
+import Modal from '../../components/common/Modal';
+import styles from '../../styles/AdminManagement.module.css';
 
 const MedicineManagement: React.FC = () => {
   const [medicines, setMedicines] = useState<Thuoc[]>([]);
@@ -46,7 +46,7 @@ const MedicineManagement: React.FC = () => {
   };
 
   const handleDelete = async (maThuoc: string) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa thuốc này?")) {
+    if (window.confirm('Bạn có chắc chắn muốn xóa thuốc này?')) {
       try {
         await deleteMedicine(maThuoc);
         loadMedicines(); // Tải lại danh sách
