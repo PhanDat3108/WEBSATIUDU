@@ -91,11 +91,10 @@ const Navbar: React.FC<NavbarProps> = ({ onSelectCategory, onSearchKeyword }) =>
     <header className="navbar">
       {/* ... Phần Login giữ nguyên ... */}
       <div className="navbarlogin" style={{ fontSize: "15px", display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div className="notice-navbar">Thông báo sẽ hiện đây</div>
+        <div className="notice-navbar">Welcome SATIUDU-PHARMACY</div>
         <div className="dropdown" style={{ marginRight: '20px' }}>
-            <span style={{ cursor: 'pointer', fontWeight: 'bold', display:'flex', alignItems:'center', gap:'5px' }}>Hello, {userName} ▼</span>
+            <span style={{ cursor: 'pointer', fontWeight: 'bold', display:'flex', alignItems:'center', gap:'5px' }}>Xin chào, {userName} ▼</span>
             <div className="dropdown-content" style={{ minWidth: '150px', left: 'auto', right: 0 }}>
-                <Link to="/profile" style={{ color: '#333', display: 'block', padding: '10px' }}> Hồ sơ cá nhân</Link>
                 <hr style={{margin: '0', border: '0', borderTop: '1px solid #eee'}}/>
                 <a href="#" onClick={handleLogout} style={{ color: '#d9534f', display: 'block', padding: '10px' }}>Đăng xuất</a>
             </div>
