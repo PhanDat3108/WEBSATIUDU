@@ -14,6 +14,9 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ onSelectCategory, onSearchKeyword }) => {
+import iconGioHang from "../styles/img/online-shopping.png";
+
+const Navbar: React.FC = () => {
   const { layTongSoLuong, setMoRong } = useTuiHang();
   const total = layTongSoLuong();
   const navigate = useNavigate();

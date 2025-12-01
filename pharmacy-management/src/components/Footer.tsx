@@ -26,7 +26,7 @@ const Footer: React.FC = () => {
         <div className="footer-column">
           <h3 className="logo"><span className="z"></span>SATIUDU</h3>
           <p>
-            Cửa hàng thực phẩm chức năng Dola Pharmacy là địa chỉ tin cậy để bạn
+            Cửa hàng thực phẩm chức năng Sati Pharmacy là địa chỉ tin cậy để bạn
             tìm kiếm những sản phẩm chất lượng nhất.
           </p>
           <ul className="contact-info">
