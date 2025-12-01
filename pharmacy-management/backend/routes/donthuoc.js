@@ -40,101 +40,101 @@ router.post("/create", async (req, res) => {
     );
 
     // 4. Tạo Mã Đơn Thuốc (DT...)
-    const [dtRes] = await conn.query("SELECT MAX(CAST(SUBSTRING(MaDonThuoc, 3) AS UNSIGNED)) AS maxId FROM DonThuoc");
-    const nextDtId = (dtRes[0].maxId || 0) + 1;
-    const MaDonThuoc = "DT" + String(nextDtId).padStart(3, "0");
+      const [dtRes] = await conn.query("SELECT MAX(CAST(SUBSTRING(MaDonThuoc, 3) AS UNSIGNED)) AS maxId FROM DonThuoc");
+      const nextDtId = (dtRes[0].maxId || 0) + 1;
+      const MaDonThuoc = "DT" + String(nextDtId).padStart(3, "0");
 
-    // 5. Insert Đơn Thuốc (Liên kết với MaPhieuXuat vừa tạo)
-    await conn.query(
-      "INSERT INTO DonThuoc (MaDonThuoc, MaPhieuXuat, NgayLap, TongTien, MaBenhNhan, MaNhanVien) VALUES (?, ?, ?, ?, ?, ?)",
-      [MaDonThuoc, MaPhieuXuat, NgayLap, TongTien, MaBenhNhan || null, MaNhanVien] // MaBenhNhan có thể null
-    );
+      // 5. Insert Đơn Thuốc (Liên kết với MaPhieuXuat vừa tạo)
+      await conn.query(
+        "INSERT INTO DonThuoc (MaDonThuoc, MaPhieuXuat, NgayLap, TongTien, MaBenhNhan, MaNhanVien) VALUES (?, ?, ?, ?, ?, ?)",
+        [MaDonThuoc, MaPhieuXuat, NgayLap, TongTien, MaBenhNhan || null, MaNhanVien] // MaBenhNhan có thể null
+      );
 
-    // 6. Xử lý từng thuốc (Trừ kho FEFO & Lưu chi tiết)
-    for (const item of chiTiet) {
-        const maThuoc = item.MaThuoc;
-        const soLuongCanBan = Number(item.SoLuong);
-        const donGiaBan = Number(item.GiaBan);
+      // 6. Xử lý từng thuốc (Trừ kho FEFO & Lưu chi tiết)
+      for (const item of chiTiet) {
+          const maThuoc = item.MaThuoc;
+          const soLuongCanBan = Number(item.SoLuong);
+          const donGiaBan = Number(item.GiaBan);
 
-        // 6.1. Tìm lô hàng để trừ (FEFO)
-        const [loHang] = await conn.query(
-            "SELECT MaPhieuNhap, SoLuongConLai, DonGiaNhap FROM ChiTietNhap WHERE MaThuoc = ? AND SoLuongConLai > 0 ORDER BY HanSuDung ASC",
-            [maThuoc]
-        );
+          // 6.1. Tìm lô hàng để trừ (FEFO)
+          const [loHang] = await conn.query(
+              "SELECT MaPhieuNhap, SoLuongConLai, DonGiaNhap FROM ChiTietNhap WHERE MaThuoc = ? AND SoLuongConLai > 0 ORDER BY HanSuDung ASC",
+              [maThuoc]
+          );
 
-        let soLuongCanLay = soLuongCanBan;
-        
-        // Check tổng tồn
-        const tongTonKhaDung = loHang.reduce((sum, lo) => sum + Number(lo.SoLuongConLai), 0);
-        if (tongTonKhaDung < soLuongCanLay) {
-            throw new Error(`Thuốc ${maThuoc} không đủ hàng (Còn: ${tongTonKhaDung}, Cần: ${soLuongCanLay})`);
-        }
+          let soLuongCanLay = soLuongCanBan;
+          
+          // Check tổng tồn
+          const tongTonKhaDung = loHang.reduce((sum, lo) => sum + Number(lo.SoLuongConLai), 0);
+          if (tongTonKhaDung < soLuongCanLay) {
+              throw new Error(`Thuốc ${maThuoc} không đủ hàng (Còn: ${tongTonKhaDung}, Cần: ${soLuongCanLay})`);
+          }
 
-        // 6.2. Trừ kho từng lô và Lưu ChiTietXuat
-        for (const lo of loHang) {
-            if (soLuongCanLay === 0) break;
-            const slConLaiTrongLo = Number(lo.SoLuongConLai);
-            const layTuLonay = Math.min(slConLaiTrongLo, soLuongCanLay);
-            
-            // Trừ số lượng lô này
-            await conn.query(
-                "UPDATE ChiTietNhap SET SoLuongConLai = SoLuongConLai - ? WHERE MaPhieuNhap = ? AND MaThuoc = ?",
-                [layTuLonay, lo.MaPhieuNhap, maThuoc]
-            );
+          // 6.2. Trừ kho từng lô và Lưu ChiTietXuat
+          for (const lo of loHang) {
+              if (soLuongCanLay === 0) break;
+              const slConLaiTrongLo = Number(lo.SoLuongConLai);
+              const layTuLonay = Math.min(slConLaiTrongLo, soLuongCanLay);
+              
+              // Trừ số lượng lô này
+              await conn.query(
+                  "UPDATE ChiTietNhap SET SoLuongConLai = SoLuongConLai - ? WHERE MaPhieuNhap = ? AND MaThuoc = ?",
+                  [layTuLonay, lo.MaPhieuNhap, maThuoc]
+              );
 
-            // Lưu vào ChiTietXuat (Dùng giá vốn - DonGiaNhap)
-            await conn.query(
-                "INSERT INTO ChiTietXuat (MaPhieuXuat, MaThuoc, SoLuongXuat, DonGiaXuat) VALUES (?, ?, ?, ?)",
-                [MaPhieuXuat, maThuoc, layTuLonay, lo.DonGiaNhap] 
-            );
+              // Lưu vào ChiTietXuat (Dùng giá vốn - DonGiaNhap)
+              await conn.query(
+                  "INSERT INTO ChiTietXuat (MaPhieuXuat, MaThuoc, SoLuongXuat, DonGiaXuat) VALUES (?, ?, ?, ?)",
+                  [MaPhieuXuat, maThuoc, layTuLonay, lo.DonGiaNhap] 
+              );
 
-            soLuongCanLay -= layTuLonay;
-        }
+              soLuongCanLay -= layTuLonay;
+          }
 
-        // 6.3. Lưu vào ChiTietDonThuoc (Dùng giá bán thực tế)
-        await conn.query(
-            "INSERT INTO ChiTietDonThuoc (MaDonThuoc, MaThuoc, SoLuong, DonGiaBan) VALUES (?, ?, ?, ?)",
-            [MaDonThuoc, maThuoc, soLuongCanBan, donGiaBan]
-        );
+          // 6.3. Lưu vào ChiTietDonThuoc (Dùng giá bán thực tế)
+          await conn.query(
+              "INSERT INTO ChiTietDonThuoc (MaDonThuoc, MaThuoc, SoLuong, DonGiaBan) VALUES (?, ?, ?, ?)",
+              [MaDonThuoc, maThuoc, soLuongCanBan, donGiaBan]
+          );
 
-        // 6.4. Cập nhật tổng tồn kho bảng Thuoc
-        await conn.query(
-            "UPDATE Thuoc SET SoLuongTon = SoLuongTon - ? WHERE MaThuoc = ?",
-            [soLuongCanBan, maThuoc]
-        );
-    }
+          // 6.4. Cập nhật tổng tồn kho bảng Thuoc
+          await conn.query(
+              "UPDATE Thuoc SET SoLuongTon = SoLuongTon - ? WHERE MaThuoc = ?",
+              [soLuongCanBan, maThuoc]
+          );
+      }
 
-    await conn.commit();
-    res.status(201).json({ 
-        message: "Xuất đơn thuốc thành công!", 
-        MaDonThuoc, 
-        MaPhieuXuat,
-        TongTien 
-    });
+      await conn.commit();
+      res.status(201).json({ 
+          message: "Xuất đơn thuốc thành công!", 
+          MaDonThuoc, 
+          MaPhieuXuat,
+          TongTien 
+      });
 
-  } catch (err) {
-    await rollback("Lỗi khi tạo đơn thuốc", err);
-  }
-});
-
-// API Lấy lịch sử đơn thuốc
-router.get("/", async (req, res) => {
-    try {
-        const sql = `
-            SELECT 
-                dt.MaDonThuoc, dt.NgayLap, dt.TongTien, dt.MaPhieuXuat,
-                bn.TenBenhNhan, bn.SoDienThoai,
-                nv.TenNhanVien
-            FROM DonThuoc dt
-            LEFT JOIN BenhNhan bn ON dt.MaBenhNhan = bn.MaBenhNhan
-            LEFT JOIN NhanVien nv ON dt.MaNhanVien = nv.MaNhanVien
-            ORDER BY dt.NgayLap DESC
-        `;
-        const [rows] = await db.promise().query(sql);
-        res.json(rows);
     } catch (err) {
-        res.status(500).json({message: "Lỗi tải danh sách đơn thuốc"});
+      await rollback("Lỗi khi tạo đơn thuốc", err);
     }
-});
+  });
 
-export default router;
+  // API Lấy lịch sử đơn thuốc
+  router.get("/", async (req, res) => {
+      try {
+          const sql = `
+              SELECT 
+                  dt.MaDonThuoc, dt.NgayLap, dt.TongTien, dt.MaPhieuXuat,
+                  bn.TenBenhNhan, bn.SoDienThoai,
+                  nv.TenNhanVien
+              FROM DonThuoc dt
+              LEFT JOIN BenhNhan bn ON dt.MaBenhNhan = bn.MaBenhNhan
+              LEFT JOIN NhanVien nv ON dt.MaNhanVien = nv.MaNhanVien
+              ORDER BY dt.NgayLap DESC
+          `;
+          const [rows] = await db.promise().query(sql);
+          res.json(rows);
+      } catch (err) {
+          res.status(500).json({message: "Lỗi tải danh sách đơn thuốc"});
+      }
+  });
+
+  export default router;
