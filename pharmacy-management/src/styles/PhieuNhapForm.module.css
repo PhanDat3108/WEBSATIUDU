@@ -3,12 +3,9 @@
 
 .form {
   width: 100%;
-  max-width: 800px; /* Rộng hơn form thường để chứa bảng */
-  padding: 20px;
   background-color: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  max-height: 80vh; /* Giới hạn chiều cao */
   overflow-y: auto; /* Cho phép cuộn nếu nội dung quá dài */
 }
 
@@ -132,8 +129,8 @@
 
 .buttonGroup {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+  justify-content: center;
+  gap: 8px;
   margin-top: 20px;
   border-top: 1px solid #eee;
   padding-top: 20px;

@@ -86,14 +86,9 @@ const MedicineManagement: React.FC = () => {
         <td style={{ textAlign: "center" }}>{med.SoLuongTon}</td>
         <td style={{ textAlign: "center" }}>{med.DonViTinh}</td>
         {/* Định dạng lại giá bán cho dễ đọc */}
-        <td style={{ textAlign: "center" }}>
-          {med.GiaBan.toLocaleString("vi-VN")} VNĐ
-        </td>
+        <td style={{ textAlign: "center" }}>{med.GiaBan.toLocaleString("vi-VN")} VNĐ</td>
         <td className={styles.actionButtons}>
-          <button
-            onClick={() => handleOpenModal(med)}
-            className={styles.editButton}
-          >
+          <button onClick={() => handleOpenModal(med)} className={styles.editButton}>
             Sửa
           </button>
         </td>
@@ -105,10 +100,7 @@ const MedicineManagement: React.FC = () => {
     <>
       <div className={styles.container}>
         <h1 className={styles.title}>Quản lý danh sách thuốc</h1>
-        <button
-          onClick={() => handleOpenModal(null)}
-          className={styles.addButton}
-        >
+        <button onClick={() => handleOpenModal(null)} className={styles.addButton}>
           Thêm thuốc mới
         </button>
         <table className={styles.table}>
@@ -151,12 +143,9 @@ const MedicineManagement: React.FC = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         title={selectedMedicine ? "Sửa thông tin thuốc" : "Thêm thuốc mới"}
+        width="600px"
       >
-        <MedicineForm
-          medicine={selectedMedicine}
-          onSave={handleSave}
-          onClose={handleCloseModal}
-        />
+        <MedicineForm medicine={selectedMedicine} onSave={handleSave} onClose={handleCloseModal} />
       </Modal>
     </>
   );

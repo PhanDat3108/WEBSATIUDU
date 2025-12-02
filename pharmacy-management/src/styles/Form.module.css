@@ -1,13 +1,10 @@
 /* src/styles/Form.module.css */
 .form {
   background: #ffffff;
-  padding: 30px;
   border-radius: 8px;
   /* box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); */ /* Tắt shadow, để Modal lo */
   width: 100%;
-  
-  /* Tăng max-width để khớp với modal mới */
-  max-width: 800px;
+
   
   /* Đã comment out animation slideUp */
   /* animation: slideUp 0.5s ease-out; */
