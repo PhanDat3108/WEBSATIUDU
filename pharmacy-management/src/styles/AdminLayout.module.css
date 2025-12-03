@@ -30,12 +30,10 @@
     box-shadow: 2px 0 5px rgba(0,0,0,0.2);
 
     position: sticky;
-    top: 0;
     height: 100vh;
 
     overflow-y: auto;
     overflow-x: hidden;              /* Ngăn bể layout */
-    padding-top: 20px;
 }
 
 .logo {
@@ -152,4 +150,129 @@
 
 .submenuActive .submenuItem {
     color: white !important;
+}
+
+
+
+
+
+
+
+
+
+
+/* Main wrapper để chứa header + content */
+.mainWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sidebar đã có sẵn */
+
+/* HEADER ----------------------------------------------------- */
+
+.headerBar {
+  height: 60px;
+  background: #ffffff;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 25px;
+
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.headerTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.headerRight {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background 0.25s ease;
+}
+
+.userInfo:hover {
+  background: #f2f2f2;
+}
+
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+}
+
+.userName {
+  font-weight: 500;
+  color: #444;
+  font-size: 15px;
+}
+
+/* Dropdown --------------------------------------------------- */
+.userDropdown {
+  position: absolute;
+  right: 0;
+  top: 58px;
+
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  width: 150px;
+
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.12);
+  animation: fadeDown 0.22s ease;
+  z-index: 20;
+}
+
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.logoutBtn {
+  width: 100%;
+  padding: 10px 12px;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.25s ease;
+}
+
+.logoutBtn:hover {
+  background: #d32f2f;
+}
+
+
+.logoImg {
+  width: 100px;      
+  height: 100px;
+  display: block;
+  margin: 0 auto 20px;
 }

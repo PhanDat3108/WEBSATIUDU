@@ -1,8 +1,8 @@
 // src/components/AdminForms/NhaCungCapForm.tsx
-import React, { useState } from 'react';
-import { NhaCungCap } from '../../interfaces';
-import { addNhaCungCap, updateNhaCungCap } from '../../api/nhaCungCapApi';
-import styles from '../../styles/Form.module.css';
+import React, { useState } from "react";
+import { NhaCungCap } from "../../interfaces";
+import { addNhaCungCap, updateNhaCungCap } from "../../api/nhaCungCapApi";
+import styles from "../../styles/Form.module.css";
 
 interface NhaCungCapFormProps {
   supplier: NhaCungCap | null;
@@ -11,12 +11,11 @@ interface NhaCungCapFormProps {
 }
 
 export const NhaCungCapForm: React.FC<NhaCungCapFormProps> = ({ supplier, onSave, onClose }) => {
-  
   const [formData, setFormData] = useState<Partial<NhaCungCap>>({
-    TenNhaCungCap: supplier?.TenNhaCungCap || '',
-    DiaChi: supplier?.DiaChi || '',
-    SoDienThoai: supplier?.SoDienThoai || '',
-    Email: supplier?.Email || '',
+    TenNhaCungCap: supplier?.TenNhaCungCap || "",
+    DiaChi: supplier?.DiaChi || "",
+    SoDienThoai: supplier?.SoDienThoai || "",
+    Email: supplier?.Email || "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,7 +48,7 @@ export const NhaCungCapForm: React.FC<NhaCungCapFormProps> = ({ supplier, onSave
         await updateNhaCungCap(supplier.MaNhaCungCap, dataToSave);
       } else {
         // Chế độ Thêm
-        await addNhaCungCap(dataToSave); 
+        await addNhaCungCap(dataToSave);
       }
       onSave();
     } catch (err) {
@@ -62,11 +61,10 @@ export const NhaCungCapForm: React.FC<NhaCungCapFormProps> = ({ supplier, onSave
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
       <div className={styles.formGrid}>
-        
         {/* Chỉ hiển thị Mã khi Sửa */}
         {supplier && (
           <div className={styles.formGroup}>
-            <label htmlFor="MaNhaCungCap">Mã NCC</label>
+            <label htmlFor="MaNhaCungCap">Mã</label>
             <input
               type="text"
               id="MaNhaCungCap"
@@ -77,10 +75,11 @@ export const NhaCungCapForm: React.FC<NhaCungCapFormProps> = ({ supplier, onSave
             />
           </div>
         )}
-        
+
         <div className={styles.formGroup}>
-          <label htmlFor="TenNhaCungCap">Tên Nhà Cung Cấp *</label>
+          <label htmlFor="TenNhaCungCap">Tên nhà cung cấp *</label>
           <input
+            placeholder="Nhập tên nhà cung cấp"
             type="text"
             id="TenNhaCungCap"
             name="TenNhaCungCap"
@@ -91,8 +90,9 @@ export const NhaCungCapForm: React.FC<NhaCungCapFormProps> = ({ supplier, onSave
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="SoDienThoai">Số Điện Thoại</label>
+          <label htmlFor="SoDienThoai">Số điện thoại</label>
           <input
+            placeholder="Nhập số điện thoại"
             type="tel"
             id="SoDienThoai"
             name="SoDienThoai"
@@ -104,6 +104,7 @@ export const NhaCungCapForm: React.FC<NhaCungCapFormProps> = ({ supplier, onSave
         <div className={styles.formGroup}>
           <label htmlFor="Email">Email</label>
           <input
+            placeholder="Nhập email"
             type="email"
             id="Email"
             name="Email"
@@ -111,30 +112,26 @@ export const NhaCungCapForm: React.FC<NhaCungCapFormProps> = ({ supplier, onSave
             onChange={handleChange}
           />
         </div>
-        
+
         <div className={styles.formGroup}>
-          <label htmlFor="DiaChi">Địa Chỉ</label>
+          <label htmlFor="DiaChi">Địa chỉ</label>
           <textarea
+            placeholder="Nhập địa chỉ"
             id="DiaChi"
             name="DiaChi"
             rows={3}
             value={formData.DiaChi}
             onChange={handleChange}
-            className={styles.fullWidthTextarea} // Cần class này
+            className={styles.fullWidthTextarea}
           />
         </div>
-
       </div>
 
-      {formError && (
-        <div className={styles.errorText}>
-          {formError}
-        </div>
-      )}
+      {formError && <div className={styles.errorText}>{formError}</div>}
 
       <div className={styles.buttonGroup}>
         <button type="submit" className={styles.saveButton} disabled={isSubmitting}>
-          {isSubmitting ? 'Đang lưu...' : 'Lưu'}
+          {isSubmitting ? "Đang lưu..." : "Lưu"}
         </button>
         <button type="button" className={styles.cancelButton} onClick={onClose}>
           Hủy

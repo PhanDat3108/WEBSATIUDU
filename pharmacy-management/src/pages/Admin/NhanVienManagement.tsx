@@ -12,7 +12,9 @@ const NhanVienManagement: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState<NhanVien | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<NhanVien | null>(
+    null
+  );
 
   const loadEmployees = async () => {
     try {
@@ -87,15 +89,21 @@ const NhanVienManagement: React.FC = () => {
 
     return employees.map((nv) => (
       <tr key={nv.MaNhanVien}>
-        <td>{nv.MaNhanVien}</td>
+        <td style={{ textAlign: "center" }}>{nv.MaNhanVien}</td>
         <td>{nv.TenNhanVien}</td>
         <td>{nv.TaiKhoan}</td>
-        <td>{nv.VaiTro}</td>
-        <td>
-          <button onClick={() => handleOpenModal(nv)} className={styles.editButton}>
+        <td style={{ textAlign: "center" }}>{nv.VaiTro}</td>
+        <td className={styles.actionButtons}>
+          <button
+            onClick={() => handleOpenModal(nv)}
+            className={styles.editButton}
+          >
             Sửa
           </button>
-          <button onClick={() => handleDelete(nv.MaNhanVien)} className={styles.deleteButton}>
+          <button
+            onClick={() => handleDelete(nv.MaNhanVien)}
+            className={styles.deleteButton}
+          >
             Xóa
           </button>
         </td>
@@ -116,18 +124,26 @@ const NhanVienManagement: React.FC = () => {
       <table className={styles.table}>
         <thead>
           <tr>
-            <th className={styles.tableHeader}>Mã NV</th>
-            <th className={styles.tableHeader}>Tên Nhân Viên</th>
+            <th className={styles.tableHeader} style={{ width: "100px" }}>
+              Mã
+            </th>
+            <th className={styles.tableHeader}>Họ tên</th>
             <th className={styles.tableHeader}>Tài khoản</th>
             <th className={styles.tableHeader}>Vai trò</th>
-            <th className={styles.tableHeader}>Hành động</th>
+            <th className={styles.tableHeader} style={{ width: "120px" }}>
+              Hành động
+            </th>
           </tr>
         </thead>
         <tbody>{renderContent()}</tbody>
       </table>
 
       {/* Modal chỉ hoạt động cho chức năng Sửa */}
-      <Modal isOpen={isModalOpen} onClose={handleCloseModal} title="Sửa thông tin nhân viên">
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        title="Sửa thông tin nhân viên"
+      >
         {selectedEmployee && (
           <NhanVienForm
             initialData={selectedEmployee}

@@ -136,7 +136,7 @@ const NhaCungCapManagement: React.FC = () => {
               <th className={styles.tableHeader} style={{ width: 30 }}>
                 Email
               </th>
-              <th className={styles.tableHeader} style={{ width: 100 }}>
+              <th className={styles.tableHeader} style={{ width: 120 }}>
                 Hành động
               </th>
             </tr>
@@ -150,6 +150,7 @@ const NhaCungCapManagement: React.FC = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         title={selectedSupplier ? "Sửa Nhà Cung Cấp" : "Thêm Nhà Cung Cấp"}
+        width="600px"
       >
         <NhaCungCapForm supplier={selectedSupplier} onSave={handleSave} onClose={handleCloseModal} />
       </Modal>

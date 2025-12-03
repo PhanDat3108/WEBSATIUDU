@@ -1,20 +1,20 @@
 // src/pages/Admin/PhieuNhapManagement.tsx
-import React, { useState, useEffect } from 'react';
-import { getChiTietNhapList } from '../../api/phieuNhapApi';
-import { ChiTietNhapLichSu } from '../../interfaces';
-import styles from '../../styles/AdminManagement.module.css'; 
+import React, { useState, useEffect } from "react";
+import { getChiTietNhapList } from "../../api/phieuNhapApi";
+import { ChiTietNhapLichSu } from "../../interfaces";
+import styles from "../../styles/AdminManagement.module.css";
 
-import ModalWithAnimation from '../../components/common/ModalWithAnimation'; 
-import { PhieuNhapForm } from '../../components/AdminForms/PhieuNhapForm';
-import modalStyles from '../../styles/Modal.module.css';
+import ModalWithAnimation from "../../components/common/ModalWithAnimation";
+import { PhieuNhapForm } from "../../components/AdminForms/PhieuNhapForm";
+import modalStyles from "../../styles/Modal.module.css";
 
 const formatDate = (isoString: string) => {
-  if (!isoString) return 'N/A';
+  if (!isoString) return "N/A";
   try {
-    return new Date(isoString).toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
+    return new Date(isoString).toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     });
   } catch (error) {
     return "Ngày lỗi";
@@ -22,9 +22,9 @@ const formatDate = (isoString: string) => {
 };
 
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('vi-VN', { 
-    style: 'currency', 
-    currency: 'VND' 
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
   }).format(amount);
 };
 
@@ -52,20 +52,20 @@ export const PhieuNhapManagement = () => {
   }, []);
 
   const handleAddClick = () => {
-    setIsModalOpen(true); 
+    setIsModalOpen(true);
   };
-  
+
   const handleSaveSuccess = () => {
-    setIsModalOpen(false); 
-    fetchData(); 
+    setIsModalOpen(false);
+    fetchData();
   };
 
   return (
     <div className={styles.adminManagementPage}>
       <header className={styles.header}>
-        <h1>Lịch Sử Nhập Thuốc & Quản Lý Lô</h1>
+        <h1 className={styles.title}>Lịch sử nhập thuốc & quản lý lô</h1>
         <button onClick={handleAddClick} className={styles.addButton}>
-          + Nhập Hàng Mới
+          + Nhập hàng mới
         </button>
       </header>
 
@@ -77,14 +77,26 @@ export const PhieuNhapManagement = () => {
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Mã Phiếu</th>
-                <th>Ngày Nhập</th>
-                <th>Tên Thuốc</th>
-                <th>Nhà Cung Cấp</th>
-                <th>SL Nhập</th>
-                <th>Tồn Lô</th> 
-                <th>Đơn Giá</th>
-                <th>Hạn Sử Dụng</th>
+                <th className={styles.tableHeader} style={{ width: "100px" }}>
+                  Mã
+                </th>
+                <th className={styles.tableHeader} style={{ width: "100px" }}>
+                  Ngày nhập
+                </th>
+                <th className={styles.tableHeader}>Tên thuốc</th>
+                <th className={styles.tableHeader}>Nhà cung cấp</th>
+                <th className={styles.tableHeader} style={{ width: "80px" }}>
+                  Số lượng
+                </th>
+                <th className={styles.tableHeader} style={{ width: "80px" }}>
+                  Tồn lô
+                </th>
+                <th className={styles.tableHeader} style={{ width: "100px" }}>
+                  Đơn giá
+                </th>
+                <th className={styles.tableHeader} style={{ width: "100px" }}>
+                  Hạn sử dụng
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -93,37 +105,46 @@ export const PhieuNhapManagement = () => {
                   // Kiểm tra xem lô này đã bán hết chưa
                   const isSoldOut = item.SoLuongConLai === 0;
                   // Kiểm tra sắp hết hạn (ví dụ: còn 30 ngày)
-                  const isExpiringSoon = new Date(item.HanSuDung).getTime() - new Date().getTime() < 30 * 24 * 60 * 60 * 1000;
+                  const isExpiringSoon =
+                    new Date(item.HanSuDung).getTime() - new Date().getTime() < 30 * 24 * 60 * 60 * 1000;
 
                   return (
-                    <tr 
+                    <tr
                       key={`${item.MaPhieuNhap}-${item.TenThuoc}-${index}`}
-                      style={{ 
-                        opacity: isSoldOut ? 0.5 : 1, // Làm mờ nếu đã bán hết
-                        backgroundColor: isSoldOut ? '#f9f9f9' : 'white' 
-                      }}
+                      // style={{
+                      //   opacity: isSoldOut ? 0.5 : 1, // Làm mờ nếu đã bán hết
+                      //   backgroundColor: isSoldOut ? "#f9f9f9" : "white",
+                      // }}
                     >
-                      <td>{item.MaPhieuNhap}</td>
+                      <td style={{ textAlign: "center" }}>{item.MaPhieuNhap}</td>
                       <td>{formatDate(item.NgayNhap)}</td>
-                      <td style={{ fontWeight: '500' }}>{item.TenThuoc}</td>
+                      <td style={{ fontWeight: "500" }}>{item.TenThuoc}</td>
                       <td>{item.TenNhaCungCap}</td>
-                      
-                      <td className={styles.numberCell}>{item.SoLuongNhap}</td>
-                      
+
+                      <td className={styles.numberCell} style={{ textAlign: "center" }}>
+                        {item.SoLuongNhap}
+                      </td>
+
                       {/* [MỚI] Hiển thị số lượng còn lại */}
-                      <td className={styles.numberCell} style={{ 
-                          fontWeight: 'bold', 
-                          color: isSoldOut ? '#999' : '#2ecc71' // Xanh lá nếu còn, xám nếu hết
-                      }}>
+                      <td
+                        className={styles.numberCell}
+                        style={{
+                          textAlign: "center",
+                          fontWeight: "bold",
+                          color: isSoldOut ? "#999" : "#2ecc71", // Xanh lá nếu còn, xám nếu hết
+                        }}
+                      >
                         {item.SoLuongConLai}
                       </td>
 
                       <td className={styles.numberCell}>{formatCurrency(item.DonGiaNhap)}</td>
-                      
-                      <td style={{ 
-                          color: (!isSoldOut && isExpiringSoon) ? '#e74c3c' : 'inherit', // Đỏ nếu sắp hết hạn và vẫn còn hàng
-                          fontWeight: (!isSoldOut && isExpiringSoon) ? 'bold' : 'normal'
-                      }}>
+
+                      <td
+                        style={{
+                          color: !isSoldOut && isExpiringSoon ? "#e74c3c" : "inherit", // Đỏ nếu sắp hết hạn và vẫn còn hàng
+                          fontWeight: !isSoldOut && isExpiringSoon ? "bold" : "normal",
+                        }}
+                      >
                         {formatDate(item.HanSuDung)}
                       </td>
                     </tr>
@@ -131,7 +152,7 @@ export const PhieuNhapManagement = () => {
                 })
               ) : (
                 <tr>
-                  <td colSpan={8} style={{ textAlign: 'center', padding: '20px' }}>
+                  <td colSpan={8} style={{ textAlign: "center", padding: "20px" }}>
                     Chưa có dữ liệu nhập kho.
                   </td>
                 </tr>
@@ -141,16 +162,14 @@ export const PhieuNhapManagement = () => {
         </div>
       )}
 
-      <ModalWithAnimation 
-        title="Tạo Phiếu Nhập Mới" 
-        isOpen={isModalOpen} 
+      <ModalWithAnimation
+        title="Tạo Phiếu Nhập Mới"
+        isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         customClass={modalStyles.modalLarge}
+        width="800px"
       >
-        <PhieuNhapForm
-          onClose={() => setIsModalOpen(false)}
-          onSave={handleSaveSuccess}
-        />
+        <PhieuNhapForm onClose={() => setIsModalOpen(false)} onSave={handleSaveSuccess} />
       </ModalWithAnimation>
     </div>
   );

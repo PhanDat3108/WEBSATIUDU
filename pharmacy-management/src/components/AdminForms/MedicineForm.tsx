@@ -252,7 +252,6 @@
 //   );
 // };
 
-
 // src/components/AdminForms/MedicineForm.tsx
 import React, { useState, useEffect } from "react";
 import { Thuoc, LoaiThuoc, NhaCungCap } from "../../interfaces";
@@ -296,10 +295,7 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
     const fetchData = async () => {
       try {
         setFormError(null);
-        const [loaiData, nccData] = await Promise.all([
-          getLoaiThuocListname(),
-          getNhaCungCapListForDropdown(),
-        ]);
+        const [loaiData, nccData] = await Promise.all([getLoaiThuocListname(), getNhaCungCapListForDropdown()]);
         setLoaiThuocList(loaiData);
         setNhaCungCapList(nccData);
       } catch (err: any) {
@@ -375,7 +371,7 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
         const response = await addMedicine(dataToSave);
         // Giả sử API trả về object thuốc vừa tạo có chứa MaThuoc hoặc insertId
         // Bạn cần kiểm tra lại response backend trả về gì khi create
-        finalMaThuoc = response.MaThuoc; 
+        finalMaThuoc = response.MaThuoc;
       }
 
       // 2. Upload ảnh (nếu có chọn ảnh mới và đã có MaThuoc)
@@ -398,44 +394,74 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
   return (
     <form onSubmit={handleSubmit} className={styles.formContainer}>
       <div className={styles.formGrid}>
-        
         {/* --- KHU VỰC HIỂN THỊ VÀ CHỌN ẢNH (New) --- */}
-        <div className={styles.formGroup} style={{ gridColumn: "1 / -1", display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '1rem' }}>
-            <label>Hình ảnh thuốc</label>
-            <div style={{ width: '150px', height: '150px', border: '1px dashed #ccc', marginBottom: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden', borderRadius: '8px' }}>
-                {previewImage ? (
-                    <img 
-                        src={previewImage} 
-                        alt="Preview" 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                        onError={(e) => {
-                            // Nếu lỗi load ảnh (ví dụ thuốc chưa có ảnh), hiện placeholder
-                            e.currentTarget.src = 'https://via.placeholder.com/150?text=No+Image'; 
-                        }}
-                    />
-                ) : (
-                    <span style={{ color: '#aaa' }}>Chưa có ảnh</span>
-                )}
-            </div>
-            <input 
-                type="file" 
-                accept="image/*" 
-                onChange={handleImageChange}
-                style={{ fontSize: '0.9rem' }}
-            />
+        <div
+          className={styles.formGroup}
+          style={{
+            gridColumn: "1 / -1",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            marginBottom: "1rem",
+          }}
+        >
+          <label>Hình ảnh thuốc</label>
+          <div
+            style={{
+              width: "150px",
+              height: "150px",
+              border: "1px dashed #ccc",
+              marginBottom: "10px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              overflow: "hidden",
+              borderRadius: "8px",
+            }}
+          >
+            {previewImage ? (
+              <img
+                src={previewImage}
+                alt="Preview"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                onError={(e) => {
+                  // Nếu lỗi load ảnh (ví dụ thuốc chưa có ảnh), hiện placeholder
+                  e.currentTarget.src = "https://via.placeholder.com/150?text=No+Image";
+                }}
+              />
+            ) : (
+              <span style={{ color: "#aaa" }}>Chưa có ảnh</span>
+            )}
+          </div>
+          <input type="file" accept="image/*" onChange={handleImageChange} style={{ fontSize: "0.9rem" }} />
         </div>
         {/* ------------------------------------------ */}
 
         {isEditMode && (
           <div className={styles.formGroup}>
             <label htmlFor="MaThuoc">Mã thuốc</label>
-            <input type="text" id="MaThuoc" name="MaThuoc" value={formData.MaThuoc} disabled className={styles.disabledInput} />
+            <input
+              type="text"
+              id="MaThuoc"
+              name="MaThuoc"
+              value={formData.MaThuoc}
+              disabled
+              className={styles.disabledInput}
+            />
           </div>
         )}
 
         <div className={styles.formGroup}>
           <label htmlFor="TenThuoc">Tên thuốc</label>
-          <input type="text" id="TenThuoc" name="TenThuoc" value={formData.TenThuoc} placeholder="Nhập tên thuốc" onChange={handleChange} required />
+          <input
+            type="text"
+            id="TenThuoc"
+            name="TenThuoc"
+            value={formData.TenThuoc}
+            placeholder="Nhập tên thuốc"
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div className={styles.formGroup}>
@@ -455,7 +481,9 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
           <select id="MaLoai" name="MaLoai" value={formData.MaLoai} onChange={handleChange} required>
             <option value="">-- Chọn loại thuốc --</option>
             {loaiThuocList.map((loai) => (
-              <option key={loai.MaLoai} value={loai.MaLoai}>{loai.TenLoai}</option>
+              <option key={loai.MaLoai} value={loai.MaLoai}>
+                {loai.TenLoai}
+              </option>
             ))}
           </select>
         </div>
@@ -465,25 +493,49 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
           <select id="MaNhaCungCap" name="MaNhaCungCap" value={formData.MaNhaCungCap} onChange={handleChange} required>
             <option value="">-- Chọn nhà cung cấp --</option>
             {nhaCungCapList.map((ncc) => (
-              <option key={ncc.MaNhaCungCap} value={ncc.MaNhaCungCap}>{ncc.TenNhaCungCap}</option>
+              <option key={ncc.MaNhaCungCap} value={ncc.MaNhaCungCap}>
+                {ncc.TenNhaCungCap}
+              </option>
             ))}
           </select>
         </div>
 
         <div className={styles.formGroup}>
           <label htmlFor="GiaBan">Giá bán (VNĐ)</label>
-          <input type="number" id="GiaBan" name="GiaBan" value={formData.GiaBan} onChange={handleChange} min="0" required />
+          <input
+            type="number"
+            id="GiaBan"
+            name="GiaBan"
+            value={formData.GiaBan}
+            onChange={handleChange}
+            min="0"
+            required
+          />
         </div>
 
         {isEditMode && (
           <>
             <div className={styles.formGroup}>
               <label htmlFor="SoLuongTon">Số lượng tồn</label>
-              <input type="number" id="SoLuongTon" name="SoLuongTon" value={formData.SoLuongTon} disabled className={styles.disabledInput} />
+              <input
+                type="number"
+                id="SoLuongTon"
+                name="SoLuongTon"
+                value={formData.SoLuongTon}
+                disabled
+                className={styles.disabledInput}
+              />
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="GiaNhap">Giá nhập (VNĐ)</label>
-              <input type="number" id="GiaNhap" name="GiaNhap" value={formData.GiaNhap} disabled className={styles.disabledInput} />
+              <input
+                type="number"
+                id="GiaNhap"
+                name="GiaNhap"
+                value={formData.GiaNhap}
+                disabled
+                className={styles.disabledInput}
+              />
             </div>
           </>
         )}
@@ -499,4 +551,5 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
         </button>
       </div>
     </form>
-  );};
+  );
+};

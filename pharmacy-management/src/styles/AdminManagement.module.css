@@ -10,7 +10,10 @@
   font-family: Arial, sans-serif;
   box-shadow: none;
   /* Kế thừa màu nền chính từ layout */
-  background-color: var(--color-main-bg, #ffffff); /* Dùng màu #f9f9f9 làm dự phòng */
+  background-color: var(
+    --color-main-bg,
+    #ffffff
+  ); /* Dùng màu #f9f9f9 làm dự phòng */
 }
 
 .title {
@@ -43,14 +46,14 @@
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
-  box-shadow:#000000 ;
+  box-shadow: #000000;
   border-radius: 8px;
   border: 1px solid #bababa !important; /* màu của viền bảng */
 }
 
 .table th,
 .table td {
-  border: 1px solid #bababa;  /* màu của viền ô */
+  border: 1px solid #bababa; /* màu của viền ô */
   padding: 4px;
 }
 
@@ -94,7 +97,7 @@ Dự án nhóm
 
 .editButton {
   /* Kế thừa màu xanh nổi bật từ layout */
-  background-color: var(--color-primary, #2196F3);
+  background-color: var(--color-primary, #2196f3);
   color: white;
   padding: 8px 12px;
   border: none;

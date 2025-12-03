@@ -138,6 +138,7 @@ const LoaiThuocManagement: React.FC = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         title={selectedCategory ? "Sửa loại thuốc" : "Thêm loại thuốc"}
+        width="500px"
       >
         <LoaiThuocForm loaiThuoc={selectedCategory} onSave={handleSave} onClose={handleCloseModal} />
       </Modal>
