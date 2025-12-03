@@ -167,7 +167,7 @@ const Navbar: React.FC<NavbarProps> = ({ onSelectCategory, onSearchKeyword }) =>
 
         {/* Icons & Giỏ hàng */}
         <div className="navbar-icons">
-          <span title="Thông báo">🔔</span>
+          <span title="Thông báo"></span>
           <button className="cart-btn" onClick={() => setMoRong(true)} title="Đơn thuốc">
             <img 
               src={iconGioHang} 
