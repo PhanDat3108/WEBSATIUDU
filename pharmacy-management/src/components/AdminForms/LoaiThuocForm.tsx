@@ -1,8 +1,8 @@
 // src/components/AdminForms/LoaiThuocForm.tsx
-import React, { useState } from 'react';
-import { LoaiThuoc } from '../../interfaces';
-import { addLoaiThuoc, updateLoaiThuoc } from '../../api/loaiThuocApi';
-import styles from '../../styles/Form.module.css';
+import React, { useState } from "react";
+import { LoaiThuoc } from "../../interfaces";
+import { addLoaiThuoc, updateLoaiThuoc } from "../../api/loaiThuocApi";
+import styles from "../../styles/Form.module.css";
 
 interface LoaiThuocFormProps {
   loaiThuoc: LoaiThuoc | null;
@@ -11,8 +11,7 @@ interface LoaiThuocFormProps {
 }
 
 export const LoaiThuocForm: React.FC<LoaiThuocFormProps> = ({ loaiThuoc, onSave, onClose }) => {
-  
-  const [tenLoai, setTenLoai] = useState(loaiThuoc?.TenLoai || '');
+  const [tenLoai, setTenLoai] = useState(loaiThuoc?.TenLoai || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -31,7 +30,7 @@ export const LoaiThuocForm: React.FC<LoaiThuocFormProps> = ({ loaiThuoc, onSave,
         await updateLoaiThuoc(loaiThuoc.MaLoai, dataToSave);
       } else {
         // Chế độ Thêm
-        await addLoaiThuoc(dataToSave); 
+        await addLoaiThuoc(dataToSave);
       }
       onSave();
     } catch (err) {
@@ -43,12 +42,11 @@ export const LoaiThuocForm: React.FC<LoaiThuocFormProps> = ({ loaiThuoc, onSave,
 
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
-      <div className={styles.formGrid}>
-        
+      <div>
         {/* Chỉ hiển thị Mã khi Sửa */}
         {loaiThuoc && (
           <div className={styles.formGroup}>
-            <label htmlFor="MaLoai">Mã Loại</label>
+            <label htmlFor="MaLoai">Mã loại</label>
             <input
               type="text"
               id="MaLoai"
@@ -59,10 +57,10 @@ export const LoaiThuocForm: React.FC<LoaiThuocFormProps> = ({ loaiThuoc, onSave,
             />
           </div>
         )}
-        
         <div className={styles.formGroup}>
-          <label htmlFor="TenLoai">Tên Loại *</label>
+          <label htmlFor="TenLoai">Tên loại thuốc *</label>
           <input
+            placeholder="Nhập tên loại thuốc"
             type="text"
             id="TenLoai"
             name="TenLoai"
@@ -71,18 +69,13 @@ export const LoaiThuocForm: React.FC<LoaiThuocFormProps> = ({ loaiThuoc, onSave,
             required
           />
         </div>
-
       </div>
 
-      {formError && (
-        <div className={styles.errorText}>
-          {formError}
-        </div>
-      )}
+      {formError && <div className={styles.errorText}>{formError}</div>}
 
       <div className={styles.buttonGroup}>
         <button type="submit" className={styles.saveButton} disabled={isSubmitting}>
-          {isSubmitting ? 'Đang lưu...' : 'Lưu'}
+          {isSubmitting ? "Đang lưu..." : "Lưu"}
         </button>
         <button type="button" className={styles.cancelButton} onClick={onClose}>
           Hủy

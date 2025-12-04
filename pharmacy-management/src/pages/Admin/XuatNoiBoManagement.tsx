@@ -1,31 +1,33 @@
 // src/pages/Admin/XuatNoiBoManagement.tsx
-import React, { useState, useEffect } from 'react';
-import { phieuXuatApi } from '../../api/phieuXuatApi'; // Lấy danh sách từ đây
-import { XuatNoiBoHistory } from '../../interfaces';
-import styles from '../../styles/AdminManagement.module.css'; 
+import React, { useState, useEffect } from "react";
+import { phieuXuatApi } from "../../api/phieuXuatApi"; // Lấy danh sách từ đây
+import { XuatNoiBoHistory } from "../../interfaces";
+import styles from "../../styles/AdminManagement.module.css";
 
 // Imports cho Modal và Form
-import ModalWithAnimation from '../../components/common/ModalWithAnimation';
-import { XuatNoiBoForm } from '../../components/AdminForms/XuatNoiBoForm';
-import modalStyles from '../../styles/Modal.module.css';
+import ModalWithAnimation from "../../components/common/ModalWithAnimation";
+import { XuatNoiBoForm } from "../../components/AdminForms/XuatNoiBoForm";
+import modalStyles from "../../styles/Modal.module.css";
 
 const formatDate = (isoString: string) => {
-  if (!isoString) return 'N/A';
+  if (!isoString) return "N/A";
   try {
-    return new Date(isoString).toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(isoString).toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      // hour: "2-digit",
+      // minute: "2-digit",
     });
-  } catch (error) { return "Ngày lỗi"; }
+  } catch (error) {
+    return "Ngày lỗi";
+  }
 };
 
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('vi-VN', { 
-    style: 'currency', 
-    currency: 'VND' 
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
   }).format(amount);
 };
 
@@ -56,18 +58,18 @@ export const XuatNoiBoManagement = () => {
   const handleAddClick = () => {
     setIsModalOpen(true);
   };
-  
+
   const handleSaveSuccess = () => {
-    setIsModalOpen(false); 
+    setIsModalOpen(false);
     fetchData(); // Tải lại bảng sau khi thêm thành công
   };
 
   return (
     <div className={styles.adminManagementPage}>
       <header className={styles.header}>
-        <h1>Quản Lý Xuất Kho (Toàn bộ)</h1>
+        <h1 className={styles.title}>Quản lý xuất kho (Toàn bộ)</h1>
         <button onClick={handleAddClick} className={styles.addButton}>
-          + Xuất Nội Bộ / Hủy
+          + Xuất nội bộ / hủy
         </button>
       </header>
 
@@ -79,43 +81,65 @@ export const XuatNoiBoManagement = () => {
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Mã PX</th>
-                <th>Ngày Xuất</th>
-                <th>Loại Xuất</th>
-                <th>Tên Thuốc</th>
-                <th>Nhân Viên</th>
-                <th>Số Lượng</th>
-                <th>Đơn Giá</th>
-                <th>Thành Tiền</th>
+                <th className={styles.tableHeader} style={{ width: "100px" }}>
+                  Mã
+                </th>
+                <th className={styles.tableHeader} style={{ width: "100px" }}>
+                  Ngày xuất
+                </th>
+                <th className={styles.tableHeader} style={{ width: "80px" }}>
+                  Loại xuất
+                </th>
+                <th className={styles.tableHeader}>Tên thuốc</th>
+                <th className={styles.tableHeader} style={{ width: "150px" }}>
+                  Nhân viên
+                </th>
+                <th className={styles.tableHeader} style={{ width: "80px" }}>
+                  Số lượng
+                </th>
+                <th className={styles.tableHeader} style={{ width: "100px" }}>
+                  Đơn giá
+                </th>
+                <th className={styles.tableHeader} style={{ width: "80px" }}>
+                  Thành tiền
+                </th>
               </tr>
             </thead>
             <tbody>
               {history.length > 0 ? (
                 history.map((item, index) => (
                   <tr key={`${item.MaPhieuXuat}-${index}`}>
-                    <td>{item.MaPhieuXuat}</td>
+                    <td style={{ textAlign: "center" }}>{item.MaPhieuXuat}</td>
                     <td>{formatDate(item.NgayXuat)}</td>
-                    <td>
-                       <span style={{
-                          padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold', fontSize: '0.85rem',
-                          backgroundColor: item.LoaiXuat === 'Bán' ? '#e6f7ff' : (item.LoaiXuat === 'Bỏ' ? '#fff1f0' : '#f6ffed'),
-                          color: item.LoaiXuat === 'Bán' ? '#1890ff' : (item.LoaiXuat === 'Bỏ' ? '#cf1322' : '#389e0d'),
-                       }}>
+                    <td style={{ textAlign: "center" }}>
+                      <span
+                        style={{
+                          padding: "4px 8px",
+                          borderRadius: "4px",
+                          fontWeight: "bold",
+                          fontSize: "0.85rem",
+                          backgroundColor:
+                            item.LoaiXuat === "Bán" ? "#e6f7ff" : item.LoaiXuat === "Bỏ" ? "#fff1f0" : "#f6ffed",
+                          color: item.LoaiXuat === "Bán" ? "#1890ff" : item.LoaiXuat === "Bỏ" ? "#cf1322" : "#389e0d",
+                        }}
+                      >
                         {item.LoaiXuat}
                       </span>
                     </td>
                     <td>{item.TenThuoc}</td>
                     <td>{item.TenNhanVien}</td>
-                    <td className={styles.numberCell}>{item.SoLuongXuat}</td>
-                    <td className={styles.numberCell}>{formatCurrency(item.DonGiaXuat)}</td>
-                    <td className={styles.numberCell}>
-                      {formatCurrency(item.SoLuongXuat * item.DonGiaXuat)}
+                    <td className={styles.numberCell} style={{ textAlign: "center" }}>
+                      {item.SoLuongXuat}
                     </td>
+                    <td className={styles.numberCell}>{formatCurrency(item.DonGiaXuat)}</td>
+                    <td className={styles.numberCell}>{formatCurrency(item.SoLuongXuat * item.DonGiaXuat)}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} style={{textAlign: 'center'}}>Chưa có dữ liệu xuất kho.</td>
+                  <td colSpan={8} style={{ textAlign: "center" }}>
+                    Chưa có dữ liệu xuất kho.
+                  </td>
                 </tr>
               )}
             </tbody>
@@ -124,17 +148,14 @@ export const XuatNoiBoManagement = () => {
       )}
 
       {/* Render Modal Form */}
-      <ModalWithAnimation 
-        title="Tạo Phiếu Xuất Kho Nội Bộ" 
+      <ModalWithAnimation
+        title="Tạo Phiếu Xuất Kho Nội Bộ"
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        customClass={modalStyles.modalLarge} 
+        customClass={modalStyles.modalLarge}
       >
         {/* Form này (bạn đã có code) sẽ gọi API addXuatNoiBo */}
-        <XuatNoiBoForm
-          onClose={() => setIsModalOpen(false)}
-          onSave={handleSaveSuccess}
-        />
+        <XuatNoiBoForm onClose={() => setIsModalOpen(false)} onSave={handleSaveSuccess} />
       </ModalWithAnimation>
     </div>
   );

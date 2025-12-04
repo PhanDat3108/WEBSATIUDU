@@ -1,33 +1,32 @@
 // src/components/AdminForms/PhieuNhapForm.tsx
-import React, { useState, useEffect } from 'react';
-import { Thuoc, NhaCungCap, ChiTietNhapCreate, PhieuNhapCreatePayload } from '../../interfaces';
-import { getNhaCungCapList } from '../../api/nhaCungCapApi';
-import { getMedicines } from '../../api/thuocApi';
-import { addPhieuNhap } from '../../api/phieuNhapApi';
+import React, { useState, useEffect } from "react";
+import { Thuoc, NhaCungCap, ChiTietNhapCreate, PhieuNhapCreatePayload } from "../../interfaces";
+import { getNhaCungCapList } from "../../api/nhaCungCapApi";
+import { getMedicines } from "../../api/thuocApi";
+import { addPhieuNhap } from "../../api/phieuNhapApi";
 
-import styles from '../../styles/PhieuNhapForm.module.css';
+import styles from "../../styles/PhieuNhapForm.module.css";
 
 interface PhieuNhapFormProps {
   onClose: () => void;
   onSave: () => void;
 }
 
-const getTodayString = () => new Date().toISOString().split('T')[0];
+const getTodayString = () => new Date().toISOString().split("T")[0];
 
 export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave }) => {
-  
   // --- STATE QUẢN LÝ DỮ LIỆU TỪ API ---
   const [nhaCungCapList, setNhaCungCapList] = useState<NhaCungCap[]>([]);
 
   const [allMedicines, setAllMedicines] = useState<Thuoc[]>([]); // Danh sách TẤT CẢ thuốc
   const [filteredMedicines, setFilteredMedicines] = useState<Thuoc[]>([]); // Danh sách ĐÃ LỌC
-  
-  const [maNhanVien, setMaNhanVien] = useState<string>('');
-  
+
+  const [maNhanVien, setMaNhanVien] = useState<string>("");
+
   // --- STATE QUẢN LÝ FORM ---
-  const [selectedNCC, setSelectedNCC] = useState<string>(''); // Lưu MaNhaCungCap
+  const [selectedNCC, setSelectedNCC] = useState<string>(""); // Lưu MaNhaCungCap
   const [chiTietRows, setChiTietRows] = useState<Partial<ChiTietNhapCreate>[]>([]);
-  
+
   // --- STATE QUẢN LÝ TRẠNG THÁI UI ---
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,26 +38,25 @@ export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave })
       try {
         setIsLoading(true);
         // TODO: Thay thế bằng AuthContext hoặc cách lấy user đang đăng nhập
-        const currentMaNV = localStorage.getItem('maNhanVien'); 
+        const currentMaNV = localStorage.getItem("maNhanVien");
         if (!currentMaNV) {
-          throw new Error('Không tìm thấy Mã Nhân Viên. Vui lòng đăng nhập lại.');
+          throw new Error("Không tìm thấy Mã Nhân Viên. Vui lòng đăng nhập lại.");
         }
         setMaNhanVien(currentMaNV);
 
         // Gọi API lấy NCC và Thuốc
         const [nccData, thuocData] = await Promise.all([
           getNhaCungCapList(),
-          getMedicines() // API này giờ đã trả về MaNhaCungCap
+          getMedicines(), // API này giờ đã trả về MaNhaCungCap
         ]);
-        
+
         setNhaCungCapList(nccData);
         setAllMedicines(thuocData); // [SỬA 2] Lưu vào danh sách tổng
-        
+
         // Tự động chọn NCC đầu tiên (nếu có)
         if (nccData.length > 0) {
           setSelectedNCC(nccData[0].MaNhaCungCap);
         }
-
       } catch (err) {
         setError((err as Error).message);
       } finally {
@@ -74,28 +72,25 @@ export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave })
   useEffect(() => {
     if (selectedNCC) {
       // 1. Lọc danh sách thuốc
-      const filtered = allMedicines.filter(
-        (thuoc) => thuoc.MaNhaCungCap === selectedNCC
-      );
+      const filtered = allMedicines.filter((thuoc) => thuoc.MaNhaCungCap === selectedNCC);
       setFilteredMedicines(filtered);
 
       // 2.  Reset lại các hàng chi tiết
       setChiTietRows([
-        { // Thêm 1 hàng trống cho nhà cung cấp mới
-          MaThuoc: '',
+        {
+          // Thêm 1 hàng trống cho nhà cung cấp mới
+          MaThuoc: "",
           SoLuongNhap: 1,
           DonGiaNhap: 0,
-          HanSuDung: getTodayString()
-        }
+          HanSuDung: getTodayString(),
+        },
       ]);
-      
     } else {
       // Nếu không có NCC nào được chọn, làm trống danh sách
       setFilteredMedicines([]);
       setChiTietRows([]);
     }
   }, [selectedNCC, allMedicines]); // Phụ thuộc vào 2 state này
-
 
   // --- 3. HÀM XỬ LÝ BẢNG CHI TIẾT ĐỘNG ---
 
@@ -104,11 +99,11 @@ export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave })
     setChiTietRows([
       ...chiTietRows,
       {
-        MaThuoc: '',
+        MaThuoc: "",
         SoLuongNhap: 1,
         DonGiaNhap: 0,
-        HanSuDung: getTodayString()
-      }
+        HanSuDung: getTodayString(),
+      },
     ]);
   };
 
@@ -120,13 +115,13 @@ export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave })
   // Cập nhật dữ liệu khi người dùng nhập vào 1 ô trong bảng
   const handleRowChange = (index: number, field: keyof ChiTietNhapCreate, value: string | number) => {
     const newRows = [...chiTietRows];
-    
-    if (field === 'SoLuongNhap' || field === 'DonGiaNhap') {
+
+    if (field === "SoLuongNhap" || field === "DonGiaNhap") {
       newRows[index][field] = Number(value);
     } else {
       newRows[index][field] = String(value);
     }
-    
+
     setChiTietRows(newRows);
   };
 
@@ -137,21 +132,21 @@ export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave })
 
     // --- Validate (Kiểm tra) ---
     if (!selectedNCC) {
-      setError('Vui lòng chọn một nhà cung cấp.');
+      setError("Vui lòng chọn một nhà cung cấp.");
       return;
     }
     // ... (các validate khác giữ nguyên) ...
     const validChiTiet: ChiTietNhapCreate[] = [];
     for (const row of chiTietRows) {
       if (!row.MaThuoc) {
-        setError('Vui lòng chọn thuốc cho tất cả các dòng.');
+        setError("Vui lòng chọn thuốc cho tất cả các dòng.");
         return;
       }
       if (!row.SoLuongNhap || row.SoLuongNhap <= 0) {
         setError(`Số lượng nhập cho thuốc phải lớn hơn 0.`);
         return;
       }
-       if (row.DonGiaNhap === undefined || row.DonGiaNhap < 0) {
+      if (row.DonGiaNhap === undefined || row.DonGiaNhap < 0) {
         setError(`Đơn giá nhập không được âm.`);
         return;
       }
@@ -166,15 +161,15 @@ export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave })
     const payload: PhieuNhapCreatePayload = {
       MaNhaCungCap: selectedNCC,
       MaNhanVien: maNhanVien,
-      chiTiet: validChiTiet
+      chiTiet: validChiTiet,
     };
 
     setIsSubmitting(true);
     try {
       await addPhieuNhap(payload);
-      alert('Thêm phiếu nhập thành công!');
-      onSave(); 
-      onClose(); 
+      alert("Thêm phiếu nhập thành công!");
+      onSave();
+      onClose();
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -200,14 +195,14 @@ export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave })
             required
           >
             {nhaCungCapList.length === 0 && <option disabled>Không có nhà cung cấp</option>}
-            {nhaCungCapList.map(ncc => (
+            {nhaCungCapList.map((ncc) => (
               <option key={ncc.MaNhaCungCap} value={ncc.MaNhaCungCap}>
                 {ncc.TenNhaCungCap}
               </option>
             ))}
           </select>
         </div>
-        
+
         <div className={styles.formGroup}>
           <label htmlFor="MaNhanVien">Nhân Viên Nhập</label>
           <input
@@ -241,14 +236,16 @@ export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave })
                 <select
                   name="MaThuoc"
                   value={row.MaThuoc}
-                  onChange={(e) => handleRowChange(index, 'MaThuoc', e.target.value)}
+                  onChange={(e) => handleRowChange(index, "MaThuoc", e.target.value)}
                   required
                 >
-                  <option value="" disabled>-- Chọn thuốc --</option>
+                  <option value="" disabled>
+                    -- Chọn thuốc --
+                  </option>
                   {filteredMedicines.length === 0 && selectedNCC && (
                     <option disabled>Không có thuốc cho NCC này</option>
                   )}
-                  {filteredMedicines.map(thuoc => (
+                  {filteredMedicines.map((thuoc) => (
                     <option key={thuoc.MaThuoc} value={thuoc.MaThuoc}>
                       {thuoc.TenThuoc} ({thuoc.DonViTinh})
                     </option>
@@ -261,7 +258,7 @@ export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave })
                   type="number"
                   name="SoLuongNhap"
                   value={row.SoLuongNhap}
-                  onChange={(e) => handleRowChange(index, 'SoLuongNhap', e.target.value)}
+                  onChange={(e) => handleRowChange(index, "SoLuongNhap", e.target.value)}
                   min="1"
                   required
                 />
@@ -271,7 +268,7 @@ export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave })
                   type="number"
                   name="DonGiaNhap"
                   value={row.DonGiaNhap}
-                  onChange={(e) => handleRowChange(index, 'DonGiaNhap', e.target.value)}
+                  onChange={(e) => handleRowChange(index, "DonGiaNhap", e.target.value)}
                   min="0"
                   required
                 />
@@ -281,7 +278,7 @@ export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave })
                   type="date"
                   name="HanSuDung"
                   value={row.HanSuDung}
-                  onChange={(e) => handleRowChange(index, 'HanSuDung', e.target.value)}
+                  onChange={(e) => handleRowChange(index, "HanSuDung", e.target.value)}
                   required
                 />
               </td>
@@ -299,11 +296,11 @@ export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave })
           ))}
         </tbody>
       </table>
-      
+
       {/* Nút thêm hàng */}
-      <button 
-        type="button" 
-        onClick={handleAddRow} 
+      <button
+        type="button"
+        onClick={handleAddRow}
         className={styles.addRowButton}
         disabled={!selectedNCC} // Vô hiệu hóa nếu chưa chọn NCC
       >
@@ -311,15 +308,11 @@ export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave })
       </button>
 
       {/* Hàng 3: Nút Submit và Lỗi */}
-      {error && (
-        <div className={styles.errorText}>
-          {error}
-        </div>
-      )}
+      {error && <div className={styles.errorText}>{error}</div>}
 
       <div className={styles.buttonGroup}>
         <button type="submit" className={styles.saveButton} disabled={isSubmitting}>
-          {isSubmitting ? 'Đang lưu...' : 'Lưu Phiếu Nhập'}
+          {isSubmitting ? "Đang lưu..." : "Lưu Phiếu Nhập"}
         </button>
         <button type="button" className={styles.cancelButton} onClick={onClose}>
           Hủy
