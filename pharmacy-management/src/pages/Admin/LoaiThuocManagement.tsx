@@ -1,12 +1,13 @@
 // src/pages/Admin/LoaiThuocManagement.tsx
 import React, { useState, useEffect } from "react";
 import { LoaiThuoc } from "../../interfaces";
-// [SỬA] Import thêm hàm add, update, delete
 import { getLoaiThuoc, deleteLoaiThuoc } from "../../api/loaiThuocApi";
 import Modal from "../../components/common/Modal";
 import styles from "../../styles/AdminManagement.module.css";
-// [MỚI] Import Form
 import { LoaiThuocForm } from "../../components/AdminForms/LoaiThuocForm";
+
+// [Human Comment] Kéo tool phân trang vào đây dùng luôn
+import { usePagination } from "../../components/common/usePagination";
 
 const LoaiThuocManagement: React.FC = () => {
   const [categories, setCategories] = useState<LoaiThuoc[]>([]);
@@ -15,12 +16,14 @@ const LoaiThuocManagement: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<LoaiThuoc | null>(null);
 
+  // [Human Comment] Cài đặt phân trang nè. 
+  // "categories" là cục dữ liệu tổng
+  const { currentData, PaginationComponent } = usePagination(categories, 7);
+
   const loadCategories = async () => {
     try {
       setIsLoading(true);
-      setError(null); // [SỬA] Xóa lỗi cũ
-
-      // [SỬA] Gọi API thật
+      setError(null); 
       const data = await getLoaiThuoc();
       setCategories(data);
     } catch (err) {
@@ -46,10 +49,9 @@ const LoaiThuocManagement: React.FC = () => {
 
   const handleSave = () => {
     handleCloseModal();
-    loadCategories(); // Tải lại danh sách
+    loadCategories();
   };
 
-  // [MỚI] Hàm Xóa
   const handleDelete = async (maLoai: string) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa loại thuốc này?")) {
       try {
@@ -81,7 +83,6 @@ const LoaiThuocManagement: React.FC = () => {
       );
     }
     if (categories.length === 0) {
-      // [SỬA] Bỏ điều kiện !error
       return (
         <tr>
           <td colSpan={3} className={styles.emptyCell}>
@@ -91,7 +92,9 @@ const LoaiThuocManagement: React.FC = () => {
       );
     }
 
-    return categories.map((item) => (
+    // [Human Comment] Chỗ này sửa lại, lặp qua cái list đã cắt (currentData) 
+    // chứ đừng lặp qua cái list tổng (categories) nữa nha.
+    return currentData.map((item) => (
       <tr key={item.MaLoai}>
         <td style={{ textAlign: "center" }}>{item.MaLoai}</td>
         <td>{item.TenLoai}</td>
@@ -99,7 +102,6 @@ const LoaiThuocManagement: React.FC = () => {
           <button onClick={() => handleOpenModal(item)} className={styles.editButton}>
             Sửa
           </button>
-          {/* [MỚI] Thêm sự kiện Xóa */}
           <button onClick={() => handleDelete(item.MaLoai)} className={styles.deleteButton}>
             Xóa
           </button>
@@ -131,9 +133,13 @@ const LoaiThuocManagement: React.FC = () => {
           </thead>
           <tbody>{renderContent()}</tbody>
         </table>
+
+        {/* [Human Comment] Đặt thanh điều hướng trang ở đây, căn giữa cho đẹp */}
+        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
+           <PaginationComponent />
+        </div>
       </div>
 
-      {/* [SỬA] Thay thế div bằng Form */}
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
