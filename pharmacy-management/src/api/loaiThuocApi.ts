@@ -1,7 +1,7 @@
 // src/api/loaiThuocApi.ts
 import { LoaiThuoc } from '../interfaces';
 
-// [GIỮ NGUYÊN] URL này đã đúng theo file server.js
+
 const API_BASE_URL = 'http://localhost:8080/api/v1/loaithuoc'; 
 
 /**
@@ -30,7 +30,7 @@ const handleResponse = async (response: Response) => {
 };
 
 /**
- * [ĐÃ SỬA] Lấy danh sách loại thuốc (cho bảng quản lý)
+ * 
  * Kết nối với: GET /api/v1/loaithuoc/list
  */
 export const getLoaiThuoc = async (): Promise<LoaiThuoc[]> => {
@@ -45,7 +45,7 @@ export const getLoaiThuoc = async (): Promise<LoaiThuoc[]> => {
 };
 
 /**
- * [ĐÃ SỬA] Lấy danh sách tên loại thuốc (cho dropdown)
+ *  Lấy danh sách tên loại thuốc (cho dropdown)
  * Kết nối với: GET /api/v1/loaithuoc/listname
  */
 export const getLoaiThuocListname = async (): Promise<Pick<LoaiThuoc, 'MaLoai' | 'TenLoai'>[]> => {
@@ -63,7 +63,7 @@ export const getLoaiThuocListname = async (): Promise<Pick<LoaiThuoc, 'MaLoai' |
 };
 
 /**
- * [ĐÃ SỬA] Thêm loại thuốc
+ *  Thêm loại thuốc
  * Kết nối với: POST /api/v1/loaithuoc/add
  */
 export const addLoaiThuoc = async (data: Partial<LoaiThuoc>): Promise<LoaiThuoc> => {
@@ -81,7 +81,7 @@ export const addLoaiThuoc = async (data: Partial<LoaiThuoc>): Promise<LoaiThuoc>
 };
 
 /**
- * [MỚI] Cập nhật loại thuốc
+ *  Cập nhật loại thuốc
  * Kết nối với: PUT /api/v1/loaithuoc/fix
  */
 export const updateLoaiThuoc = async (maLoai: string, data: Partial<LoaiThuoc>): Promise<LoaiThuoc> => {
@@ -100,7 +100,7 @@ export const updateLoaiThuoc = async (maLoai: string, data: Partial<LoaiThuoc>):
 };
 
 /**
- * [MỚI] Xóa loại thuốc
+ *  Xóa loại thuốc
  * Kết nối với: DELETE /api/v1/loaithuoc/delete/:id
  */
 export const deleteLoaiThuoc = async (maLoai: string): Promise<any> => {

@@ -1,13 +1,10 @@
 // src/api/benhNhanApi.ts
 import { BenhNhan } from '../interfaces';
 
-// URL này được giả định là /api/v1/benhnhan (do server.js của bạn cấu hình)
+
 const API_BASE_URL = '/api/v1/benhnhan';
 
-/**
- * [ĐÃ SỬA] Lấy danh sách bệnh nhân
- * Sửa lại để gọi API thật
- */
+
 export const getPatients = async (): Promise<BenhNhan[]> => {
   const response = await fetch(API_BASE_URL); // Gọi GET /api/v1/benhnhan
   if (!response.ok) {
@@ -16,15 +13,10 @@ export const getPatients = async (): Promise<BenhNhan[]> => {
   return await response.json();
 };
 
-/**
- * [ĐÃ SỬA] Cập nhật thông tin bệnh nhân
- * Sửa lại để "dịch" dữ liệu sang camelCase cho BE
- */
+
 export const updatePatient = async (maBenhNhan: string, data: Partial<BenhNhan>): Promise<BenhNhan> => {
   
-  // [SỬA LỖI Ở ĐÂY]
-  // 'data' (từ form) chỉ chứa Ten, NgaySinh...
-  // 'maBenhNhan' được lấy từ tham số hàm
+ 
   const dataForBackend = {
     MaBenhNhan: maBenhNhan,          // <-- Lấy từ tham số `maBenhNhan`
     TenBenhNhan: data.TenBenhNhan,   // <-- Lấy từ `data` (formData)
@@ -34,7 +26,7 @@ export const updatePatient = async (maBenhNhan: string, data: Partial<BenhNhan>)
     DiaChi: data.DiaChi              
   };
 
-  // BE của bạn dùng route "/fix"
+  // BE  dùng route "/fix"
   const response = await fetch(`${API_BASE_URL}/fix`, {
     method: 'PUT',
     headers: {
@@ -56,10 +48,7 @@ export const updatePatient = async (maBenhNhan: string, data: Partial<BenhNhan>)
   return { ...data, MaBenhNhan: maBenhNhan } as BenhNhan;
 };
 
-/**
- * [ĐÃ SỬA] Xóa bệnh nhân
- * Sửa lại để gọi API thật
- */
+
 export const deletePatient = async (maBenhNhan: string): Promise<void> => {
   // BE của bạn dùng "/delete/:maBenhNhan"
   const response = await fetch(`${API_BASE_URL}/delete/${maBenhNhan}`, {

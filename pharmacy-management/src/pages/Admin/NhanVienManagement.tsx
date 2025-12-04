@@ -115,11 +115,7 @@ const NhanVienManagement: React.FC = () => {
     <div className={styles.container}>
       <h1 className={styles.title}>Quản lý nhân viên</h1>
 
-      {/* [SỬA] Nút Thêm Mới - Đã bị vô hiệu hóa (comment out) theo yêu cầu */}
-      {/* <button onClick={() => handleOpenModal(null)} className={styles.addButton}>
-        + Thêm nhân viên
-      </button> 
-      */}
+  
 
       <table className={styles.table}>
         <thead>
@@ -138,7 +134,7 @@ const NhanVienManagement: React.FC = () => {
         <tbody>{renderContent()}</tbody>
       </table>
 
-      {/* Modal chỉ hoạt động cho chức năng Sửa */}
+      
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
