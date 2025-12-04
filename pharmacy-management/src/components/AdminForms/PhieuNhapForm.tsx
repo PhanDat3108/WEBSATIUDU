@@ -17,7 +17,7 @@ const getTodayString = () => new Date().toISOString().split("T")[0];
 export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave }) => {
   // --- STATE QUẢN LÝ DỮ LIỆU TỪ API ---
   const [nhaCungCapList, setNhaCungCapList] = useState<NhaCungCap[]>([]);
-  // [SỬA 1] Thêm 2 state để quản lý việc lọc thuốc
+
   const [allMedicines, setAllMedicines] = useState<Thuoc[]>([]); // Danh sách TẤT CẢ thuốc
   const [filteredMedicines, setFilteredMedicines] = useState<Thuoc[]>([]); // Danh sách ĐÃ LỌC
 
@@ -67,7 +67,7 @@ export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave })
     loadInitialData();
   }, []); // Chỉ chạy 1 lần
 
-  // --- 2. [MỚI] LOGIC LỌC THUỐC ---
+  //  2. LOGIC LỌC THUỐC 
   // Effect này sẽ chạy mỗi khi 'selectedNCC' (nhà cung cấp) hoặc 'allMedicines' (danh sách tổng) thay đổi
   useEffect(() => {
     if (selectedNCC) {
@@ -75,8 +75,7 @@ export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave })
       const filtered = allMedicines.filter((thuoc) => thuoc.MaNhaCungCap === selectedNCC);
       setFilteredMedicines(filtered);
 
-      // 2. [QUAN TRỌNG] Reset lại các hàng chi tiết
-      // Vì đã đổi NCC, các thuốc cũ (nếu có) không còn hợp lệ
+      // 2.  Reset lại các hàng chi tiết
       setChiTietRows([
         {
           // Thêm 1 hàng trống cho nhà cung cấp mới

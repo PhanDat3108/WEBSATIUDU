@@ -39,7 +39,7 @@ export const PhieuNhapManagement = () => {
 
   // [THAY THẾ] Bỏ hết state currentPage, itemsPerPage cũ.
   // Dùng 1 dòng này để lấy dữ liệu đã cắt (currentData) và thanh phân trang (PaginationComponent)
-  const { currentData, PaginationComponent } = usePagination(history, 5);
+  const { currentData, PaginationComponent } = usePagination(history, 7);
 
   const fetchData = async () => {
     setIsLoading(true);

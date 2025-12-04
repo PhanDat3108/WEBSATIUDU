@@ -1,12 +1,13 @@
 // src/pages/Admin/NhaCungCapManagement.tsx
 import React, { useState, useEffect } from "react";
 import { NhaCungCap } from "../../interfaces";
-// [SỬA] Import thêm hàm add, update, delete
 import { getNhaCungCap, deleteNhaCungCap } from "../../api/nhaCungCapApi";
 import Modal from "../../components/common/Modal";
 import styles from "../../styles/AdminManagement.module.css";
-// [MỚI] Import Form
 import { NhaCungCapForm } from "../../components/AdminForms/NhaCungCapForm";
+
+// [Note] Kéo cái tool phân trang vào dùng chung cho đồng bộ
+import { usePagination } from "../../components/common/usePagination";
 
 const NhaCungCapManagement: React.FC = () => {
   const [suppliers, setSuppliers] = useState<NhaCungCap[]>([]);
@@ -15,12 +16,15 @@ const NhaCungCapManagement: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<NhaCungCap | null>(null);
 
+  // [Note] Cài đặt phân trang ở đây.
+  // suppliers: là cục dữ liệu gốc lấy từ API về.
+  // Số 5: là số dòng muốn hiện trên 1 trang.
+  const { currentData, PaginationComponent } = usePagination(suppliers, 7);
+
   const loadSuppliers = async () => {
     try {
       setIsLoading(true);
-      setError(null); // [SỬA] Xóa lỗi cũ
-
-      // [SỬA] Gọi API thật
+      setError(null); 
       const data = await getNhaCungCap();
       setSuppliers(data);
     } catch (err) {
@@ -49,11 +53,10 @@ const NhaCungCapManagement: React.FC = () => {
     loadSuppliers();
   };
 
-  // [MỚI] Hàm Xóa
-  const handleDelete = async (maNhaCungCap: string) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa Nhà cung cấp này?")) {
+  const handleDelete = async (maNCC: string) => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa nhà cung cấp này?")) {
       try {
-        await deleteNhaCungCap(maNhaCungCap);
+        await deleteNhaCungCap(maNCC);
         loadSuppliers();
       } catch (err) {
         setError((err as Error).message);
@@ -81,7 +84,6 @@ const NhaCungCapManagement: React.FC = () => {
       );
     }
     if (suppliers.length === 0) {
-      // [SỬA] Bỏ điều kiện !error
       return (
         <tr>
           <td colSpan={6} className={styles.emptyCell}>
@@ -91,7 +93,9 @@ const NhaCungCapManagement: React.FC = () => {
       );
     }
 
-    return suppliers.map((item) => (
+    // [Note] Hiển thị dữ liệu:
+    // Dùng currentData (đã phân trang) để render bảng, không dùng list suppliers gốc nữa.
+    return currentData.map((item) => (
       <tr key={item.MaNhaCungCap}>
         <td style={{ textAlign: "center" }}>{item.MaNhaCungCap}</td>
         <td>{item.TenNhaCungCap}</td>
@@ -102,7 +106,6 @@ const NhaCungCapManagement: React.FC = () => {
           <button onClick={() => handleOpenModal(item)} className={styles.editButton}>
             Sửa
           </button>
-          {/* [MỚI] Thêm sự kiện Xóa */}
           <button onClick={() => handleDelete(item.MaNhaCungCap)} className={styles.deleteButton}>
             Xóa
           </button>
@@ -121,31 +124,35 @@ const NhaCungCapManagement: React.FC = () => {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th className={styles.tableHeader} style={{ width: 30 }}>
+              <th className={styles.tableHeader} style={{ width: 60 }}>
                 Mã
               </th>
-              <th className={styles.tableHeader} style={{ width: 350 }}>
+              <th className={styles.tableHeader} style={{ width: 250 }}>
                 Tên nhà cung cấp
               </th>
-              <th className={styles.tableHeader} style={{ width: 200 }}>
+              <th className={styles.tableHeader} style={{ width: 300 }}>
                 Địa chỉ
               </th>
-              <th className={styles.tableHeader} style={{ width: 30 }}>
+              <th className={styles.tableHeader} style={{ width: 120 }}>
                 Số điện thoại
               </th>
-              <th className={styles.tableHeader} style={{ width: 30 }}>
+              <th className={styles.tableHeader} style={{ width: 200 }}>
                 Email
               </th>
-              <th className={styles.tableHeader} style={{ width: 120 }}>
+              <th className={styles.tableHeader} style={{ width: 100 }}>
                 Hành động
               </th>
             </tr>
           </thead>
           <tbody>{renderContent()}</tbody>
         </table>
+
+        {/* [Note] Chèn thanh điều hướng trang vào cuối trang */}
+        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
+           <PaginationComponent />
+        </div>
       </div>
 
-      {/* [SỬA] Thay thế div bằng Form */}
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
