@@ -180,4 +180,23 @@ router.post("/add", (req, res) => {
     });
   });
 });
+router.get("/tim-kiem/:sdt", (req, res) => {
+  const { sdt } = req.params;
+  
+  const sql = "SELECT * FROM BenhNhan WHERE SoDienThoai = ?";
+  db.query(sql, [sdt], (err, result) => {
+    if (err) {
+      console.error("Lỗi tìm kiếm:", err);
+      return res.status(500).json({ message: "Lỗi server khi tìm kiếm" });
+    }
+
+    if (result.length > 0) {
+      // Tìm thấy khách hàng
+      res.json({ found: true, data: result[0] });
+    } else {
+      // Không tìm thấy
+      res.json({ found: false, message: "Khách hàng chưa tồn tại" });
+    }
+  });
+});
 export default router;
