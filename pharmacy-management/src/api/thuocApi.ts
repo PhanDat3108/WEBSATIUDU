@@ -145,3 +145,32 @@ export const uploadMedicineImage = async (maThuoc: string, file: File) => {
     throw error;
   }
 };
+export const getHotProducts = async (): Promise<Thuoc[]> => {
+  const response = await fetch(`${API_BASE_URL}/hot`);
+  if (!response.ok) throw new Error('Lỗi tải hàng Hot');
+  return response.json();
+};
+
+export const getNewProducts = async (): Promise<Thuoc[]> => {
+  const response = await fetch(`${API_BASE_URL}/new`);
+  if (!response.ok) throw new Error('Lỗi tải hàng Mới');
+  return response.json();
+};
+
+export const getFreeProducts = async (): Promise<Thuoc[]> => {
+  const response = await fetch(`${API_BASE_URL}/free`);
+  if (!response.ok) throw new Error('Lỗi tải hàng Free');
+  return response.json();
+};
+export const getThuocByCategory = async (maLoai: string): Promise<Thuoc[]> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/danhmuc/${maLoai}`);
+    const data = await handleResponse(response);
+    return data as Thuoc[];
+  } catch (error) {
+    console.error('Lỗi khi tải thuốc theo danh mục:', error);
+    throw error;
+  }
+};
+
+export const getAllThuoc = getMedicines;

@@ -12,7 +12,21 @@ interface NavbarProps {
   onSelectCategory?: (maLoai: string, tenLoai: string) => void;
   onSearchKeyword?: (keyword: string) => void;
 }
-
+const quotes = [
+  "Người thầy thuốc trước hết phải có lòng nhân ái.",
+  "Chữa bệnh là cứu người, không phải vì tiền bạc.",
+  "Y học không có giới hạn, lòng nhân từ cũng không.",
+  "Người làm thầy thuốc phải xem bệnh nhân như người thân.",
+  "Trước khi là thầy thuốc giỏi, hãy là con người có tấm lòng.",
+  "Bệnh nhân cần sự chăm sóc từ trái tim, không chỉ từ bàn tay.",
+  "Một người thầy thuốc tốt cần hiểu rõ nỗi đau của bệnh nhân.",
+  "Không có bệnh nào nhỏ, chỉ có lòng người không đủ lớn.",
+  "Y đức là nền tảng của một người thầy thuốc chân chính.",
+  "Không có sự chữa lành nào vĩ đại hơn tình thương.",
+  "Trách nhiệm của thầy thuốc không chỉ là chữa bệnh, mà còn là an ủi tinh thần.",
+  "Đạo làm thầy thuốc là cống hiến cho đời, không mưu cầu lợi ích.",
+  "Người thầy thuốc giỏi là người có trái tim nhân hậu."
+];
 // 2. Khai báo Component nhận Props
 const Navbar: React.FC<NavbarProps> = ({ onSelectCategory, onSearchKeyword }) => {
   // --- Hooks & Context ---
@@ -24,6 +38,12 @@ const Navbar: React.FC<NavbarProps> = ({ onSelectCategory, onSearchKeyword }) =>
   const [userName, setUserName] = useState<string>("Đang tải...");
   const [categories, setCategories] = useState<{ MaLoai: string; TenLoai: string }[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const handleSpecialFilter = (type: string, label: string) => {
+    if (onSelectCategory) {
+      // Gửi type làm "Mã Loại" để HomePage nhận biết
+      onSelectCategory(type, label);
+    }
+  };
 
   // --- Effect: Lấy thông tin User & Danh mục ---
   useEffect(() => {
@@ -100,35 +120,45 @@ const Navbar: React.FC<NavbarProps> = ({ onSelectCategory, onSearchKeyword }) =>
     <header className="navbar">
       {/* --- Dòng trên cùng: Thông báo & User --- */}
       <div className="navbarlogin" style={{ fontSize: "15px", display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div className="notice-navbar">Thông báo sẽ hiện đây</div>
-
-        <div className="dropdown" style={{ marginRight: '20px' }}>
-          <span style={{ cursor: 'pointer', fontWeight: 'bold', display:'flex', alignItems:'center', gap:'5px' }}>
-            Hello, {userName} ▼
-          </span>
-          <div className="dropdown-content" style={{ minWidth: '150px', left: 'auto', right: 0 }}>
-            {userName !== "Khách" ? (
-              <>
-                <Link to="/profile" style={{ color: '#333', display: 'block', padding: '10px' }}>Hồ sơ cá nhân</Link>
-                <hr style={{margin: '0', border: '0', borderTop: '1px solid #eee'}}/>
-                <a href="#" onClick={handleLogout} style={{ color: '#d9534f', display: 'block', padding: '10px' }}>Đăng xuất</a>
-              </>
-            ) : (
-              <>
-                <Link to="/login" style={{ color: '#333', display: 'block', padding: '10px' }}>Đăng nhập</Link>
-                <Link to="/register" style={{ color: '#333', display: 'block', padding: '10px' }}>Đăng ký</Link>
-              </>
-            )}
-          </div>
+        <div className="notice-navbar">
+        {/* Class scrolling-text vẫn giữ nguyên animation CSS ở bước trước */}
+        <div className="scrolling-text">
+            {quotes.map((quote, index) => (
+                <span key={index} style={{ marginRight: "100px", display: "inline-block" }}>
+                   ★ {quote} {/* Thêm dấu sao hoặc icon cho đẹp nếu thích */}
+                </span>
+            ))}
         </div>
+    </div>
+    {/* ------------------- */}
+
+    <div className="dropdown" style={{ marginRight: '20px' }}>
+      <span style={{ cursor: 'pointer', fontWeight: 'bold', display:'flex', alignItems:'center', gap:'5px' }}>
+        Hello, {userName} ▼
+      </span>
+      <div className="dropdown-content" style={{ minWidth: '150px', left: 'auto', right: 0 }}>
+        {userName !== "Khách" ? (
+          <>
+            <Link to="/profile" style={{ color: '#333', display: 'block', padding: '10px' }}>Hồ sơ cá nhân</Link>
+            <hr style={{margin: '0', border: '0', borderTop: '1px solid #eee'}}/>
+            <a href="#" onClick={handleLogout} style={{ color: '#d9534f', display: 'block', padding: '10px' }}>Đăng xuất</a>
+          </>
+        ) : (
+          <>
+            <Link to="/login" style={{ color: '#333', display: 'block', padding: '10px' }}>Đăng nhập</Link>
+            <Link to="/register" style={{ color: '#333', display: 'block', padding: '10px' }}>Đăng ký</Link>
+          </>
+        )}
+      </div>
+    </div>
       </div>
 
       {/* --- Dòng chính: Logo, Danh mục, Search, Cart --- */}
       <div className="navbar-top">
         <div className="navbar-logo">
-          <Link to="/">
+          <a href="/home">
             <img src={logo} alt="Logo" />
-          </Link>
+          </a>
         </div>
 
         {/* Nút Danh mục Dropdown */}
@@ -182,25 +212,27 @@ const Navbar: React.FC<NavbarProps> = ({ onSelectCategory, onSearchKeyword }) =>
 
       {/* --- Menu điều hướng --- */}
       <nav className="navbar-menu">
-        <Link to="/">Trang chủ</Link>
-        <Link to="/gioi-thieu">Giới thiệu</Link>
-        <div className="dropdown">
-          <Link to="/san-pham">Sản phẩm ▼</Link>
-          <div className="dropdown-content">
-            <Link to="/san-pham/chuc-nang">Thực phẩm chức năng</Link>
-            <Link to="/san-pham/y-duoc">Dược phẩm</Link>
-          </div>
-        </div>
-        <Link to="/khuyen-mai">Sản phẩm khuyến mãi</Link>
-        <div className="dropdown">
-          <Link to="/tin-tuc">Tin tức ▼</Link>
-          <div className="dropdown-content">
-            <Link to="/tin-tuc/suc-khoe">Sức khỏe</Link>
-            <Link to="/tin-tuc/meo-hay">Mẹo hay</Link>
-          </div>
-        </div>
-        <Link to="/faq">Câu hỏi thường gặp</Link>
-        <Link to="/lien-he">Liên hệ</Link>
+        {/* 1. Trang chủ: Load lại toàn bộ */}
+       <a href="/home"  style={{  fontWeight: 'bold' }}>
+            Trang chủ
+        </a>
+
+        {/* 2. Sản phẩm HOT */}
+        <a href="#" onClick={(e) => { e.preventDefault(); handleSpecialFilter("HOT", "🔥 Sản phẩm Bán Chạy"); }} style={{ fontWeight: 'bold' }}>
+           Sản phẩm HOT
+        </a>
+
+        {/* 3. Sản phẩm Mới */}
+        <a href="#" onClick={(e) => { e.preventDefault(); handleSpecialFilter("NEW", "✨ Sản phẩm Mới"); }} style={{  fontWeight: 'bold' }}>
+            Hàng Mới Về
+        </a>
+
+        {/* 4. Tặng kèm */}
+        <a href="#" onClick={(e) => { e.preventDefault(); handleSpecialFilter("FREE", "🎁 Quà tặng 0đ"); }} style={{  fontWeight: 'bold' }}>
+           Tặng Kèm
+        </a>
+
+        
       </nav>
     </header>
   );
