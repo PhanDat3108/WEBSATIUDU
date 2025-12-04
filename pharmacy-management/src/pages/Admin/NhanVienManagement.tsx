@@ -51,18 +51,7 @@ const NhanVienManagement: React.FC = () => {
     loadEmployees(); // Tải lại danh sách sau khi Sửa
   };
 
-  const handleDelete = async (maNV: string) => {
-    if (window.confirm(`Bạn có chắc muốn xóa nhân viên ${maNV}?`)) {
-      try {
-        await deleteNhanVien(maNV); // Đã gọi API thật
-        alert("Xóa thành công!");
-        loadEmployees(); // Tải lại danh sách
-      } catch (err) {
-        setError((err as Error).message);
-        alert("Xóa thất bại: " + (err as Error).message);
-      }
-    }
-  };
+  
 
   const renderContent = () => {
     if (isLoading) {
@@ -100,12 +89,7 @@ const NhanVienManagement: React.FC = () => {
           >
             Sửa
           </button>
-          <button
-            onClick={() => handleDelete(nv.MaNhanVien)}
-            className={styles.deleteButton}
-          >
-            Xóa
-          </button>
+          
         </td>
       </tr>
     ));

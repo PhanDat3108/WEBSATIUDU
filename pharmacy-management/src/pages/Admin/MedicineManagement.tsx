@@ -140,7 +140,7 @@ const MedicineManagement: React.FC = () => {
         </table>
 
         
-        <div >
+        <div className={styles.paginationWrapper}>
            <PaginationComponent />
         </div>
       </div>

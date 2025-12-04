@@ -130,7 +130,7 @@ const PatientManagement: React.FC = () => {
           <tbody>{renderContent()}</tbody>
         </table>
 
-        <div >
+        <div className={styles.paginationWrapper}>
            <PaginationComponent />
         </div>
       </div>

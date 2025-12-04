@@ -14,8 +14,18 @@
     --color-main-bg,
     #ffffff
   ); /* Dùng màu #f9f9f9 làm dự phòng */
+  /* Thêm mấy dòng này vào: */
+  display: flex;           /* Biến container thành dạng Flex */
+  flex-direction: column;  /* Xếp các phần tử con theo chiều dọc */
+  min-height: 80vh;
 }
-
+.paginationWrapper {
+  margin-top: auto;        /* Kỹ thuật "auto margin": Tự động đẩy phần tử xuống cuối cùng của Flex container */
+  display: flex;           
+  justify-content: center; /* Căn giữa các nút bấm theo chiều ngang */
+  padding: 20px 0;         /* Tạo khoảng thoáng bên trên và dưới */
+  width: 100%;             /* Đảm bảo chiếm hết chiều ngang để căn giữa chuẩn */
+}
 .title {
   color: #333;
   /* Kế thừa màu nhấn (hover) của sidebar cho đường gạch chân */
@@ -35,6 +45,7 @@
   font-size: 16px;
   margin-bottom: 4px;
   transition: background-color 0.3s;
+  width:200px;
 }
 
 .addButton:hover {

@@ -135,7 +135,7 @@ const LoaiThuocManagement: React.FC = () => {
         </table>
 
        
-        <div /*style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}*/>
+        <div className={styles.paginationWrapper}>
            <PaginationComponent />
         </div>
       </div>
