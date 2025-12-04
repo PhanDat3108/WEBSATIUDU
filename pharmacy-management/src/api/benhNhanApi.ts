@@ -98,3 +98,10 @@ export const addPatient = async (benhNhanData: Omit<BenhNhan, 'MaBenhNhan'>): Pr
     MaBenhNhan: result.MaBenhNhan
   } as BenhNhan;
 };
+export const findPatientByPhone = async (sdt: string): Promise<{ found: boolean, data?: BenhNhan }> => {
+  const response = await fetch(`${API_BASE_URL}/tim-kiem/${sdt}`);
+  if (!response.ok) {
+    throw new Error('Lỗi khi gọi API tìm kiếm');
+  }
+  return await response.json();
+};

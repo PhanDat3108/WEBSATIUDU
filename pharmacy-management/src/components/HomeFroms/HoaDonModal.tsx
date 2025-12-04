@@ -1,7 +1,8 @@
 // src/components/HomeFroms/HoaDonModal.tsx
 import React, { useState } from 'react';
 import { SanPhamTuiHang } from '../../contexts/TuiHangContext';
-import { addPatient } from '../../api/benhNhanApi';
+// [MỚI] Import thêm updatePatient và findPatientByPhone
+import { addPatient, updatePatient, findPatientByPhone } from '../../api/benhNhanApi';
 import '../../styles/home/HoaDonModal.css';
 
 interface HoaDonModalProps {
@@ -15,48 +16,103 @@ interface HoaDonModalProps {
 const HoaDonModal: React.FC<HoaDonModalProps> = ({ danhSach, tongTien, onClose, onConfirm, loading }) => {
   const ngayTao = new Date().toLocaleString('vi-VN');
 
-  // Tạo danh sách lựa chọn cho Ngày, Tháng, Năm
+  // Dữ liệu cho Dropdown ngày tháng năm
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
-  // Năm từ 1950 đến 2025, đảo ngược để năm mới nhất lên đầu
   const years = Array.from({ length: 2025 - 1950 + 1 }, (_, i) => 1950 + i).reverse();
 
-  // State lưu thông tin khách hàng
+  // State form
   const [khachHang, setKhachHang] = useState({
     ten: '',
     sdt: '',
     diaChi: '',
-    gioiTinh: 'Nam', // Mặc định là Nam
+    gioiTinh: 'Nam',
     ngay: '',
     thang: '',
     nam: ''
   });
+
+  // [MỚI] State lưu ID khách hàng tìm thấy (để biết là khách cũ hay mới)
+  const [foundId, setFoundId] = useState<string | null>(null);
   
   const [errMessage, setErrMessage] = useState('');
+  const [isSearching, setIsSearching] = useState(false); // Loading khi tìm kiếm
 
-  // Xử lý thay đổi input (Text & Select)
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setKhachHang({ ...khachHang, [e.target.name]: e.target.value });
   };
 
-  // Logic xử lý chính: Lưu KH -> Lấy ID -> Confirm
+  // [MỚI] Hàm xử lý tìm kiếm SĐT
+  const handleSearchPhone = async () => {
+    if (!khachHang.sdt.trim()) {
+      setErrMessage('Vui lòng nhập SĐT để tìm.');
+      return;
+    }
+    setIsSearching(true);
+    setErrMessage('');
+
+    try {
+      const res = await findPatientByPhone(khachHang.sdt);
+      
+      if (res.found && res.data) {
+        // TÌM THẤY: Điền dữ liệu vào form
+        const data = res.data;
+        
+        // Tách ngày sinh từ ISO string (YYYY-MM-DD...)
+        let d = '', m = '', y = '';
+        if (data.NgaySinh) {
+          const dateObj = new Date(data.NgaySinh);
+          d = dateObj.getDate().toString();
+          m = (dateObj.getMonth() + 1).toString();
+          y = dateObj.getFullYear().toString();
+        }
+
+        setKhachHang({
+          ...khachHang,
+          ten: data.TenBenhNhan,
+          diaChi: data.DiaChi || '',
+          gioiTinh: data.GioiTinh || 'Nam',
+          ngay: d,
+          thang: m,
+          nam: y
+        });
+        setFoundId(data.MaBenhNhan); // Lưu lại ID
+        setErrMessage('Đã tìm thấy thông tin khách hàng cũ!');
+      } else {
+        // KHÔNG TÌM THẤY: Reset form để nhập mới
+        setFoundId(null);
+        setKhachHang(prev => ({
+          ...prev, 
+          ten: '', diaChi: '', gioiTinh: 'Nam', ngay: '', thang: '', nam: ''
+        }));
+        setErrMessage('Khách hàng mới (SĐT chưa tồn tại). Vui lòng nhập thông tin.');
+      }
+    } catch (error) {
+      console.error(error);
+      setErrMessage('Lỗi kết nối server khi tìm kiếm.');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Logic Lưu và Xác nhận
   const handleSaveAndConfirm = async () => {
     setErrMessage('');
 
-    // 1. Nếu KHÔNG nhập gì => Khách vãng lai (MaBenhNhan = null)
+    // 1. Khách vãng lai
     if (!khachHang.ten.trim() && !khachHang.sdt.trim()) {
       onConfirm(null);
       return;
     }
 
-    // 2. Validate cơ bản
+    // 2. Validate
     if (!khachHang.ten.trim() || !khachHang.sdt.trim()) {
-      setErrMessage('Vui lòng nhập Tên và SĐT (hoặc để trống cả hai nếu là khách vãng lai)');
+      setErrMessage('Vui lòng nhập Tên và SĐT');
       return;
     }
 
     try {
-      // Xử lý ngày sinh: Ghép chuỗi YYYY-MM-DD (Chuẩn Database)
+      // Format ngày sinh YYYY-MM-DD
       let ngaySinhFormatted = '';
       if (khachHang.nam && khachHang.thang && khachHang.ngay) {
         const y = khachHang.nam;
@@ -65,21 +121,30 @@ const HoaDonModal: React.FC<HoaDonModalProps> = ({ danhSach, tongTien, onClose, 
         ngaySinhFormatted = `${y}-${m}-${d}`;
       }
 
-      // 3. Gọi API tạo bệnh nhân mới
-      const newPatient = await addPatient({
+      const payload = {
         TenBenhNhan: khachHang.ten,
         SoDienThoai: khachHang.sdt,
         DiaChi: khachHang.diaChi,
-        GioiTinh: khachHang.gioiTinh, // Lấy từ dropdown
-        NgaySinh: ngaySinhFormatted   // Gửi ngày đã format hoặc chuỗi rỗng
-      });
+        GioiTinh: khachHang.gioiTinh,
+        NgaySinh: ngaySinhFormatted
+      };
 
-      // 4. Có ID rồi -> Gửi sang cha
-      console.log("Đã tạo khách hàng:", newPatient.MaBenhNhan);
-      onConfirm(newPatient.MaBenhNhan);
+      if (foundId) {
+        // [CASE 1] KHÁCH CŨ -> Cập nhật thông tin mới nhất
+        await updatePatient(foundId, payload); 
+        console.log("Cập nhật khách cũ:", foundId);
+        onConfirm(foundId);
+      } else {
+        // [CASE 2] KHÁCH MỚI -> Thêm vào DB
+        // Lưu ý: API addPatient cần bỏ check trùng SĐT nếu muốn cho phép
+        // Nhưng ở đây luồng logic là: Tìm ko thấy -> Thêm mới -> Hợp lý.
+        const newPatient = await addPatient(payload);
+        console.log("Tạo khách mới:", newPatient.MaBenhNhan);
+        onConfirm(newPatient.MaBenhNhan);
+      }
 
     } catch (error: any) {
-      console.error("Lỗi lưu khách hàng:", error);
+      console.error("Lỗi xử lý:", error);
       setErrMessage(error.message || 'Lỗi khi lưu thông tin khách hàng');
     }
   };
@@ -87,6 +152,7 @@ const HoaDonModal: React.FC<HoaDonModalProps> = ({ danhSach, tongTien, onClose, 
   return (
     <div className="hoadon-overlay">
       <div className="hoadon-container">
+        {/* ... Header giữ nguyên ... */}
         <div className="hoadon-header">
           <h2>Nhà Thuốc SaTi</h2>
           <p>ĐC: 123 Nguyễn Trãi, Quận Thanh Xuân</p>
@@ -99,47 +165,58 @@ const HoaDonModal: React.FC<HoaDonModalProps> = ({ danhSach, tongTien, onClose, 
         <div className="customer-input-group" style={{ textAlign: 'left', marginBottom: '15px', padding: '10px', background: '#f9f9f9', borderRadius: '5px' }}>
           <strong style={{ display: 'block', marginBottom: '8px', color: '#007bff' }}>Thông tin khách hàng:</strong>
           
-          {/* Hàng 1: Tên và SĐT */}
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '8px' }}>
+          {/* [MỚI] Hàng 1: SĐT + Nút Tìm */}
+          <div style={{ display: 'flex', gap: '5px', marginBottom: '8px' }}>
+            <input
+              className="form-control" 
+              placeholder="Nhập SĐT để tìm..."
+              name="sdt" 
+              value={khachHang.sdt} 
+              onChange={handleInputChange}
+              style={{ flex: 1, padding: '6px', border: '1px solid #ccc' }}
+            />
+            <button 
+              onClick={handleSearchPhone}
+              disabled={isSearching}
+              style={{
+                backgroundColor: '#17a2b8',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                padding: '0 15px',
+                cursor: 'pointer',
+                fontWeight: 'bold'
+              }}
+            >
+              {isSearching ? '...' : 'Tìm'}
+            </button>
+          </div>
+
+          {/* Hàng 2: Tên */}
+          <div style={{ marginBottom: '8px' }}>
             <input
               className="form-control" placeholder="Tên khách hàng"
               name="ten" value={khachHang.ten} onChange={handleInputChange}
-              style={{ flex: 2, padding: '6px' }}
-            />
-            <input
-              className="form-control" placeholder="Số điện thoại"
-              name="sdt" value={khachHang.sdt} onChange={handleInputChange}
-              style={{ flex: 1, padding: '6px' }}
+              style={{ width: '100%', padding: '6px', boxSizing: 'border-box' }}
             />
           </div>
 
-          {/* Hàng 2: Giới tính và Ngày Sinh */}
+          {/* Hàng 3: Giới tính & Ngày sinh (Giữ nguyên) */}
           <div style={{ display: 'flex', gap: '10px', marginBottom: '8px', alignItems: 'center' }}>
-            {/* Giới Tính */}
-            <select 
-              className="form-control" 
-              name="gioiTinh" 
-              value={khachHang.gioiTinh} 
-              onChange={handleInputChange}
-              style={{ flex: 1, padding: '6px' }}
-            >
+            <select className="form-control" name="gioiTinh" value={khachHang.gioiTinh} onChange={handleInputChange} style={{ flex: 1, padding: '6px' }}>
               <option value="Nam">Nam</option>
               <option value="Nữ">Nữ</option>
               <option value="Khác">Khác</option>
             </select>
-
-            {/* Ngày Sinh (3 Select box) */}
             <div style={{ flex: 3, display: 'flex', gap: '5px' }}>
               <select name="ngay" className="form-control" value={khachHang.ngay} onChange={handleInputChange} style={{padding: '6px'}}>
                 <option value="">Ngày</option>
                 {days.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
-
               <select name="thang" className="form-control" value={khachHang.thang} onChange={handleInputChange} style={{padding: '6px'}}>
                 <option value="">Tháng</option>
                 {months.map(m => <option key={m} value={m}>{m}</option>)}
               </select>
-
               <select name="nam" className="form-control" value={khachHang.nam} onChange={handleInputChange} style={{padding: '6px'}}>
                 <option value="">Năm</option>
                 {years.map(y => <option key={y} value={y}>{y}</option>)}
@@ -147,17 +224,25 @@ const HoaDonModal: React.FC<HoaDonModalProps> = ({ danhSach, tongTien, onClose, 
             </div>
           </div>
 
-          {/* Hàng 3: Địa chỉ */}
+          {/* Hàng 4: Địa chỉ (Giữ nguyên) */}
           <input
-            className="form-control" placeholder="Địa chỉ (Số nhà, đường, phường/xã...)"
+            className="form-control" placeholder="Địa chỉ..."
             name="diaChi" value={khachHang.diaChi} onChange={handleInputChange}
             style={{ width: '100%', padding: '6px', boxSizing: 'border-box' }}
           />
           
-          {errMessage && <p style={{ color: 'red', marginTop: '5px', fontSize: '0.9em', fontWeight: 'bold' }}>{errMessage}</p>}
+          {/* Thông báo lỗi hoặc thành công */}
+          {errMessage && (
+            <p style={{ 
+              color: foundId ? '#28a745' : '#dc3545', // Xanh nếu tìm thấy, Đỏ nếu lỗi/ko thấy
+              marginTop: '5px', fontSize: '0.9em', fontWeight: 'bold' 
+            }}>
+              {errMessage}
+            </p>
+          )}
         </div>
-        {/* ----------------------------- */}
 
+        {/* ... Table và Footer giữ nguyên ... */}
         <table className="hoadon-table">
           <thead>
             <tr>
