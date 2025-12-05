@@ -6,7 +6,7 @@ import Modal from "../../components/common/Modal";
 import styles from "../../styles/AdminManagement.module.css";
 import { LoaiThuocForm } from "../../components/AdminForms/LoaiThuocForm";
 
-// [Human Comment] Kéo tool phân trang vào đây dùng luôn
+//  Kéo tool phân trang vào đây dùng luôn
 import { usePagination } from "../../components/common/usePagination";
 
 const LoaiThuocManagement: React.FC = () => {
@@ -16,7 +16,7 @@ const LoaiThuocManagement: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<LoaiThuoc | null>(null);
 
-  // [Human Comment] Cài đặt phân trang nè. 
+  //  Cài đặt phân trang nè. 
   // "categories" là cục dữ liệu tổng
   const { currentData, PaginationComponent } = usePagination(categories, 7);
 
@@ -32,11 +32,11 @@ const LoaiThuocManagement: React.FC = () => {
       setIsLoading(false);
     }
   };
-
+// kích hoạt load data khi ms vô trang
   useEffect(() => {
     loadCategories();
   }, []);
-
+//Hàm logic nhận biết sửa hay xóa 
   const handleOpenModal = (category: LoaiThuoc | null) => {
     setSelectedCategory(category);
     setIsModalOpen(true);
@@ -134,12 +134,12 @@ const LoaiThuocManagement: React.FC = () => {
           <tbody>{renderContent()}</tbody>
         </table>
 
-        {/* [Human Comment] Đặt thanh điều hướng trang ở đây, căn giữa cho đẹp */}
-        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
+       
+        <div className={styles.paginationWrapper}>
            <PaginationComponent />
         </div>
       </div>
-
+{/* prop cho form  */}
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}

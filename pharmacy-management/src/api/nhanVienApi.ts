@@ -1,7 +1,7 @@
 // src/api/nhanVienApi.ts
 import { NhanVien, NhanVienUpdateData, NhanVienCreateData } from '../interfaces';
 
-// [SỬA 1] Sử dụng đường dẫn proxy
+
 const API_BASE_URL = '/api/v1/nhanvien'; 
 
 /**
@@ -28,7 +28,7 @@ const handleResponse = async (response: Response) => {
 };
 
 
-// [SỬA 2] Kết nối API GET /list
+//  Kết nối API GET /list
 export const getNhanVien = async (): Promise<NhanVien[]> => {
   try {
     const response = await fetch(`${API_BASE_URL}/list`); // BE dùng /list
@@ -40,13 +40,13 @@ export const getNhanVien = async (): Promise<NhanVien[]> => {
   }
 };
 
-// Hàm này không dùng đến theo yêu cầu, nhưng để lại để tránh lỗi import
+// chuẩn bị tình huống sau này dùng
 export const createNhanVien = async (data: NhanVienCreateData): Promise<NhanVien> => {
   console.log('Tạo nhân viên (chưa kết nối BE)', data);
   return Promise.reject(new Error("Chức năng Thêm mới đã bị loại bỏ."));
 };
 
-// [SỬA 3] Kết nối API PUT /edit
+//  Kết nối API PUT /edit
 export const updateNhanVien = async (maNV: string, data: NhanVienUpdateData): Promise<NhanVien> => {
   try {
     // BE (nhanvien.js) dùng /edit và lấy MaNhanVien từ body
@@ -65,7 +65,7 @@ export const updateNhanVien = async (maNV: string, data: NhanVienUpdateData): Pr
   }
 };
 
-// [SỬA 4] Kết nối API DELETE /delete/:MaNhanVien
+//  Kết nối API DELETE /delete/:MaNhanVien
 export const deleteNhanVien = async (maNV: string): Promise<void> => {
   try {
     const response = await fetch(`${API_BASE_URL}/delete/${maNV}`, { // BE dùng /delete/:MaNhanVien

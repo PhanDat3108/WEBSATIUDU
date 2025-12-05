@@ -1,14 +1,11 @@
-// src/pages/Admin/PhieuNhapManagement.tsx
+// // src/pages/Admin/PhieuNhapManagement.tsx
 import React, { useState, useEffect } from "react";
 import { getChiTietNhapList } from "../../api/phieuNhapApi";
 import { ChiTietNhapLichSu } from "../../interfaces";
 import styles from "../../styles/AdminManagement.module.css";
-
 import ModalWithAnimation from "../../components/common/ModalWithAnimation";
 import { PhieuNhapForm } from "../../components/AdminForms/PhieuNhapForm";
 import modalStyles from "../../styles/Modal.module.css";
-
-// [MỚI] Import Hook phân trang (nhớ kiểm tra đường dẫn đúng với thư mục bạn tạo)
 import { usePagination } from "../../components/common/usePagination";
 
 const formatDate = (isoString: string) => {
@@ -130,7 +127,7 @@ export const PhieuNhapManagement = () => {
                   currentData.map((item, index) => {
                     const isSoldOut = item.SoLuongConLai === 0;
                     const isExpiringSoon =
-                      new Date(item.HanSuDung).getTime() - new Date().getTime() < 30 * 24 * 60 * 60 * 1000;
+                      new Date(item.HanSuDung).getTime() - new Date().getTime() < 30 * 24 * 60 * 60 * 1000;// thang ngay nch miligiay
 
                     return (
                       <tr key={`${item.MaPhieuNhap}-${item.TenThuoc}-${index}`}>

@@ -33,6 +33,7 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
 
   // --- STATE CHO ẢNH ---
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  // Lưu cái đường link tạm thời để hiển thị ảnh lên màn hình cho người dùng xem trước
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   // ---------------------
 

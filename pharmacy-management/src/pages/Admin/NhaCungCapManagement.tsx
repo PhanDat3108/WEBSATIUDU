@@ -5,8 +5,6 @@ import { getNhaCungCap, deleteNhaCungCap } from "../../api/nhaCungCapApi";
 import Modal from "../../components/common/Modal";
 import styles from "../../styles/AdminManagement.module.css";
 import { NhaCungCapForm } from "../../components/AdminForms/NhaCungCapForm";
-
-// [Note] Kéo cái tool phân trang vào dùng chung cho đồng bộ
 import { usePagination } from "../../components/common/usePagination";
 
 const NhaCungCapManagement: React.FC = () => {
@@ -16,9 +14,7 @@ const NhaCungCapManagement: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<NhaCungCap | null>(null);
 
-  // [Note] Cài đặt phân trang ở đây.
-  // suppliers: là cục dữ liệu gốc lấy từ API về.
-  // Số 5: là số dòng muốn hiện trên 1 trang.
+
   const { currentData, PaginationComponent } = usePagination(suppliers, 7);
 
   const loadSuppliers = async () => {
@@ -93,8 +89,6 @@ const NhaCungCapManagement: React.FC = () => {
       );
     }
 
-    // [Note] Hiển thị dữ liệu:
-    // Dùng currentData (đã phân trang) để render bảng, không dùng list suppliers gốc nữa.
     return currentData.map((item) => (
       <tr key={item.MaNhaCungCap}>
         <td style={{ textAlign: "center" }}>{item.MaNhaCungCap}</td>
@@ -147,8 +141,7 @@ const NhaCungCapManagement: React.FC = () => {
           <tbody>{renderContent()}</tbody>
         </table>
 
-        {/* [Note] Chèn thanh điều hướng trang vào cuối trang */}
-        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
+        <div className={styles.paginationWrapper}>
            <PaginationComponent />
         </div>
       </div>

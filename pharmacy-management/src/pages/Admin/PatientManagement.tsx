@@ -6,7 +6,7 @@ import { PatientForm } from "../../components/AdminForms/PatientForm";
 import Modal from "../../components/common/Modal";
 import styles from "../../styles/AdminManagement.module.css";
 
-// [Note] Import cái hook phân trang mình tự viết vào
+
 import { usePagination } from "../../components/common/usePagination";
 
 const PatientManagement: React.FC = () => {
@@ -19,7 +19,7 @@ const PatientManagement: React.FC = () => {
   // [Note] Khúc này gọi hook phân trang ra dùng nè.
   // - currentData: là danh sách bệnh nhân của trang hiện tại (đã bị cắt ngắn).
   // - PaginationComponent: là cái thanh nút bấm 1, 2, 3...
-  // Tôi để 5 người/trang cho dễ nhìn, muốn nhiều hơn thì sửa số 5.
+ 
   const { currentData, PaginationComponent } = usePagination(patients, 7);
 
   const loadPatients = async () => {
@@ -130,8 +130,7 @@ const PatientManagement: React.FC = () => {
           <tbody>{renderContent()}</tbody>
         </table>
 
-        {/* [Note] Đặt thanh chuyển trang ở dưới bảng, căn giữa cho đẹp */}
-        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
+        <div className={styles.paginationWrapper}>
            <PaginationComponent />
         </div>
       </div>
@@ -139,7 +138,7 @@ const PatientManagement: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        title={selectedPatient ? "Sửa thông tin bệnh nhân" : ""}
+        title="Sửa thông tin bệnh nhân"
         width="600px"
       >
         <PatientForm patient={selectedPatient} onSave={handleSave} onClose={handleCloseModal} />

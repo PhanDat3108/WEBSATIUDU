@@ -1,7 +1,6 @@
 // src/components/AdminForms/NhanVienForm.tsx
 import React, { useState } from "react";
 import { NhanVien, NhanVienUpdateData } from "../../interfaces";
-// [SỬA] Chỉ import hàm 'updateNhanVien'
 import { updateNhanVien } from "../../api/nhanVienApi";
 import styles from "../../styles/Form.module.css";
 
@@ -31,7 +30,7 @@ export const NhanVienForm: React.FC<NhanVienFormProps> = ({ initialData, onFormS
     setIsSubmitting(true);
     setError(null);
     try {
-      // [SỬA] Gọi hàm updateNhanVien với MaNhanVien và formData
+      
       await updateNhanVien(initialData.MaNhanVien, formData);
       alert("Cập nhật thành công!");
       onFormSubmitSuccess();
