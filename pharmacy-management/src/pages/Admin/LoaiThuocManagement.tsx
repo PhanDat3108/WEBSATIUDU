@@ -16,14 +16,14 @@ const LoaiThuocManagement: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<LoaiThuoc | null>(null);
 
-  // [Human Comment] Cài đặt phân trang nè. 
+  // [Human Comment] Cài đặt phân trang nè.
   // "categories" là cục dữ liệu tổng
-  const { currentData, PaginationComponent } = usePagination(categories, 7);
+  const { currentData, PaginationComponent } = usePagination(categories);
 
   const loadCategories = async () => {
     try {
       setIsLoading(true);
-      setError(null); 
+      setError(null);
       const data = await getLoaiThuoc();
       setCategories(data);
     } catch (err) {
@@ -92,7 +92,7 @@ const LoaiThuocManagement: React.FC = () => {
       );
     }
 
-    // [Human Comment] Chỗ này sửa lại, lặp qua cái list đã cắt (currentData) 
+    // [Human Comment] Chỗ này sửa lại, lặp qua cái list đã cắt (currentData)
     // chứ đừng lặp qua cái list tổng (categories) nữa nha.
     return currentData.map((item) => (
       <tr key={item.MaLoai}>
@@ -135,8 +135,8 @@ const LoaiThuocManagement: React.FC = () => {
         </table>
 
         {/* [Human Comment] Đặt thanh điều hướng trang ở đây, căn giữa cho đẹp */}
-        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
-           <PaginationComponent />
+        <div style={{ marginTop: "20px", display: "flex", justifyContent: "end" }}>
+          <PaginationComponent />
         </div>
       </div>
 

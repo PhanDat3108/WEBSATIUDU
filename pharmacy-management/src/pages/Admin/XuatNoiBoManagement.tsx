@@ -1,6 +1,6 @@
 // src/pages/Admin/XuatNoiBoManagement.tsx
 import React, { useState, useEffect } from "react";
-import { phieuXuatApi } from "../../api/phieuXuatApi"; 
+import { phieuXuatApi } from "../../api/phieuXuatApi";
 import { XuatNoiBoHistory } from "../../interfaces";
 import styles from "../../styles/AdminManagement.module.css";
 
@@ -41,7 +41,7 @@ export const XuatNoiBoManagement = () => {
   // [MỚI] Sử dụng Hook phân trang
   // - history: dữ liệu gốc
   // - 7: số dòng mỗi trang
-  const { currentData, PaginationComponent } = usePagination(history, 7);
+  const { currentData, PaginationComponent } = usePagination(history);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -49,9 +49,7 @@ export const XuatNoiBoManagement = () => {
     try {
       const data = await phieuXuatApi.getAllDetails();
       // Sắp xếp mới nhất lên đầu (tùy chọn)
-      const sortedData = data.sort((a: any, b: any) => 
-        new Date(b.NgayXuat).getTime() - new Date(a.NgayXuat).getTime()
-      );
+      const sortedData = data.sort((a: any, b: any) => new Date(b.NgayXuat).getTime() - new Date(a.NgayXuat).getTime());
       setHistory(sortedData);
     } catch (err) {
       setError((err as Error).message);
@@ -70,15 +68,12 @@ export const XuatNoiBoManagement = () => {
 
   const handleSaveSuccess = () => {
     setIsModalOpen(false);
-    fetchData(); 
+    fetchData();
   };
 
   return (
     // [STYLE MỚI] Thêm flex column và minHeight để hỗ trợ sticky footer
-    <div 
-      className={styles.adminManagementPage} 
-      style={{ display: "flex", flexDirection: "column", minHeight: "85vh" }}
-    >
+    <div className={styles.adminManagementPage} style={{ display: "flex", flexDirection: "column", minHeight: "85vh" }}>
       <header className={styles.header}>
         <h1 className={styles.title}>Quản lý xuất kho (Toàn bộ)</h1>
         <button onClick={handleAddClick} className={styles.addButton}>
@@ -90,26 +85,38 @@ export const XuatNoiBoManagement = () => {
       {error && <div className={styles.error}>Lỗi: {error}</div>}
 
       {!isLoading && !error && (
-        <>
-          {/* [STYLE MỚI] flex: 1 để bảng chiếm khoảng trống còn lại */}
-          <div className={styles.tableContainer} style={{ flex: 1 }}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th className={styles.tableHeader} style={{ width: "100px" }}>Mã</th>
-                  <th className={styles.tableHeader} style={{ width: "100px" }}>Ngày xuất</th>
-                  <th className={styles.tableHeader} style={{ width: "80px" }}>Loại xuất</th>
-                  <th className={styles.tableHeader}>Tên thuốc</th>
-                  <th className={styles.tableHeader} style={{ width: "150px" }}>Nhân viên</th>
-                  <th className={styles.tableHeader} style={{ width: "80px" }}>Số lượng</th>
-                  <th className={styles.tableHeader} style={{ width: "100px" }}>Đơn giá</th>
-                  <th className={styles.tableHeader} style={{ width: "80px" }}>Thành tiền</th>
-                </tr>
-              </thead>
-              <tbody>
-                {/* [MỚI] Map qua currentData thay vì history */}
-                {currentData.length > 0 ? (
-                  currentData.map((item, index) => (
+        <div className={styles.tableContainer}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th className={styles.tableHeader} style={{ width: "100px" }}>
+                  Mã
+                </th>
+                <th className={styles.tableHeader} style={{ width: "100px" }}>
+                  Ngày xuất
+                </th>
+                <th className={styles.tableHeader} style={{ width: "80px" }}>
+                  Loại xuất
+                </th>
+                <th className={styles.tableHeader}>Tên thuốc</th>
+                <th className={styles.tableHeader} style={{ width: "150px" }}>
+                  Nhân viên
+                </th>
+                <th className={styles.tableHeader} style={{ width: "80px" }}>
+                  Số lượng
+                </th>
+                <th className={styles.tableHeader} style={{ width: "100px" }}>
+                  Đơn giá
+                </th>
+                <th className={styles.tableHeader} style={{ width: "80px" }}>
+                  Thành tiền
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentData.length > 0 ? (
+                currentData.map((item, index) => (
+                  <>
                     <tr key={`${item.MaPhieuXuat}-${index}`}>
                       <td style={{ textAlign: "center" }}>{item.MaPhieuXuat}</td>
                       <td>{formatDate(item.NgayXuat)}</td>
@@ -136,21 +143,40 @@ export const XuatNoiBoManagement = () => {
                       <td className={styles.numberCell}>{formatCurrency(item.DonGiaXuat)}</td>
                       <td className={styles.numberCell}>{formatCurrency(item.SoLuongXuat * item.DonGiaXuat)}</td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={8} style={{ textAlign: "center" }}>
-                      Chưa có dữ liệu xuất kho.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  </>
+                ))
+              ) : (
+                <tr>
+                  <th className={styles.tableHeader} style={{ width: "100px" }}>
+                    Mã
+                  </th>
+                  <th className={styles.tableHeader} style={{ width: "100px" }}>
+                    Ngày xuất
+                  </th>
+                  <th className={styles.tableHeader} style={{ width: "80px" }}>
+                    Loại xuất
+                  </th>
+                  <th className={styles.tableHeader}>Tên thuốc</th>
+                  <th className={styles.tableHeader} style={{ width: "150px" }}>
+                    Nhân viên
+                  </th>
+                  <th className={styles.tableHeader} style={{ width: "80px" }}>
+                    Số lượng
+                  </th>
+                  <th className={styles.tableHeader} style={{ width: "100px" }}>
+                    Đơn giá
+                  </th>
+                  <th className={styles.tableHeader} style={{ width: "80px" }}>
+                    Thành tiền
+                  </th>
+                </tr>
+              )}
+            </tbody>
+          </table>
+          <div style={{ marginTop: "20px", display: "flex", justifyContent: "end" }}>
+            <PaginationComponent />
           </div>
-
-          {/* [MỚI] Component Phân trang tự động hiển thị ở cuối */}
-          <PaginationComponent />
-        </>
+        </div>
       )}
 
       <ModalWithAnimation

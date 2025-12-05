@@ -19,12 +19,12 @@ const NhaCungCapManagement: React.FC = () => {
   // [Note] Cài đặt phân trang ở đây.
   // suppliers: là cục dữ liệu gốc lấy từ API về.
   // Số 5: là số dòng muốn hiện trên 1 trang.
-  const { currentData, PaginationComponent } = usePagination(suppliers, 7);
+  const { currentData, PaginationComponent } = usePagination(suppliers);
 
   const loadSuppliers = async () => {
     try {
       setIsLoading(true);
-      setError(null); 
+      setError(null);
       const data = await getNhaCungCap();
       setSuppliers(data);
     } catch (err) {
@@ -148,8 +148,8 @@ const NhaCungCapManagement: React.FC = () => {
         </table>
 
         {/* [Note] Chèn thanh điều hướng trang vào cuối trang */}
-        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
-           <PaginationComponent />
+        <div style={{ marginTop: "20px", display: "flex", justifyContent: "end" }}>
+          <PaginationComponent />
         </div>
       </div>
 

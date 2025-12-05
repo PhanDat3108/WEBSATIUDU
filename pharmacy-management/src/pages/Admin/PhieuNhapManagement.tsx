@@ -39,16 +39,14 @@ export const PhieuNhapManagement = () => {
 
   // [THAY THẾ] Bỏ hết state currentPage, itemsPerPage cũ.
   // Dùng 1 dòng này để lấy dữ liệu đã cắt (currentData) và thanh phân trang (PaginationComponent)
-  const { currentData, PaginationComponent } = usePagination(history, 7);
+  const { currentData, PaginationComponent } = usePagination(history);
 
   const fetchData = async () => {
     setIsLoading(true);
     setError(null);
     try {
       const data = await getChiTietNhapList();
-      const sortedData = data.sort((a: any, b: any) => 
-        new Date(b.NgayNhap).getTime() - new Date(a.NgayNhap).getTime()
-      );
+      const sortedData = data.sort((a: any, b: any) => new Date(b.NgayNhap).getTime() - new Date(a.NgayNhap).getTime());
       setHistory(sortedData);
     } catch (err) {
       setError((err as Error).message);
@@ -73,19 +71,55 @@ export const PhieuNhapManagement = () => {
   const renderStatus = (soLuong: number) => {
     if (soLuong === 0) {
       return (
-        <span style={{ backgroundColor: "#ffebee", color: "#c62828", padding: "4px 10px", borderRadius: "12px", fontSize: "12px", fontWeight: "600", display: "inline-block", whiteSpace: "nowrap", border: "1px solid #ffcdd2" }}>
+        <span
+          style={{
+            backgroundColor: "#ffebee",
+            color: "#c62828",
+            padding: "4px 10px",
+            borderRadius: "12px",
+            fontSize: "12px",
+            fontWeight: "600",
+            display: "inline-block",
+            whiteSpace: "nowrap",
+            border: "1px solid #ffcdd2",
+          }}
+        >
           Hết hàng
         </span>
       );
     } else if (soLuong <= 10) {
       return (
-        <span style={{ backgroundColor: "#fff8e1", color: "#f57f17", padding: "4px 10px", borderRadius: "12px", fontSize: "12px", fontWeight: "600", display: "inline-block", whiteSpace: "nowrap", border: "1px solid #ffecb3" }}>
+        <span
+          style={{
+            backgroundColor: "#fff8e1",
+            color: "#f57f17",
+            padding: "4px 10px",
+            borderRadius: "12px",
+            fontSize: "12px",
+            fontWeight: "600",
+            display: "inline-block",
+            whiteSpace: "nowrap",
+            border: "1px solid #ffecb3",
+          }}
+        >
           Sắp hết
         </span>
       );
     } else {
       return (
-        <span style={{ backgroundColor: "#e8f5e9", color: "#2e7d32", padding: "4px 10px", borderRadius: "12px", fontSize: "12px", fontWeight: "600", display: "inline-block", whiteSpace: "nowrap", border: "1px solid #c8e6c9" }}>
+        <span
+          style={{
+            backgroundColor: "#e8f5e9",
+            color: "#2e7d32",
+            padding: "4px 10px",
+            borderRadius: "12px",
+            fontSize: "12px",
+            fontWeight: "600",
+            display: "inline-block",
+            whiteSpace: "nowrap",
+            border: "1px solid #c8e6c9",
+          }}
+        >
           Còn hàng
         </span>
       );
@@ -93,10 +127,7 @@ export const PhieuNhapManagement = () => {
   };
 
   return (
-    <div 
-      className={styles.adminManagementPage} 
-      style={{ display: "flex", flexDirection: "column", minHeight: "85vh" }}
-    >
+    <div className={styles.adminManagementPage} style={{ display: "flex", flexDirection: "column", minHeight: "85vh" }}>
       <header className={styles.header}>
         <h1 className={styles.title}>Lịch sử nhập thuốc & quản lý lô</h1>
         <button onClick={handleAddClick} className={styles.addButton}>
@@ -113,15 +144,29 @@ export const PhieuNhapManagement = () => {
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th className={styles.tableHeader} style={{ width: "80px" }}>Mã</th>
-                  <th className={styles.tableHeader} style={{ width: "100px" }}>Ngày nhập</th>
+                  <th className={styles.tableHeader} style={{ width: "80px" }}>
+                    Mã
+                  </th>
+                  <th className={styles.tableHeader} style={{ width: "100px" }}>
+                    Ngày nhập
+                  </th>
                   <th className={styles.tableHeader}>Tên thuốc</th>
                   <th className={styles.tableHeader}>Nhà cung cấp</th>
-                  <th className={styles.tableHeader} style={{ width: "80px", textAlign: "center" }}>SL Nhập</th>
-                  <th className={styles.tableHeader} style={{ width: "80px", textAlign: "center" }}>Tồn kho</th>
-                  <th className={styles.tableHeader} style={{ width: "120px", textAlign: "center" }}>Trạng thái</th>
-                  <th className={styles.tableHeader} style={{ width: "100px" }}>Đơn giá</th>
-                  <th className={styles.tableHeader} style={{ width: "100px" }}>Hạn sử dụng</th>
+                  <th className={styles.tableHeader} style={{ width: "80px", textAlign: "center" }}>
+                    SL Nhập
+                  </th>
+                  <th className={styles.tableHeader} style={{ width: "80px", textAlign: "center" }}>
+                    Tồn kho
+                  </th>
+                  <th className={styles.tableHeader} style={{ width: "120px", textAlign: "center" }}>
+                    Trạng thái
+                  </th>
+                  <th className={styles.tableHeader} style={{ width: "100px" }}>
+                    Đơn giá
+                  </th>
+                  <th className={styles.tableHeader} style={{ width: "100px" }}>
+                    Hạn sử dụng
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -138,7 +183,9 @@ export const PhieuNhapManagement = () => {
                         <td>{formatDate(item.NgayNhap)}</td>
                         <td style={{ fontWeight: "500" }}>{item.TenThuoc}</td>
                         <td>{item.TenNhaCungCap}</td>
-                        <td className={styles.numberCell} style={{ textAlign: "center" }}>{item.SoLuongNhap}</td>
+                        <td className={styles.numberCell} style={{ textAlign: "center" }}>
+                          {item.SoLuongNhap}
+                        </td>
                         <td className={styles.numberCell} style={{ textAlign: "center", fontWeight: "bold" }}>
                           {item.SoLuongConLai}
                         </td>
@@ -164,10 +211,10 @@ export const PhieuNhapManagement = () => {
                 )}
               </tbody>
             </table>
+            <div style={{ marginTop: "20px", display: "flex", justifyContent: "end" }}>
+              <PaginationComponent />
+            </div>
           </div>
-
-          {/* [THAY THẾ] Chỉ cần thả component này vào là xong */}
-          <PaginationComponent />
         </>
       )}
 

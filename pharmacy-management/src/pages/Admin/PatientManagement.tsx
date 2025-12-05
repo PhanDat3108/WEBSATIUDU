@@ -20,7 +20,7 @@ const PatientManagement: React.FC = () => {
   // - currentData: là danh sách bệnh nhân của trang hiện tại (đã bị cắt ngắn).
   // - PaginationComponent: là cái thanh nút bấm 1, 2, 3...
   // Tôi để 5 người/trang cho dễ nhìn, muốn nhiều hơn thì sửa số 5.
-  const { currentData, PaginationComponent } = usePagination(patients, 7);
+  const { currentData, PaginationComponent } = usePagination(patients);
 
   const loadPatients = async () => {
     try {
@@ -53,8 +53,6 @@ const PatientManagement: React.FC = () => {
     handleCloseModal();
     loadPatients();
   };
-
- 
 
   const renderContent = () => {
     if (isLoading) {
@@ -91,9 +89,7 @@ const PatientManagement: React.FC = () => {
       <tr key={item.MaBenhNhan}>
         <td style={{ textAlign: "center" }}>{item.MaBenhNhan}</td>
         <td>{item.TenBenhNhan}</td>
-        <td style={{ textAlign: "center" }}>
-          {new Date(item.NgaySinh).toLocaleDateString("vi-VN")}
-        </td>
+        <td style={{ textAlign: "center" }}>{new Date(item.NgaySinh).toLocaleDateString("vi-VN")}</td>
         <td style={{ textAlign: "center" }}>{item.GioiTinh}</td>
         <td style={{ textAlign: "center" }}>{item.SoDienThoai}</td>
         <td>{item.DiaChi}</td>
@@ -101,7 +97,6 @@ const PatientManagement: React.FC = () => {
           <button onClick={() => handleOpenModal(item)} className={styles.editButton}>
             Sửa
           </button>
-          
         </td>
       </tr>
     ));
@@ -114,25 +109,35 @@ const PatientManagement: React.FC = () => {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th className={styles.tableHeader} style={{ width: 60 }}>Mã</th>
+              <th className={styles.tableHeader} style={{ width: 60 }}>
+                Mã
+              </th>
               <th className={styles.tableHeader} style={{ width: 150 }}>
                 Họ tên
               </th>
-              <th className={styles.tableHeader} style={{ width: 100 }}>Ngày sinh</th>
-              <th className={styles.tableHeader} style={{ width: 80 }}>Giới tính</th>
-              <th className={styles.tableHeader} style={{ width: 100 }}>Điện thoại</th>
+              <th className={styles.tableHeader} style={{ width: 100 }}>
+                Ngày sinh
+              </th>
+              <th className={styles.tableHeader} style={{ width: 80 }}>
+                Giới tính
+              </th>
+              <th className={styles.tableHeader} style={{ width: 100 }}>
+                Điện thoại
+              </th>
               <th className={styles.tableHeader} style={{ width: 300 }}>
                 Địa chỉ
               </th>
-              <th className={styles.tableHeader} style={{ width: 100 }}>Hành động</th>
+              <th className={styles.tableHeader} style={{ width: 100 }}>
+                Hành động
+              </th>
             </tr>
           </thead>
           <tbody>{renderContent()}</tbody>
         </table>
 
         {/* [Note] Đặt thanh chuyển trang ở dưới bảng, căn giữa cho đẹp */}
-        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
-           <PaginationComponent />
+        <div style={{ marginTop: "20px", display: "flex", justifyContent: "end" }}>
+          <PaginationComponent />
         </div>
       </div>
 
