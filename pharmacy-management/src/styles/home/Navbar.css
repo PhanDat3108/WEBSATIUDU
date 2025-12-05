@@ -216,3 +216,28 @@ a {
 .dropdown-content a:hover {
   background-color: #f0f9ff;
 }
+/* Container giới hạn vùng hiển thị */
+.notice-navbar {
+  flex: 1; /* Tự động chiếm khoảng trống còn lại */
+  overflow: hidden; /* Ẩn phần chữ chạy ra ngoài khung */
+  white-space: nowrap; /* Giữ chữ trên 1 dòng */
+  max-width: 1000px; /* (Tùy chọn) Giới hạn chiều rộng tối đa */
+  margin: 0 20px; /* Tạo khoảng cách với 2 bên */
+  color: rgb(254, 254, 254); /* Màu chữ thông báo (tùy chọn) */
+}
+
+/* Phần tử chữ sẽ di chuyển */
+.scrolling-text {
+  display: inline-block;
+  padding-left: 100%; /* Bắt đầu từ mép phải container */
+  animation: scrollLeft 120s linear infinite; /* 15s là tốc độ, infinite là lặp mãi mãi */
+}
+
+@keyframes scrollLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}

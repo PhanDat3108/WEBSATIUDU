@@ -249,4 +249,65 @@ router.get('/danhmuc/:maLoai', (req, res) => {
         return res.status(200).json(data);
     });
 });
+
+router.get("/search", (req, res) => {
+  const { keyword } = req.query; 
+
+  if (!keyword) {
+    return res.status(400).json({ message: "Vui lòng nhập tên thuốc để tìm kiếm!" });
+  }
+
+  const sql = `
+    SELECT 
+      t.MaThuoc, t.TenThuoc, t.DonViTinh, t.SoLuongTon, 
+      t.GiaNhap, t.GiaBan, 
+      n.TenNhaCungCap AS TenNhaCungCap,
+      l.TenLoai AS TenLoai
+    FROM Thuoc t
+    JOIN NhaCungCap n ON t.MaNhaCungCap = n.MaNhaCungCap
+    JOIN LoaiThuoc l ON t.MaLoai = l.MaLoai
+    WHERE t.TenThuoc LIKE ?
+    ORDER BY t.MaThuoc ASC
+  `;
+
+  const searchTerm = `%${keyword}%`;
+
+  db.query(sql, [searchTerm], (err, rows) => {
+    if (err) {
+      console.error("Lỗi tìm kiếm thuốc:", err);
+      return res.status(500).json({ message: "Lỗi server khi tìm kiếm!" });
+    }
+    res.json(rows);
+  });
+});
+// backend/routes/thuoc.js
+
+// 1. API Lấy sản phẩm HOT (Logic: Tạm lấy 8 thuốc có số lượng tồn ít nhất - bán chạy)
+router.get("/hot", (req, res) => {
+    const sql = "SELECT * FROM Thuoc WHERE SoLuongTon > 0 ORDER BY SoLuongTon ASC LIMIT 12";
+    db.query(sql, (err, result) => {
+        if (err) return res.status(500).json({ message: "Lỗi server" });
+        res.json(result);
+    });
+});
+
+// 2. Lấy sản phẩm MỚI (Sắp xếp theo Mã giảm dần hoặc Ngày nhập)
+router.get("/new", (req, res) => {
+    // Giả sử mã thuốc tự tăng hoặc có ngày nhập, ở đây dùng MaThuoc giảm dần
+    const sql = "SELECT * FROM Thuoc ORDER BY MaThuoc DESC LIMIT 12";
+    db.query(sql, (err, result) => {
+        if (err) return res.status(500).json({ message: "Lỗi server" });
+        res.json(result);
+    });
+});
+
+// 3. Lấy sản phẩm TẶNG KÈM (Giá bán = 0)
+router.get("/free", (req, res) => {
+    const sql = "SELECT * FROM Thuoc WHERE GiaBan = 0";
+    db.query(sql, (err, result) => {
+        if (err) return res.status(500).json({ message: "Lỗi server" });
+        res.json(result);
+    });
+});
+// ... (Giữ nguyên các API cũ bên dưới)
 export default router;

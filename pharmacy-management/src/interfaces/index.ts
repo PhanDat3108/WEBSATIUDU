@@ -93,11 +93,7 @@ export interface PhieuNhapCreatePayload {
   MaNhanVien: string;
   chiTiet: ChiTietNhapCreate[];
 }
-/**
- * 1.6. Phiếu xuất (PhieuXuat)
- * [BỔ SUNG] Thêm LoaiXuat.
- * Lưu ý: Không còn MaBenhNhan (đã chuyển sang DonThuoc).
- */
+
 export interface PhieuXuat {
   MaPhieuXuat: string;
   NgayXuat: string; // Nên dùng string (ISO 8601) hoặc Date

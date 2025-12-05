@@ -40,6 +40,7 @@ const AppRouter: React.FC = () => {
         <Route element={<ProtectedRoute allowedRoles={['nhanvien']} />}>
            
             <Route path="/home" element={<HomePage />} />
+            
         </Route>
 
 

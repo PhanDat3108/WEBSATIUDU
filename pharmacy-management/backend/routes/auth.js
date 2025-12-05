@@ -1,14 +1,12 @@
 import express from "express";
-import db from "../config/db.js"; // Lưu ý: ES Modules bắt buộc phải có đuôi .js
+import db from "../config/db.js"; 
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
-// Định nghĩa mã bí mật (Nên đưa vào biến môi trường .env)
 const JWT_SECRET = process.env.JWT_SECRET || "baomat_khong_the_bat_mi_123";
 
-// --- API ĐĂNG KÝ ---
 router.post("/register", (req, res) => {
   const { TenNhanVien, TaiKhoan, MatKhau, VaiTro } = req.body;
 
@@ -19,7 +17,6 @@ router.post("/register", (req, res) => {
   const salt = bcrypt.genSaltSync(10);
   const hashedPassword = bcrypt.hashSync(MatKhau, salt);
 
-  // Logic tạo mã NV tự động: Lấy số lớn nhất + 1
   const sqlGetMaxId = "SELECT MAX(CAST(SUBSTRING(MaNhanVien, 3) AS UNSIGNED)) AS maxId FROM NhanVien WHERE MaNhanVien LIKE 'NV%'";
 
   db.query(sqlGetMaxId, (err, result) => {
@@ -50,7 +47,6 @@ router.post("/register", (req, res) => {
   });
 });
 
-// --- API ĐĂNG NHẬP ---
 router.post("/login", (req, res) => {
   const { TaiKhoan, MatKhau } = req.body; 
 
@@ -73,7 +69,6 @@ router.post("/login", (req, res) => {
       return res.status(400).json({ message: "Sai mật khẩu" });
     }
 
-    // Tạo JWT Token
     const token = jwt.sign(
       { 
         MaNhanVien: user.MaNhanVien, 
@@ -96,7 +91,6 @@ router.post("/login", (req, res) => {
   });
 });
 
-// --- MIDDLEWARE XÁC THỰC ---
 export const verifyToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -114,7 +108,6 @@ export const verifyToken = (req, res, next) => {
   }
 };
 
-// --- API LẤY THÔNG TIN USER (/me) ---
 router.get("/me", verifyToken, (req, res) => {
   res.json({
     user: {
@@ -125,7 +118,6 @@ router.get("/me", verifyToken, (req, res) => {
   });
 });
 
-// --- API ĐĂNG XUẤT ---
 router.post("/logout", (req, res) => {
   console.log("Người dùng đã đăng xuất");
   return res.status(200).json({ 
@@ -134,5 +126,4 @@ router.post("/logout", (req, res) => {
   });
 });
 
-// [QUAN TRỌNG NHẤT] Dùng export default thay vì module.exports
 export default router;

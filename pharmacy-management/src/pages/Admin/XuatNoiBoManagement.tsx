@@ -1,6 +1,6 @@
 // src/pages/Admin/XuatNoiBoManagement.tsx
 import React, { useState, useEffect } from "react";
-import { phieuXuatApi } from "../../api/phieuXuatApi"; // Lấy danh sách từ đây
+import { phieuXuatApi } from "../../api/phieuXuatApi"; 
 import { XuatNoiBoHistory } from "../../interfaces";
 import styles from "../../styles/AdminManagement.module.css";
 
@@ -9,6 +9,9 @@ import ModalWithAnimation from "../../components/common/ModalWithAnimation";
 import { XuatNoiBoForm } from "../../components/AdminForms/XuatNoiBoForm";
 import modalStyles from "../../styles/Modal.module.css";
 
+// [MỚI] Import Hook phân trang (đường dẫn theo file mẫu bạn cung cấp)
+import { usePagination } from "../../components/common/usePagination";
+
 const formatDate = (isoString: string) => {
   if (!isoString) return "N/A";
   try {
@@ -16,8 +19,6 @@ const formatDate = (isoString: string) => {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
-      // hour: "2-digit",
-      // minute: "2-digit",
     });
   } catch (error) {
     return "Ngày lỗi";
@@ -37,13 +38,21 @@ export const XuatNoiBoManagement = () => {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Hàm lấy dữ liệu: Gọi phieuXuatApi.getAllDetails()
+  // [MỚI] Sử dụng Hook phân trang
+  // - history: dữ liệu gốc
+  // - 7: số dòng mỗi trang
+  const { currentData, PaginationComponent } = usePagination(history, 7);
+
   const fetchData = async () => {
     setIsLoading(true);
     setError(null);
     try {
       const data = await phieuXuatApi.getAllDetails();
-      setHistory(data);
+      // Sắp xếp mới nhất lên đầu (tùy chọn)
+      const sortedData = data.sort((a: any, b: any) => 
+        new Date(b.NgayXuat).getTime() - new Date(a.NgayXuat).getTime()
+      );
+      setHistory(sortedData);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -61,11 +70,15 @@ export const XuatNoiBoManagement = () => {
 
   const handleSaveSuccess = () => {
     setIsModalOpen(false);
-    fetchData(); // Tải lại bảng sau khi thêm thành công
+    fetchData(); 
   };
 
   return (
-    <div className={styles.adminManagementPage}>
+    // [STYLE MỚI] Thêm flex column và minHeight để hỗ trợ sticky footer
+    <div 
+      className={styles.adminManagementPage} 
+      style={{ display: "flex", flexDirection: "column", minHeight: "85vh" }}
+    >
       <header className={styles.header}>
         <h1 className={styles.title}>Quản lý xuất kho (Toàn bộ)</h1>
         <button onClick={handleAddClick} className={styles.addButton}>
@@ -77,84 +90,75 @@ export const XuatNoiBoManagement = () => {
       {error && <div className={styles.error}>Lỗi: {error}</div>}
 
       {!isLoading && !error && (
-        <div className={styles.tableContainer}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th className={styles.tableHeader} style={{ width: "100px" }}>
-                  Mã
-                </th>
-                <th className={styles.tableHeader} style={{ width: "100px" }}>
-                  Ngày xuất
-                </th>
-                <th className={styles.tableHeader} style={{ width: "80px" }}>
-                  Loại xuất
-                </th>
-                <th className={styles.tableHeader}>Tên thuốc</th>
-                <th className={styles.tableHeader} style={{ width: "150px" }}>
-                  Nhân viên
-                </th>
-                <th className={styles.tableHeader} style={{ width: "80px" }}>
-                  Số lượng
-                </th>
-                <th className={styles.tableHeader} style={{ width: "100px" }}>
-                  Đơn giá
-                </th>
-                <th className={styles.tableHeader} style={{ width: "80px" }}>
-                  Thành tiền
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {history.length > 0 ? (
-                history.map((item, index) => (
-                  <tr key={`${item.MaPhieuXuat}-${index}`}>
-                    <td style={{ textAlign: "center" }}>{item.MaPhieuXuat}</td>
-                    <td>{formatDate(item.NgayXuat)}</td>
-                    <td style={{ textAlign: "center" }}>
-                      <span
-                        style={{
-                          padding: "4px 8px",
-                          borderRadius: "4px",
-                          fontWeight: "bold",
-                          fontSize: "0.85rem",
-                          backgroundColor:
-                            item.LoaiXuat === "Bán" ? "#e6f7ff" : item.LoaiXuat === "Bỏ" ? "#fff1f0" : "#f6ffed",
-                          color: item.LoaiXuat === "Bán" ? "#1890ff" : item.LoaiXuat === "Bỏ" ? "#cf1322" : "#389e0d",
-                        }}
-                      >
-                        {item.LoaiXuat}
-                      </span>
-                    </td>
-                    <td>{item.TenThuoc}</td>
-                    <td>{item.TenNhanVien}</td>
-                    <td className={styles.numberCell} style={{ textAlign: "center" }}>
-                      {item.SoLuongXuat}
-                    </td>
-                    <td className={styles.numberCell}>{formatCurrency(item.DonGiaXuat)}</td>
-                    <td className={styles.numberCell}>{formatCurrency(item.SoLuongXuat * item.DonGiaXuat)}</td>
-                  </tr>
-                ))
-              ) : (
+        <>
+          {/* [STYLE MỚI] flex: 1 để bảng chiếm khoảng trống còn lại */}
+          <div className={styles.tableContainer} style={{ flex: 1 }}>
+            <table className={styles.table}>
+              <thead>
                 <tr>
-                  <td colSpan={8} style={{ textAlign: "center" }}>
-                    Chưa có dữ liệu xuất kho.
-                  </td>
+                  <th className={styles.tableHeader} style={{ width: "100px" }}>Mã</th>
+                  <th className={styles.tableHeader} style={{ width: "100px" }}>Ngày xuất</th>
+                  <th className={styles.tableHeader} style={{ width: "80px" }}>Loại xuất</th>
+                  <th className={styles.tableHeader}>Tên thuốc</th>
+                  <th className={styles.tableHeader} style={{ width: "150px" }}>Nhân viên</th>
+                  <th className={styles.tableHeader} style={{ width: "80px" }}>Số lượng</th>
+                  <th className={styles.tableHeader} style={{ width: "100px" }}>Đơn giá</th>
+                  <th className={styles.tableHeader} style={{ width: "80px" }}>Thành tiền</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {/* [MỚI] Map qua currentData thay vì history */}
+                {currentData.length > 0 ? (
+                  currentData.map((item, index) => (
+                    <tr key={`${item.MaPhieuXuat}-${index}`}>
+                      <td style={{ textAlign: "center" }}>{item.MaPhieuXuat}</td>
+                      <td>{formatDate(item.NgayXuat)}</td>
+                      <td style={{ textAlign: "center" }}>
+                        <span
+                          style={{
+                            padding: "4px 8px",
+                            borderRadius: "4px",
+                            fontWeight: "bold",
+                            fontSize: "0.85rem",
+                            backgroundColor:
+                              item.LoaiXuat === "Bán" ? "#e6f7ff" : item.LoaiXuat === "Bỏ" ? "#fff1f0" : "#f6ffed",
+                            color: item.LoaiXuat === "Bán" ? "#1890ff" : item.LoaiXuat === "Bỏ" ? "#cf1322" : "#389e0d",
+                          }}
+                        >
+                          {item.LoaiXuat}
+                        </span>
+                      </td>
+                      <td>{item.TenThuoc}</td>
+                      <td>{item.TenNhanVien}</td>
+                      <td className={styles.numberCell} style={{ textAlign: "center" }}>
+                        {item.SoLuongXuat}
+                      </td>
+                      <td className={styles.numberCell}>{formatCurrency(item.DonGiaXuat)}</td>
+                      <td className={styles.numberCell}>{formatCurrency(item.SoLuongXuat * item.DonGiaXuat)}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={8} style={{ textAlign: "center" }}>
+                      Chưa có dữ liệu xuất kho.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* [MỚI] Component Phân trang tự động hiển thị ở cuối */}
+          <PaginationComponent />
+        </>
       )}
 
-      {/* Render Modal Form */}
       <ModalWithAnimation
         title="Tạo Phiếu Xuất Kho Nội Bộ"
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         customClass={modalStyles.modalLarge}
       >
-        {/* Form này (bạn đã có code) sẽ gọi API addXuatNoiBo */}
         <XuatNoiBoForm onClose={() => setIsModalOpen(false)} onSave={handleSaveSuccess} />
       </ModalWithAnimation>
     </div>
