@@ -13,7 +13,7 @@ import TheSanPham from './TheSanPham';
 import styles from '../../styles/home/DanhSachSanPham.module.css'; 
 
 interface Props {
-  maLoai?: string;       // Có thể là 'HOT', 'NEW', 'FREE' hoặc mã loại thuốc 'LT01'...
+  maLoai?: string;      
   tenLoai?: string;
   searchKeyword?: string;
 }

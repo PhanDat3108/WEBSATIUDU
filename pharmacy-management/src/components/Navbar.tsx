@@ -156,7 +156,8 @@ const Navbar: React.FC<NavbarProps> = ({ onSelectCategory, onSearchKeyword }) =>
       {/* --- Dòng chính: Logo, Danh mục, Search, Cart --- */}
       <div className="navbar-top">
         <div className="navbar-logo">
-          <a href="/home">
+          <a href="#" onClick={(e) => { e.preventDefault(); handleCategoryClick("", ""); }} style={{ fontWeight: 'bold', color: '#ffffffff' }}>
+              
             <img src={logo} alt="Logo" />
           </a>
         </div>
@@ -213,9 +214,9 @@ const Navbar: React.FC<NavbarProps> = ({ onSelectCategory, onSearchKeyword }) =>
       {/* --- Menu điều hướng --- */}
       <nav className="navbar-menu">
         {/* 1. Trang chủ: Load lại toàn bộ */}
-       <a href="/home"  style={{  fontWeight: 'bold' }}>
-            Trang chủ
-        </a>
+       <a href="#" onClick={(e) => { e.preventDefault(); handleCategoryClick("", ""); }} style={{ fontWeight: 'bold', color: '#ffffffff' }}>
+              Trang chủ
+            </a>
 
         {/* 2. Sản phẩm HOT */}
         <a href="#" onClick={(e) => { e.preventDefault(); handleSpecialFilter("HOT", "🔥 Sản phẩm Bán Chạy"); }} style={{ fontWeight: 'bold' }}>

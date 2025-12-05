@@ -104,7 +104,6 @@ router.post("/add", async (req, res) => {
       [chiTietValues]
     );
 
-    // 4. Cập nhật tổng tồn kho bảng Thuoc
     for (const item of chiTiet) {
        await conn.query(
         "UPDATE Thuoc SET SoLuongTon = SoLuongTon - ? WHERE MaThuoc = ?",
