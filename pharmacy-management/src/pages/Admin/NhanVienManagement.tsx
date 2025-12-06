@@ -86,9 +86,7 @@ const NhanVienManagement: React.FC = () => {
           <button onClick={() => handleOpenModal(nv)} className={styles.editButton}>
             Sửa
           </button>
-          <button onClick={() => handleDelete(nv.MaNhanVien)} className={styles.deleteButton}>
-            Xóa
-          </button>
+         
         </td>
       </tr>
     ));

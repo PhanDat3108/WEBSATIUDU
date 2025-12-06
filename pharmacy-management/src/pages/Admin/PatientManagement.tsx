@@ -16,10 +16,7 @@ const PatientManagement: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<BenhNhan | null>(null);
 
-  // [Note] Khúc này gọi hook phân trang ra dùng nè.
-  // - currentData: là danh sách bệnh nhân của trang hiện tại (đã bị cắt ngắn).
-  // - PaginationComponent: là cái thanh nút bấm 1, 2, 3...
-  // Tôi để 5 người/trang cho dễ nhìn, muốn nhiều hơn thì sửa số 5.
+  
   const { currentData, PaginationComponent } = usePagination(patients);
 
   const loadPatients = async () => {
