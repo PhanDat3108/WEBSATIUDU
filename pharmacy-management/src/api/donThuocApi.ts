@@ -14,7 +14,7 @@ export interface CreateDonThuocPayload {
 // Định nghĩa dữ liệu nhận về (Output từ backend donthuoc.js)
 export interface CreateDonThuocResponse {
   message: string;
-  MaDonThuoc: string;  // <-- ĐÂY LÀ MÃ BẠN CẦN
+  MaDonThuoc: string;  
   MaPhieuXuat: string; // <-- Backend cũng tự tạo cái này
   TongTien: number;
 }
@@ -34,7 +34,7 @@ export const createDonThuoc = async (data: CreateDonThuocPayload): Promise<Creat
   const text = await response.text();
   
   if (!response.ok) {
-    // Phân tích lỗi để hiển thị (ví dụ: lỗi thiếu kho ở bước 6.1)
+
     try {
       const err = JSON.parse(text);
       throw new Error(err.message || 'Lỗi tạo đơn thuốc');

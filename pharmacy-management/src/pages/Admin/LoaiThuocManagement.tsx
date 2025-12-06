@@ -6,7 +6,7 @@ import Modal from "../../components/common/Modal";
 import styles from "../../styles/AdminManagement.module.css";
 import { LoaiThuocForm } from "../../components/AdminForms/LoaiThuocForm";
 
-// [Human Comment] Kéo tool phân trang vào đây dùng luôn
+//  Kéo tool phân trang vào đây dùng luôn
 import { usePagination } from "../../components/common/usePagination";
 
 const LoaiThuocManagement: React.FC = () => {
@@ -32,11 +32,11 @@ const LoaiThuocManagement: React.FC = () => {
       setIsLoading(false);
     }
   };
-
+// kích hoạt load data khi ms vô trang
   useEffect(() => {
     loadCategories();
   }, []);
-
+//Hàm logic nhận biết sửa hay xóa 
   const handleOpenModal = (category: LoaiThuoc | null) => {
     setSelectedCategory(category);
     setIsModalOpen(true);
@@ -139,7 +139,7 @@ const LoaiThuocManagement: React.FC = () => {
           <PaginationComponent />
         </div>
       </div>
-
+{/* prop cho form  */}
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}

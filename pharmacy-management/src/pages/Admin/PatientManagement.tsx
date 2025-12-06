@@ -6,7 +6,7 @@ import { PatientForm } from "../../components/AdminForms/PatientForm";
 import Modal from "../../components/common/Modal";
 import styles from "../../styles/AdminManagement.module.css";
 
-// [Note] Import cái hook phân trang mình tự viết vào
+
 import { usePagination } from "../../components/common/usePagination";
 
 const PatientManagement: React.FC = () => {
@@ -144,7 +144,7 @@ const PatientManagement: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        title={selectedPatient ? "Sửa thông tin bệnh nhân" : ""}
+        title="Sửa thông tin bệnh nhân"
         width="600px"
       >
         <PatientForm patient={selectedPatient} onSave={handleSave} onClose={handleCloseModal} />

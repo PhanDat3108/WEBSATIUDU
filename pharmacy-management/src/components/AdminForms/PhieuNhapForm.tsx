@@ -51,7 +51,7 @@ export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave })
         ]);
 
         setNhaCungCapList(nccData);
-        setAllMedicines(thuocData); // [SỬA 2] Lưu vào danh sách tổng
+        setAllMedicines(thuocData); // Lưu vào danh sách tổng
 
         // Tự động chọn NCC đầu tiên (nếu có)
         if (nccData.length > 0) {
@@ -231,7 +231,7 @@ export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave })
         <tbody>
           {chiTietRows.map((row, index) => (
             <tr key={index}>
-              {/* [SỬA 3] Ô chọn thuốc giờ sẽ dùng 'filteredMedicines' */}
+              
               <td>
                 <select
                   name="MaThuoc"

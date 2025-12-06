@@ -1,7 +1,7 @@
 // src/api/nhaCungCapApi.ts
 import { NhaCungCap } from '../interfaces';
 
-// [SỬA] Đổi sang URL cố định để đảm bảo hoạt động
+
 const API_BASE_URL = 'http://localhost:8080/api/v1/nhacungcap'; 
 
 /**
@@ -27,7 +27,7 @@ const handleResponse = async (response: Response) => {
 
 /**
  * [SỬA TÊN HÀM] Lấy danh sách nhà cung cấp (thay cho getNhaCungCapList)
- * File NhaCungCapManagement đang gọi getNhaCungCap, nên ta đặt tên hàm này là getNhaCungCap
+ 
  * Kết nối với: GET /api/v1/nhacungcap/list (Giả định như loaiThuoc)
  */
 export const getNhaCungCap = async (): Promise<NhaCungCap[]> => {
@@ -103,7 +103,7 @@ export const getNhaCungCapListForDropdown = async (): Promise<Pick<NhaCungCap, '
     // Gọi đến endpoint '/'
     const response = await fetch(`${API_BASE_URL}/`);
     
-    // Giữ nguyên logic handleResponse của bạn
+    // Giữ nguyên logic handleResponse 
     const data = await handleResponse(response); 
     return data as NhaCungCap[];
   } catch (error) {

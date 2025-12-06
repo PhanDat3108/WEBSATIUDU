@@ -5,8 +5,6 @@ import { getNhaCungCap, deleteNhaCungCap } from "../../api/nhaCungCapApi";
 import Modal from "../../components/common/Modal";
 import styles from "../../styles/AdminManagement.module.css";
 import { NhaCungCapForm } from "../../components/AdminForms/NhaCungCapForm";
-
-// [Note] Kéo cái tool phân trang vào dùng chung cho đồng bộ
 import { usePagination } from "../../components/common/usePagination";
 
 const NhaCungCapManagement: React.FC = () => {
@@ -93,8 +91,6 @@ const NhaCungCapManagement: React.FC = () => {
       );
     }
 
-    // [Note] Hiển thị dữ liệu:
-    // Dùng currentData (đã phân trang) để render bảng, không dùng list suppliers gốc nữa.
     return currentData.map((item) => (
       <tr key={item.MaNhaCungCap}>
         <td style={{ textAlign: "center" }}>{item.MaNhaCungCap}</td>
