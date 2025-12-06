@@ -2,7 +2,16 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styles from "../../styles/AdminLayout.module.css";
-import LogoSideBar from "../../styles/img/logo.png";
+import LogoSideBar from "../../assets/Logo.png";
+import {
+  AppstoreOutlined,
+  BarChartOutlined,
+  HomeOutlined,
+  MedicineBoxOutlined,
+  TeamOutlined,
+  UsergroupAddOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 
 const AdminSidebar: React.FC = () => {
   const location = useLocation();
@@ -12,10 +21,10 @@ const AdminSidebar: React.FC = () => {
 
   // [MỚI] Cấu trúc menu mới với menu con
   const menuItems = [
-    { key: "/admin/revenue", icon: "🏠", label: "Trang chủ" },
+    { key: "/admin/revenue", icon: <HomeOutlined />, label: "Trang chủ" },
     {
       key: "ql-thuoc", // Key cha
-      icon: "💊",
+      icon: <MedicineBoxOutlined />,
       label: "Quản lý thuốc",
       children: [
         { key: "/admin/medicines", label: "Quản lý số lượng" }, // (nguồn 214)
@@ -24,12 +33,12 @@ const AdminSidebar: React.FC = () => {
       ],
     },
     // [MỚI]
-    { key: "/admin/patients", icon: "👥", label: "Quản lý bệnh nhân" },
-    { key: "/admin/employees", icon: "👨‍💼", label: "Quản lý nhân viên" },
-    { key: "/admin/reports", icon: "📊", label: "Thống kê" },
+    { key: "/admin/patients", icon: <UserOutlined />, label: "Quản lý bệnh nhân" },
+    { key: "/admin/employees", icon: <TeamOutlined />, label: "Quản lý nhân viên" },
+    { key: "/admin/reports", icon: <BarChartOutlined />, label: "Thống kê" },
     {
       key: "kho-giao-dich", // [MỤC CHA MỚI] Kho & Giao Dịch
-      icon: "📦",
+      icon: <AppstoreOutlined />,
       label: "Kho & Giao Dịch",
       children: [
         // Thằng quản lý phiếu nhập (Nhập Kho)

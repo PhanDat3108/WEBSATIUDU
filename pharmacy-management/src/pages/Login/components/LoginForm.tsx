@@ -1,9 +1,9 @@
 import React from "react";
-import { Form, Input, Button, App } from "antd"; 
+import { Form, Input, Button, App } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 // [SỬA 1] Import object 'loginApi' thay vì 'loginAPI'
-import { loginApi } from "../../../api/loginApi"; 
+import { loginApi } from "../../../api/loginApi";
 
 interface LoginFormValues {
   taiKhoan: string;
@@ -18,7 +18,7 @@ const LoginForm: React.FC = () => {
   const onFinish = async (values: LoginFormValues) => {
     try {
       // [SỬA 2] Gọi đúng hàm .login() và truyền tham số rời
-      const response = await loginApi.login(values.taiKhoan, values.matKhau); 
+      const response = await loginApi.login(values.taiKhoan, values.matKhau);
 
       message.success("Đăng nhập thành công!");
 
@@ -26,7 +26,7 @@ const LoginForm: React.FC = () => {
       // ProtectedRoute cần đọc 'user' để biết role, thiếu dòng này là bị lỗi loop
       localStorage.setItem("user", JSON.stringify(response.user));
       localStorage.setItem("token", response.token);
-      
+
       // (Tuỳ chọn) Lưu thêm các biến lẻ nếu code cũ cần dùng
       localStorage.setItem("maNhanVien", response.user.MaNhanVien);
       localStorage.setItem("vaiTro", response.user.VaiTro);
@@ -34,15 +34,14 @@ const LoginForm: React.FC = () => {
 
       // [SỬA 4] Điều hướng đúng theo quyền
       const role = response.user.VaiTro;
-      
+
       // Kiểm tra các role Admin (khớp với DB của bạn: 'Quản lý', 'Admin'...)
-      if (role === 'admin' ) {
-        navigate('/admin/revenue'); 
+      if (role === "admin") {
+        navigate("/admin/revenue");
       } else {
         // Role nhân viên/dược sĩ về trang chủ bán hàng
-        navigate('/home'); 
+        navigate("/home");
       }
-
     } catch (error: any) {
       console.error("Login Error:", error);
       message.error(error.message || "Đăng nhập thất bại!");
@@ -51,19 +50,11 @@ const LoginForm: React.FC = () => {
 
   return (
     <Form form={form} onFinish={onFinish} autoComplete="off" layout="vertical">
-      <Form.Item 
-        name="taiKhoan" 
-        label="Tài khoản" 
-        rules={[{ required: true, message: "Vui lòng nhập tài khoản!" }]}
-      >
+      <Form.Item name="taiKhoan" label="Tài khoản" rules={[{ required: true, message: "Vui lòng nhập tài khoản!" }]}>
         <Input prefix={<UserOutlined />} placeholder="Nhập tài khoản" />
       </Form.Item>
 
-      <Form.Item 
-        name="matKhau" 
-        label="Mật khẩu" 
-        rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
-      >
+      <Form.Item name="matKhau" label="Mật khẩu" rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}>
         <Input.Password prefix={<LockOutlined />} placeholder="Nhập mật khẩu" />
       </Form.Item>
 

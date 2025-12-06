@@ -6,15 +6,15 @@ import { getNhanVien, deleteNhanVien } from "../../api/nhanVienApi";
 import { NhanVienForm } from "../../components/AdminForms/NhanVienForm";
 import Modal from "../../components/common/Modal";
 import styles from "../../styles/AdminManagement.module.css";
+import { usePagination } from "../../components/common/usePagination";
 
 const NhanVienManagement: React.FC = () => {
   const [employees, setEmployees] = useState<NhanVien[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState<NhanVien | null>(
-    null
-  );
+  const [selectedEmployee, setSelectedEmployee] = useState<NhanVien | null>(null);
+  const { currentData, PaginationComponent } = usePagination(employees);
 
   const loadEmployees = async () => {
     try {
@@ -76,20 +76,19 @@ const NhanVienManagement: React.FC = () => {
       );
     }
 
-    return employees.map((nv) => (
+    return currentData.map((nv) => (
       <tr key={nv.MaNhanVien}>
         <td style={{ textAlign: "center" }}>{nv.MaNhanVien}</td>
         <td>{nv.TenNhanVien}</td>
         <td>{nv.TaiKhoan}</td>
         <td style={{ textAlign: "center" }}>{nv.VaiTro}</td>
         <td className={styles.actionButtons}>
-          <button
-            onClick={() => handleOpenModal(nv)}
-            className={styles.editButton}
-          >
+          <button onClick={() => handleOpenModal(nv)} className={styles.editButton}>
             Sửa
           </button>
-          
+          <button onClick={() => handleDelete(nv.MaNhanVien)} className={styles.deleteButton}>
+            Xóa
+          </button>
         </td>
       </tr>
     ));
@@ -118,12 +117,8 @@ const NhanVienManagement: React.FC = () => {
         <tbody>{renderContent()}</tbody>
       </table>
 
-      
-      <Modal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        title="Sửa thông tin nhân viên"
-      >
+      {/* Modal chỉ hoạt động cho chức năng Sửa */}
+      <Modal isOpen={isModalOpen} onClose={handleCloseModal} title="Sửa thông tin nhân viên">
         {selectedEmployee && (
           <NhanVienForm
             initialData={selectedEmployee}
@@ -132,6 +127,9 @@ const NhanVienManagement: React.FC = () => {
           />
         )}
       </Modal>
+      <div style={{ marginTop: "20px", display: "flex", justifyContent: "end" }}>
+        <PaginationComponent />
+      </div>
     </div>
   );
 };

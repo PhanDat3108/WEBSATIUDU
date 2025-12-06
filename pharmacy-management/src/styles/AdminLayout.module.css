@@ -29,9 +29,9 @@
     background-color: var(--color-sidebar-bg);
     box-shadow: 2px 0 5px rgba(0,0,0,0.2);
 
-    position: sticky;
+    position: fixed;
     height: 100vh;
-
+    z-index: 1000; 
     overflow-y: auto;
     overflow-x: hidden;              /* Ngăn bể layout */
 }
@@ -166,6 +166,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  margin-left: 220px;
+  width: calc(100% - 220px);
 }
 
 /* Sidebar đã có sẵn */
@@ -271,44 +273,8 @@
 
 
 .logoImg {
-  width: 100px;      
-  height: 100px;
+  width: 80px;
+  height: auto;
   display: block;
-  margin: 0 auto 20px;
-}
-/* src/styles/AdminLayout.module.css */
-
-/* 1. Khung bao ngoài cùng: Khóa chặt chiều cao bằng màn hình (100vh) */
-.layoutContainer {
-  display: flex;       /* Xếp Sidebar và MainWrapper nằm ngang */
-  height: 100vh;       /* Chiều cao cố định bằng màn hình */
-  width: 100vw;
-  overflow: hidden;    /* Ẩn thanh cuộn của trình duyệt */
-}
-
-/* Sidebar thường được import vào, bạn nên đảm bảo trong file Sidebar.module.css 
-   nó có chiều rộng cố định (ví dụ width: 250px) và height: 100% */
-
-/* 2. Khung bao bên phải (Chứa Header và Nội dung chính) */
-.mainWrapper {
-  display: flex;
-  flex-direction: column; /* Xếp Header lên trên, Content xuống dưới */
-  flex: 1;                /* Chiếm toàn bộ không gian còn lại bên phải Sidebar */
-  height: 100%;           /* Full chiều cao */
-  min-width: 0;           /* Fix lỗi flexbox hiếm gặp khi content quá rộng */
-}
-
-/* HeaderBar nằm trong mainWrapper, tự động nằm trên cùng. 
-   Vì layout cha là flex-column và không cuộn, nên Header sẽ đứng yên. */
-
-/* 3. Vùng nội dung chính: Đây là nơi DUY NHẤT được phép cuộn */
-.mainContent {
-  flex: 1;                /* Chiếm hết phần cao còn lại bên dưới Header */
-  overflow-y: auto;       /* QUAN TRỌNG: Tạo thanh cuộn dọc riêng cho vùng này */
-  overflow-x: hidden;     /* Ẩn thanh cuộn ngang nếu không cần thiết */
-  padding: 20px;          /* Khoảng cách nội dung */
-  background-color: #f4f6f8; /* Màu nền xám nhạt (tùy chọn) */
-  
-  /* Hiệu ứng cuộn mượt */
-  scroll-behavior: smooth;
+  margin-left: 70px;
 }

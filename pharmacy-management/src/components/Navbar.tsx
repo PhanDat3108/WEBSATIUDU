@@ -25,7 +25,7 @@ const quotes = [
   "Không có sự chữa lành nào vĩ đại hơn tình thương.",
   "Trách nhiệm của thầy thuốc không chỉ là chữa bệnh, mà còn là an ủi tinh thần.",
   "Đạo làm thầy thuốc là cống hiến cho đời, không mưu cầu lợi ích.",
-  "Người thầy thuốc giỏi là người có trái tim nhân hậu."
+  "Người thầy thuốc giỏi là người có trái tim nhân hậu.",
 ];
 // 2. Khai báo Component nhận Props
 const Navbar: React.FC<NavbarProps> = ({ onSelectCategory, onSearchKeyword }) => {
@@ -83,7 +83,7 @@ const Navbar: React.FC<NavbarProps> = ({ onSelectCategory, onSearchKeyword }) =>
   }, []);
 
   // --- Handlers ---
-  
+
   // Xử lý đăng xuất
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -111,7 +111,7 @@ const Navbar: React.FC<NavbarProps> = ({ onSelectCategory, onSearchKeyword }) =>
 
   // Tìm kiếm khi nhấn Enter
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSearchAction();
     }
   };
@@ -119,64 +119,89 @@ const Navbar: React.FC<NavbarProps> = ({ onSelectCategory, onSearchKeyword }) =>
   return (
     <header className="navbar">
       {/* --- Dòng trên cùng: Thông báo & User --- */}
-      <div className="navbarlogin" style={{ fontSize: "15px", display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div
+        className="navbarlogin"
+        style={{ fontSize: "15px", display: "flex", justifyContent: "space-between", alignItems: "center" }}
+      >
         <div className="notice-navbar">
-        {/* Class scrolling-text vẫn giữ nguyên animation CSS ở bước trước */}
-        <div className="scrolling-text">
+          {/* Class scrolling-text vẫn giữ nguyên animation CSS ở bước trước */}
+          <div className="scrolling-text">
             {quotes.map((quote, index) => (
-                <span key={index} style={{ marginRight: "100px", display: "inline-block" }}>
-                   ★ {quote} {/* Thêm dấu sao hoặc icon cho đẹp nếu thích */}
-                </span>
+              <span key={index} style={{ marginRight: "100px", display: "inline-block" }}>
+                ★ {quote} {/* Thêm dấu sao hoặc icon cho đẹp nếu thích */}
+              </span>
             ))}
+          </div>
         </div>
-    </div>
-    {/* ------------------- */}
+        {/* ------------------- */}
 
-    <div className="dropdown" style={{ marginRight: '20px' }}>
-      <span style={{ cursor: 'pointer', fontWeight: 'bold', display:'flex', alignItems:'center', gap:'5px' }}>
-        Hello, {userName} ▼
-      </span>
-      <div className="dropdown-content" style={{ minWidth: '150px', left: 'auto', right: 0 }}>
-        {userName !== "Khách" ? (
-          <>
-            <Link to="/profile" style={{ color: '#333', display: 'block', padding: '10px' }}>Hồ sơ cá nhân</Link>
-            <hr style={{margin: '0', border: '0', borderTop: '1px solid #eee'}}/>
-            <a href="#" onClick={handleLogout} style={{ color: '#d9534f', display: 'block', padding: '10px' }}>Đăng xuất</a>
-          </>
-        ) : (
-          <>
-            <Link to="/login" style={{ color: '#333', display: 'block', padding: '10px' }}>Đăng nhập</Link>
-            <Link to="/register" style={{ color: '#333', display: 'block', padding: '10px' }}>Đăng ký</Link>
-          </>
-        )}
-      </div>
-    </div>
+        <div className="dropdown" style={{ marginRight: "20px" }}>
+          <span style={{ cursor: "pointer", fontWeight: "bold", display: "flex", alignItems: "center", gap: "5px" }}>
+            Hello, {userName} ▼
+          </span>
+          <div className="dropdown-content" style={{ minWidth: "150px", left: "auto", right: 0 }}>
+            {userName !== "Khách" ? (
+              <>
+                <Link to="/profile" style={{ color: "#333", display: "block", padding: "10px" }}>
+                  Hồ sơ cá nhân
+                </Link>
+                <hr style={{ margin: "0", border: "0", borderTop: "1px solid #eee" }} />
+                <a href="#" onClick={handleLogout} style={{ color: "#d9534f", display: "block", padding: "10px" }}>
+                  Đăng xuất
+                </a>
+              </>
+            ) : (
+              <>
+                <Link to="/login" style={{ color: "#333", display: "block", padding: "10px" }}>
+                  Đăng nhập
+                </Link>
+                <Link to="/register" style={{ color: "#333", display: "block", padding: "10px" }}>
+                  Đăng ký
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* --- Dòng chính: Logo, Danh mục, Search, Cart --- */}
       <div className="navbar-top">
         <div className="navbar-logo">
-          <a href="#" onClick={(e) => { e.preventDefault(); handleCategoryClick("", ""); }} style={{ fontWeight: 'bold', color: '#ffffffff' }}>
-              
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              handleCategoryClick("", "");
+            }}
+            style={{ fontWeight: "bold", color: "#ffffffff" }}
+          >
             <img src={logo} alt="Logo" />
           </a>
         </div>
 
         {/* Nút Danh mục Dropdown */}
-        <div className="dropdown" style={{ display: 'inline-block' }}>
-          <button className="navbar-category">
-            ☰ Danh mục
-          </button>
-          <div className="dropdown-content" style={{ minWidth: '200px', maxHeight: '300px', overflowY: 'auto' }}>
-            <a href="#" onClick={(e) => { e.preventDefault(); handleCategoryClick("", ""); }} style={{ fontWeight: 'bold', color: '#007bff' }}>
+        <div className="dropdown" style={{ display: "inline-block" }}>
+          <button className="navbar-category">☰ Danh mục</button>
+          <div className="dropdown-content" style={{ minWidth: "200px", maxHeight: "300px", overflowY: "auto" }}>
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                handleCategoryClick("", "");
+              }}
+              style={{ fontWeight: "bold", color: "#007bff" }}
+            >
               Xem tất cả
             </a>
-            <hr style={{ margin: '5px 0', borderTop: '1px solid #eee' }} />
+            <hr style={{ margin: "5px 0", borderTop: "1px solid #eee" }} />
             {categories.map((loai) => (
-              <a 
-                key={loai.MaLoai} 
-                href="#" 
-                onClick={(e) => { e.preventDefault(); handleCategoryClick(loai.MaLoai, loai.TenLoai); }}
+              <a
+                key={loai.MaLoai}
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleCategoryClick(loai.MaLoai, loai.TenLoai);
+                }}
               >
                 {loai.TenLoai}
               </a>
@@ -186,25 +211,23 @@ const Navbar: React.FC<NavbarProps> = ({ onSelectCategory, onSearchKeyword }) =>
 
         {/* Ô tìm kiếm */}
         <div className="navbar-search">
-          <input 
-            type="text" 
-            placeholder="Tìm kiếm thuốc..." 
+          <input
+            type="text"
+            placeholder="Tìm kiếm thuốc..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={handleKeyDown}
           />
-          <button className="search-btn" onClick={handleSearchAction}>🔍</button>
+          <button className="search-btn" onClick={handleSearchAction}>
+            🔍
+          </button>
         </div>
 
         {/* Icons & Giỏ hàng */}
         <div className="navbar-icons">
           <span title="Thông báo"></span>
           <button className="cart-btn" onClick={() => setMoRong(true)} title="Đơn thuốc">
-            <img 
-              src={iconGioHang} 
-              alt="Giỏ hàng" 
-              style={{ width: '24px', height: '24px', marginRight: '8px' }} 
-            />
+            <img src={iconGioHang} alt="Giỏ hàng" style={{ width: "24px", height: "24px", marginRight: "8px" }} />
             Đơn thuốc
             <span className="cart-badge">{total}</span>
           </button>
@@ -214,26 +237,52 @@ const Navbar: React.FC<NavbarProps> = ({ onSelectCategory, onSearchKeyword }) =>
       {/* --- Menu điều hướng --- */}
       <nav className="navbar-menu">
         {/* 1. Trang chủ: Load lại toàn bộ */}
-       <a href="#" onClick={(e) => { e.preventDefault(); handleCategoryClick("", ""); }} style={{ fontWeight: 'bold', color: '#ffffffff' }}>
-              Trang chủ
-            </a>
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            handleCategoryClick("", "");
+          }}
+          style={{ fontWeight: "bold", color: "#ffffffff" }}
+        >
+          Trang chủ
+        </a>
 
         {/* 2. Sản phẩm HOT */}
-        <a href="#" onClick={(e) => { e.preventDefault(); handleSpecialFilter("HOT", "🔥 Sản phẩm Bán Chạy"); }} style={{ fontWeight: 'bold' }}>
-           Sản phẩm HOT
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            handleSpecialFilter("HOT", "🔥 Sản phẩm Bán Chạy");
+          }}
+          style={{ fontWeight: "bold" }}
+        >
+          Sản phẩm HOT
         </a>
 
         {/* 3. Sản phẩm Mới */}
-        <a href="#" onClick={(e) => { e.preventDefault(); handleSpecialFilter("NEW", "✨ Sản phẩm Mới"); }} style={{  fontWeight: 'bold' }}>
-            Hàng Mới Về
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            handleSpecialFilter("NEW", "✨ Sản phẩm Mới");
+          }}
+          style={{ fontWeight: "bold" }}
+        >
+          Hàng Mới Về
         </a>
 
         {/* 4. Tặng kèm */}
-        <a href="#" onClick={(e) => { e.preventDefault(); handleSpecialFilter("FREE", "🎁 Quà tặng 0đ"); }} style={{  fontWeight: 'bold' }}>
-           Tặng Kèm
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            handleSpecialFilter("FREE", "🎁 Quà tặng 0đ");
+          }}
+          style={{ fontWeight: "bold" }}
+        >
+          Tặng Kèm
         </a>
-
-        
       </nav>
     </header>
   );

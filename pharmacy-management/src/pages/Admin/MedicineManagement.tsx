@@ -3,7 +3,7 @@
 // export default MedicineManagement;
 // src/pages/Admin/MedicineManagement.tsx
 import React, { useState, useEffect } from "react";
-import { Thuoc } from "../../interfaces"; 
+import { Thuoc } from "../../interfaces";
 import { getMedicines } from "../../api/thuocApi";
 import { MedicineForm } from "../../components/AdminForms/MedicineForm";
 import Modal from "../../components/common/Modal";
@@ -15,9 +15,11 @@ const MedicineManagement: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedMedicine, setSelectedMedicine] = useState<Thuoc | null>(null); 
+  const [selectedMedicine, setSelectedMedicine] = useState<Thuoc | null>(null);
+
+  // [Human Comment] Khúc này gọi hook ra xài.
   // PaginationComponent: là cái thanh nút bấm (1, 2, 3...) á.
-  const { currentData, PaginationComponent } = usePagination(medicines, 7);
+  const { currentData, PaginationComponent } = usePagination(medicines);
 
   const loadMedicines = async () => {
     try {
@@ -48,7 +50,7 @@ const MedicineManagement: React.FC = () => {
 
   const handleSave = () => {
     handleCloseModal();
-    loadMedicines(); 
+    loadMedicines();
   };
 
   const renderContent = () => {
@@ -80,7 +82,7 @@ const MedicineManagement: React.FC = () => {
       );
     }
 
-    // Chỗ này quan trọng nè! 
+    // Chỗ này quan trọng nè!
     // Thay vì map cái "medicines" (list bự chà bá), mình map cái "currentData" (list nhỏ gọn) thôi.
     return currentData.map((med) => (
       <tr key={med.MaThuoc}>
@@ -139,9 +141,9 @@ const MedicineManagement: React.FC = () => {
           <tbody>{renderContent()}</tbody>
         </table>
 
-        
-        <div className={styles.paginationWrapper}>
-           <PaginationComponent />
+        {/*  Quăng cái thanh chuyển trang xuống dưới đít bảng cho đẹp đội hình */}
+        <div style={{ marginTop: "20px", display: "flex", justifyContent: "end" }}>
+          <PaginationComponent />
         </div>
       </div>
 
