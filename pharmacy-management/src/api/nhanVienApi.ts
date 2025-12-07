@@ -14,13 +14,11 @@ const handleResponse = async (response: Response) => {
       const errorData = await response.json();
       throw new Error(errorData.message || 'Có lỗi xảy ra từ server');
     } catch (jsonError) {
-      // Nếu đọc JSON thất bại (vì nó là HTML 404), đọc nó dưới dạng text
       const errorText = await response.text();
       throw new Error(`Lỗi ${response.status}: ${response.statusText}. Phản hồi không phải JSON.`);
     }
   }
-  // Nếu response OK (200, 201), trả về data
-  // Ngoại trừ DELETE thường không có body
+  
   if (response.status === 204 || response.status === 200 && response.headers.get('content-length') === '0') {
     return;
   }

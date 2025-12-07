@@ -87,7 +87,7 @@ export const NhanVienForm: React.FC<NhanVienFormProps> = ({ initialData, onFormS
           onChange={handleChange}
           required
         />
-        {/* (Bạn có thể đổi thành <select> nếu VaiTrò là cố định) */}
+        
       </div>
 
       {/* Nút bấm */}

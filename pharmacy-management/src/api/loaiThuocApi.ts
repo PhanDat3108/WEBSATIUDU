@@ -8,20 +8,16 @@ const API_BASE_URL = 'http://localhost:8080/api/v1/loaithuoc';
  * Hàm chung xử lý response
  */
 const handleResponse = async (response: Response) => {
-  // Nếu KHÔNG OK (ví dụ 404, 500)
+
   if (!response.ok) {
-    const errorText = await response.text(); // Chỉ đọc 1 lần bằng .text()
+    const errorText = await response.text(); 
     try {
-      // Thử xem text có phải là JSON không
       const errorData = JSON.parse(errorText);
       throw new Error(errorData.message || 'Có lỗi xảy ra từ server');
     } catch (jsonError) {
-      // Nếu không phải JSON, ném lỗi text (thường là HTML 404)
       throw new Error(errorText || 'Lỗi không xác định');
     }
   }
-
-  // Nếu OK (200)
   const contentType = response.headers.get("content-type");
   if (contentType && contentType.indexOf("application/json") !== -1) {
     return response.json();
@@ -50,9 +46,7 @@ export const getLoaiThuoc = async (): Promise<LoaiThuoc[]> => {
  */
 export const getLoaiThuocListname = async (): Promise<Pick<LoaiThuoc, 'MaLoai' | 'TenLoai'>[]> => {
   try {
-    // [SỬA CHÍNH] Sửa '/listname' thành '/' để khớp với file loaithuoc.js
     const response = await fetch(`${API_BASE_URL}/`);
-    
     // Giữ nguyên logic handleResponse của bạn
     const data = await handleResponse(response); 
     return data as LoaiThuoc[];

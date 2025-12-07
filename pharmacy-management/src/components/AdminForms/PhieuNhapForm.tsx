@@ -68,14 +68,13 @@ export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave })
   }, []); // Chỉ chạy 1 lần
 
   //  2. LOGIC LỌC THUỐC 
-  // Effect này sẽ chạy mỗi khi 'selectedNCC' (nhà cung cấp) hoặc 'allMedicines' (danh sách tổng) thay đổi
   useEffect(() => {
     if (selectedNCC) {
-      // 1. Lọc danh sách thuốc
+      // 1 Lọc danh sách thuốc
       const filtered = allMedicines.filter((thuoc) => thuoc.MaNhaCungCap === selectedNCC);
       setFilteredMedicines(filtered);
 
-      // 2.  Reset lại các hàng chi tiết
+      // 2  Reset lại các hàng chi tiết
       setChiTietRows([
         {
           // Thêm 1 hàng trống cho nhà cung cấp mới
@@ -135,7 +134,6 @@ export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave })
       setError("Vui lòng chọn một nhà cung cấp.");
       return;
     }
-    // ... (các validate khác giữ nguyên) ...
     const validChiTiet: ChiTietNhapCreate[] = [];
     for (const row of chiTietRows) {
       if (!row.MaThuoc) {
@@ -252,7 +250,7 @@ export const PhieuNhapForm: React.FC<PhieuNhapFormProps> = ({ onClose, onSave })
                   ))}
                 </select>
               </td>
-              {/* Các ô khác giữ nguyên */}
+              
               <td>
                 <input
                   type="number"

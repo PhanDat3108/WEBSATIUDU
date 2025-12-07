@@ -7,7 +7,7 @@ import ModalWithAnimation from "../../components/common/ModalWithAnimation";
 import { PhieuNhapForm } from "../../components/AdminForms/PhieuNhapForm";
 import modalStyles from "../../styles/Modal.module.css";
 import { usePagination } from "../../components/common/usePagination";
-
+//hàm lấy ngày tháng năm theo viet nam 
 const formatDate = (isoString: string) => {
   if (!isoString) return "N/A";
   try {
@@ -20,24 +20,21 @@ const formatDate = (isoString: string) => {
     return "Ngày lỗi";
   }
 };
-
+// hàm chuyển sang tiền viet nam
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
     currency: "VND",
   }).format(amount);
 };
-
+//Usestate cần thiết 
 export const PhieuNhapManagement = () => {
   const [history, setHistory] = useState<ChiTietNhapLichSu[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // [THAY THẾ] Bỏ hết state currentPage, itemsPerPage cũ.
-  // Dùng 1 dòng này để lấy dữ liệu đã cắt (currentData) và thanh phân trang (PaginationComponent)
   const { currentData, PaginationComponent } = usePagination(history);
-
+//hàm render dữ liệu  bảng 
   const fetchData = async () => {
     setIsLoading(true);
     setError(null);
@@ -64,7 +61,7 @@ export const PhieuNhapManagement = () => {
     setIsModalOpen(false);
     fetchData();
   };
-
+// check trạng thái 
   const renderStatus = (soLuong: number) => {
     if (soLuong === 0) {
       return (
@@ -122,7 +119,7 @@ export const PhieuNhapManagement = () => {
       );
     }
   };
-
+// render bảng
   return (
     <div className={styles.adminManagementPage} style={{ display: "flex", flexDirection: "column", minHeight: "85vh" }}>
       <header className={styles.header}>
@@ -167,7 +164,7 @@ export const PhieuNhapManagement = () => {
                 </tr>
               </thead>
               <tbody>
-                {/* [THAY THẾ] Sử dụng currentData từ hook */}
+                {/* jsx biểu thức not câu  lệnh */}
                 {currentData.length > 0 ? (
                   currentData.map((item, index) => {
                     const isSoldOut = item.SoLuongConLai === 0;

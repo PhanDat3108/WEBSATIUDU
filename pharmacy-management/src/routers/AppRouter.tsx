@@ -7,10 +7,7 @@ import LoginPage from '../pages/Login';
 import LoginHomePage from "../pages/Login/components/LoginForm"; // Hoặc đường dẫn đúng tới trang login của bạn
 import RegisterPage from '../pages/Login/components/RegisterPage';
 import HomePage from '../pages/Home/HomePage';
-
-// --- Import Admin Components ---
 import AdminLayout from '../components/AdminLayout/AdminLayout'; 
-
 import MedicineManagement from '../pages/Admin/MedicineManagement';
 import PatientManagement from '../pages/Admin/PatientManagement';
 import NhanVienManagement from '../pages/Admin/NhanVienManagement';
@@ -21,8 +18,6 @@ import { PhieuNhapManagement } from '../pages/Admin/PhieuNhapManagement';
 import NhaCungCapManagement from '../pages/Admin/NhaCungCapManagement';
 import LoaiThuocManagement from '../pages/Admin/LoaiThuocManagement';
 import { XuatNoiBoManagement } from "../pages/Admin/XuatNoiBoManagement";
-
-// --- Import Bảo Vệ Route (Quan trọng) ---
 import ProtectedRoute from '../components/ProtectedRoute';
 
 const AppRouter: React.FC = () => {

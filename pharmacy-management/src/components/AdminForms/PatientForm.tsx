@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { BenhNhan } from "../../interfaces";
 import { addPatient, updatePatient } from "../../api/benhNhanApi";
 import styles from "../../styles/Form.module.css";
-
+// lay thằng cha
 interface PatientFormProps {
   patient: BenhNhan | null;
   onSave: () => void;

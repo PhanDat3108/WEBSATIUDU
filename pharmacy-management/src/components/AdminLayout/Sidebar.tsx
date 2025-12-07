@@ -16,10 +16,10 @@ import {
 const AdminSidebar: React.FC = () => {
   const location = useLocation();
 
-  // [MỚI] State để quản lý mục menu nào đang mở
+  //  State để quản lý mục menu nào đang mở
   const [openMenuKey, setOpenMenuKey] = useState<string | null>(null);
 
-  // [MỚI] Cấu trúc menu mới với menu con
+  //  Cấu trúc menu mới với menu con
   const menuItems = [
     { key: "/admin/revenue", icon: <HomeOutlined />, label: "Trang chủ" },
     {
@@ -27,33 +27,33 @@ const AdminSidebar: React.FC = () => {
       icon: <MedicineBoxOutlined />,
       label: "Quản lý thuốc",
       children: [
-        { key: "/admin/medicines", label: "Quản lý số lượng" }, // (nguồn 214)
-        { key: "/admin/suppliers", label: "Quản lý nhà cung cấp" }, // [MỚI]
-        { key: "/admin/categories", label: "Quản lý loại thuốc" }, // [MỚI]
+        { key: "/admin/medicines", label: "Quản lý số lượng" }, 
+        { key: "/admin/suppliers", label: "Quản lý nhà cung cấp" }, 
+        { key: "/admin/categories", label: "Quản lý loại thuốc" }, 
       ],
     },
-    // [MỚI]
+    
     { key: "/admin/patients", icon: <UserOutlined />, label: "Quản lý bệnh nhân" },
     { key: "/admin/employees", icon: <TeamOutlined />, label: "Quản lý nhân viên" },
     { key: "/admin/reports", icon: <BarChartOutlined />, label: "Thống kê" },
     {
-      key: "kho-giao-dich", // [MỤC CHA MỚI] Kho & Giao Dịch
+      key: "kho-giao-dich", //  Kho & Giao Dịch
       icon: <AppstoreOutlined />,
       label: "Kho & Giao Dịch",
       children: [
-        // Thằng quản lý phiếu nhập (Nhập Kho)
+        
         { key: "/admin/import", label: "Quản lý Nhập Kho" },
-        { key: "/admin/export", label: "Quản lý Xuất Thuốc" }, // Thêm mục này cho đầy đủ
+        { key: "/admin/export", label: "Quản lý Xuất Thuốc" }, 
       ],
     },
   ];
 
-  // [MỚI] Hàm xử lý click menu cha
+  //  Hàm xử lý click menu cha
   const handleMenuClick = (key: string) => {
     setOpenMenuKey(openMenuKey === key ? null : key);
   };
 
-  // [MỚI] Hàm kiểm tra xem 1 link con có active không
+  //  Hàm kiểm tra xem 1 link con có active không
   const isChildActive = (children: any[]) => {
     return children.some((child) => location.pathname === child.key);
   };
@@ -65,7 +65,7 @@ const AdminSidebar: React.FC = () => {
       </div>
       <ul className={styles.menuList}>
         {menuItems.map((item) => {
-          // [MỚI] Logic render menu cha
+          // Logic render menu cha
           if (item.children) {
             const isOpen = openMenuKey === item.key;
             const isActive = isChildActive(item.children); // Cha cũng active nếu con active
@@ -82,7 +82,7 @@ const AdminSidebar: React.FC = () => {
                   {item.label}
                   <span className={`${styles.menuArrow} ${isOpen ? styles.menuArrowOpen : ""}`}>▼</span>
                 </div>
-                {/* [MỚI] Render menu con với hiệu ứng */}
+                {/*  Render menu con với hiệu ứng */}
                 <ul className={`${styles.submenu} ${isOpen ? styles.submenuOpen : ""}`}>
                   {item.children.map((child) => (
                     <Link

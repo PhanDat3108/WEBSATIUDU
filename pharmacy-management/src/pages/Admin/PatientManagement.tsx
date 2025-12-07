@@ -5,20 +5,16 @@ import { getPatients, deletePatient } from "../../api/benhNhanApi";
 import { PatientForm } from "../../components/AdminForms/PatientForm";
 import Modal from "../../components/common/Modal";
 import styles from "../../styles/AdminManagement.module.css";
-
-
 import { usePagination } from "../../components/common/usePagination";
-
+// Usestate ban đầu 
 const PatientManagement: React.FC = () => {
   const [patients, setPatients] = useState<BenhNhan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<BenhNhan | null>(null);
-
-  
   const { currentData, PaginationComponent } = usePagination(patients);
-
+// ham tai lai trang
   const loadPatients = async () => {
     try {
       setIsLoading(true);
@@ -31,7 +27,7 @@ const PatientManagement: React.FC = () => {
       setIsLoading(false);
     }
   };
-
+// tải dữ  liệu lần đầu tiên 
   useEffect(() => {
     loadPatients();
   }, []);
@@ -50,7 +46,7 @@ const PatientManagement: React.FC = () => {
     handleCloseModal();
     loadPatients();
   };
-
+// render thằng tbody 
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -80,8 +76,6 @@ const PatientManagement: React.FC = () => {
       );
     }
 
-    // [Note] Chỗ này quan trọng: Thay vì map biến "patients" (list tổng),
-    // mình map biến "currentData" để nó chỉ hiện ra 5 người của trang hiện tại thôi.
     return currentData.map((item) => (
       <tr key={item.MaBenhNhan}>
         <td style={{ textAlign: "center" }}>{item.MaBenhNhan}</td>

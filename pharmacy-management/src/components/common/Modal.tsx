@@ -11,43 +11,33 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, width = "400px", customClass = "" }) => {
-  // [MỚI] State nội bộ để quản lý việc hiển thị (dùng cho animation)
   const [isVisible, setIsVisible] = useState(false);
-  // [MỚI] State quản lý class animation
   const [animationClass, setAnimationClass] = useState("");
 
-  // [CẬP NHẬT] Dùng useEffect để xử lý animation
+  // Dùng useEffect để xử lý animation
   useEffect(() => {
     if (isOpen) {
-      // 1. Khi Mở: Bật cờ visible, sau đó thêm class "vào"
       setIsVisible(true);
       setAnimationClass("animate__bounceInDown");
     } else if (isVisible) {
-      // 2. Khi Đóng (và đang được hiển thị):
-      setAnimationClass("animate__bounceOut"); // Chạy class "ra"
-
+      setAnimationClass("animate__bounceOut"); 
       // Đợi hiệu ứng 'bounceOut' (750ms) chạy xong rồi mới ẩn
       setTimeout(() => {
         setIsVisible(false);
       }, 750);
     }
-  }, [isOpen, isVisible]); // Theo dõi 2 state này
+  }, [isOpen, isVisible]); 
 
-  // [MỚI] Hàm xử lý khi bấm nút X hoặc click overlay
+  //  Hàm xử lý khi bấm nút X hoặc click overlay
   const handleClose = () => {
-    // Chỉ gọi hàm onClose của cha,
-    // useEffect ở trên sẽ tự động xử lý animation
     onClose();
   };
-
-  // [CẬP NHẬT] Nếu không visible, không render gì cả
+// nếu ko mở thì chưa render
   if (!isVisible) return null;
 
   return (
-    // [CẬP NHẬT] Lớp phủ (onClick gọi handleClose)
+    
     <div className={styles.modalOverlay} onClick={handleClose}>
-      {/* [CẬP NHẬT] Thêm các class animation
-       */}
       <div
         className={`${styles.modalContainer} ${customClass} animate__animated ${animationClass} animate__faster`}
         onClick={(e) => e.stopPropagation()}
