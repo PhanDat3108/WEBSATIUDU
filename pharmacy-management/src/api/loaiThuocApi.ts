@@ -2,7 +2,7 @@
 import { LoaiThuoc } from '../interfaces';
 
 
-const API_BASE_URL = 'http://localhost:8080/api/v1/loaithuoc'; 
+const API_BASE_URL = '/api/v1/loaithuoc'; 
 
 /**
  * Hàm chung xử lý response
