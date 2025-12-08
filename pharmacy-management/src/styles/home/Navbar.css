@@ -23,9 +23,9 @@ a {
 
 .navbar-logo {
   display: flex;
-  position: absolute;
+  /* position: absolute;  <-- XÓA DÒNG NÀY */
   align-items: center;
-  gap: 8px;
+  min-width: 150px; 
 }
 
 .navbar-logo img {

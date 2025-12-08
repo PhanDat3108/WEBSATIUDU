@@ -34,7 +34,6 @@ const NhanVienManagement: React.FC = () => {
   }, []);
 
   const handleOpenModal = (employee: NhanVien | null) => {
-    // Chỉ mở modal khi SỬA (employee không null)
     if (employee) {
       setSelectedEmployee(employee);
       setIsModalOpen(true);
@@ -48,7 +47,7 @@ const NhanVienManagement: React.FC = () => {
 
   const handleFormSubmitSuccess = () => {
     handleCloseModal();
-    loadEmployees(); // Tải lại danh sách sau khi Sửa
+    loadEmployees(); 
   };
 
   

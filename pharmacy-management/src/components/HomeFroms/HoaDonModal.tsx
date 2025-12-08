@@ -257,8 +257,9 @@ const HoaDonModal: React.FC<HoaDonModalProps> = ({ danhSach, tongTien, onClose, 
               <tr key={item.MaThuoc}>
                 <td style={{ maxWidth: '140px' }}>{item.TenThuoc}</td>
                 <td className="text-center">{item.soLuong}</td>
-                <td className="text-right">{item.GiaBan.toLocaleString()}</td>
-                <td className="text-right">{(item.GiaBan * item.soLuong).toLocaleString()}</td>
+                <td className="text-right">{Number(item.GiaBan).toLocaleString('vi-VN')}</td>
+                <td className="text-right">{Number(item.GiaBan * item.soLuong).toLocaleString('vi-VN')}</td>
+              
               </tr>
             ))}
           </tbody>
@@ -268,8 +269,7 @@ const HoaDonModal: React.FC<HoaDonModalProps> = ({ danhSach, tongTien, onClose, 
           <div className="dashed-line"></div>
           <div className="hoadon-row">
             <span>TỔNG CỘNG:</span>
-            <span>{tongTien.toLocaleString()} VNĐ</span>
-          </div>
+<span>{Number(tongTien).toLocaleString('vi-VN')} VNĐ</span>          </div>
           <p className="loi-cam-on">Xin cảm ơn và hẹn gặp lại!</p>
         </div>
 

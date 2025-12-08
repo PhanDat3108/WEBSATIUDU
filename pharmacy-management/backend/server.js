@@ -14,6 +14,10 @@ import xuatNoiBoRoutes from './routes/xuatnoibo.js';
 import reportsRoutes from "./routes/reports.js";
 import donThuocRoutes from "./routes/donthuoc.js";
 import revenueRoutes from "./routes/revenue.js"; 
+import path from "path";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename)
 
 
 
@@ -24,6 +28,7 @@ const port = process.env.PORT || 8080;
 app.use(cors()); 
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '../public')));
 
 //    Chúng ta sẽ thống nhất dùng /api/v1/thuoc
 app.use("/api/v1/nhanvien", nhanVienRouter);
