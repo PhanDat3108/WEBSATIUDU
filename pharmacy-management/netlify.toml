@@ -1,6 +1,6 @@
 [[redirects]]
   from = "/api/*"
-  to = "https://6935b34253d255c4ba1116d0--boisterous-souffle-5c09d6.netlify.app/api/:splat"
+  to = "websatiudu-production.up.railway.app/api/:splat"
   status = 200
   force = true
 

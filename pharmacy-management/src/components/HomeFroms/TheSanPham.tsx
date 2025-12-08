@@ -62,8 +62,8 @@ const TheSanPham: React.FC<Props> = ({ sanPham }) => {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '8px' }}>
           <div>
             <div className={styles['card-price']}>
-                {sanPham.GiaBan?.toLocaleString()}₫
-            </div>
+    {Number(sanPham.GiaBan).toLocaleString('vi-VN', { maximumFractionDigits: 0 })}₫
+</div>
             
             {/* [MỚI] Dòng hiển thị số lượng tồn kho */}
             <div style={{ 

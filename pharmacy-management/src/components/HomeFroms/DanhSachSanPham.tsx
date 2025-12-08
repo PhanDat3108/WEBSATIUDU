@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Thuoc } from '../../interfaces'; 
-// [QUAN TRỌNG] Import thêm các API mới
+// Import các API
 import { 
-  getAllThuoc, // Đổi tên getMedicines thành getAllThuoc cho chuẩn (nếu chưa đổi thì dùng getMedicines)
+  getAllThuoc, 
   getHotProducts, 
   getNewProducts, 
   getFreeProducts,
@@ -23,7 +23,7 @@ const DanhSachSanPham: React.FC<Props> = ({ maLoai, tenLoai, searchKeyword }) =>
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // [MỚI] Hàm xử lý logic tiêu đề
+  // Hàm xử lý logic tiêu đề
   const getTitle = () => {
     if (searchKeyword) return `🔍 Kết quả tìm kiếm: "${searchKeyword}"`;
     if (maLoai === 'HOT') return '🔥 Sản phẩm Bán Chạy';
@@ -40,19 +40,17 @@ const DanhSachSanPham: React.FC<Props> = ({ maLoai, tenLoai, searchKeyword }) =>
       try {
         let data: Thuoc[] = [];
 
-        // --- LOGIC GỌI API TÙY VÀO PROPS ---
+        // --- LOGIC GỌI API ---
         
-        // 1. Ưu tiên tìm kiếm (Nếu có từ khóa)
-       if (searchKeyword) {
-    // Nếu bạn chưa có API tìm kiếm riêng, thì gọi tất cả rồi lọc
-    const all = await getAllThuoc();
-    
-    // [SỬA LỖI TẠI ĐÂY]: Thêm kiểu dữ liệu (t: Thuoc)
-    data = all.filter((t: Thuoc) => 
-        t.TenThuoc.toLowerCase().includes(searchKeyword.toLowerCase())
-    );
-}
-        // 2. Nếu là các Mã Đặc Biệt (HOT, NEW, FREE)
+        // 1. Ưu tiên tìm kiếm
+        if (searchKeyword) {
+            const all = await getAllThuoc();
+            // Lọc theo từ khóa tìm kiếm trước
+            data = all.filter((t: Thuoc) => 
+                t.TenThuoc.toLowerCase().includes(searchKeyword.toLowerCase())
+            );
+        }
+        // 2. Nếu là các Mã Đặc Biệt
         else if (maLoai === 'HOT') {
           data = await getHotProducts();
         } 
@@ -62,9 +60,8 @@ const DanhSachSanPham: React.FC<Props> = ({ maLoai, tenLoai, searchKeyword }) =>
         else if (maLoai === 'FREE') {
           data = await getFreeProducts();
         }
-        // 3. Nếu là Mã Danh Mục thường (VD: LT001)
+        // 3. Nếu là Mã Danh Mục thường
         else if (maLoai) {
-          // Đảm bảo bạn đã viết hàm này trong api/thuocApi.ts
           data = await getThuocByCategory(maLoai);
         }
         // 4. Mặc định: Lấy tất cả
@@ -72,7 +69,17 @@ const DanhSachSanPham: React.FC<Props> = ({ maLoai, tenLoai, searchKeyword }) =>
           data = await getAllThuoc();
         }
 
-        setThuocList(data);
+        // =========================================================
+        // [QUAN TRỌNG - PHẦN SỬA ĐỔI]
+        // Lọc bỏ thuốc ngưng kinh doanh (Discontinued) ở bước cuối cùng
+        // để áp dụng cho TẤT CẢ các trường hợp (Search, Hot, New, Danh mục...)
+        // =========================================================
+        const activeProducts = data.filter((t: Thuoc) => 
+          !t.TenThuoc.toLowerCase().includes('(discontinued)')
+        );
+
+        setThuocList(activeProducts);
+
       } catch (error) {
         console.error(error);
         setError("Không thể tải danh sách sản phẩm.");
@@ -82,7 +89,7 @@ const DanhSachSanPham: React.FC<Props> = ({ maLoai, tenLoai, searchKeyword }) =>
     };
 
     fetchData();
-  }, [maLoai, searchKeyword]); // [QUAN TRỌNG] Chạy lại khi props thay đổi
+  }, [maLoai, searchKeyword]); 
 
   // --- RENDER ---
   if (loading) return <div className={styles['message']}>Đang tải sản phẩm...</div>;
@@ -90,7 +97,6 @@ const DanhSachSanPham: React.FC<Props> = ({ maLoai, tenLoai, searchKeyword }) =>
 
   return (
     <>
-      {/* Hiển thị tiêu đề động */}
       <h2 style={{ 
         padding: '20px 20px 10px 20px', 
         color: '#007bff', 

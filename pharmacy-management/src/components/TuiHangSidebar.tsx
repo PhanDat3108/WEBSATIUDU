@@ -62,7 +62,7 @@ const TuiHangSidebar: React.FC = () => {
       -------------------------
       Mã Đơn Thuốc: ${ketQua.MaDonThuoc}
       Mã Phiếu Xuất: ${ketQua.MaPhieuXuat}
-      Tổng tiền: ${ketQua.TongTien.toLocaleString()} VNĐ
+      Tổng tiền:${Number(ketQua.TongTien).toLocaleString('vi-VN')} VNĐ
       `;
       alert(msg);
       
@@ -88,7 +88,7 @@ const TuiHangSidebar: React.FC = () => {
       
       <div className={`tui-hang-sidebar ${moRong ? 'mo-rong' : 'dong-gon'}`}>
         <div className="tui-hang-header">
-            <h3>🛒 Đơn thuốc</h3>
+            <h3> Đơn thuốc</h3>
             <button className="nut-dong" onClick={() => setMoRong(false)}>✕</button>
         </div>
         {/* Danh sách sản phẩm... */}
@@ -99,7 +99,7 @@ const TuiHangSidebar: React.FC = () => {
                     <div className="tui-hang-san-pham" key={sanPham.MaThuoc}>
                         <div className="san-pham-thong-tin">
                             <h4 className="san-pham-ten">{sanPham.TenThuoc}</h4>
-                            <p className="san-pham-gia">{sanPham.GiaBan?.toLocaleString()}₫</p>
+                            <p className="san-pham-gia">{Number(sanPham.GiaBan).toLocaleString('vi-VN')}₫</p>
                         </div>
                         <div className="san-pham-so-luong">
                             <button className="nut-so-luong" onClick={() => capNhatSoLuong(sanPham.MaThuoc, sanPham.soLuong - 1)}>−</button>

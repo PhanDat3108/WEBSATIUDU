@@ -56,7 +56,7 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
     if (medicine?.MaThuoc) {
       // Đường dẫn ảnh từ server (Backend cần serve folder public/images/thuoc)
       // Thêm timestamp ?t=... để tránh cache trình duyệt khi thay đổi ảnh
-      setPreviewImage(`http://localhost:5000/images/thuoc/${medicine.MaThuoc}.jpg?t=${new Date().getTime()}`);
+      setPreviewImage(`http://localhost:8080/images/thuoc/${medicine.MaThuoc}.jpg?t=${new Date().getTime()}`);
     }
   }, [medicine]);
 
