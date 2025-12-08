@@ -13,7 +13,6 @@ import PatientManagement from '../pages/Admin/PatientManagement';
 import NhanVienManagement from '../pages/Admin/NhanVienManagement';
 import Reports from '../pages/Admin/Reports';
 import Revenue from '../pages/Admin/Revenue'; 
-import TestThuoc from "../pages/Admin/Testthuoc";
 import { PhieuNhapManagement } from '../pages/Admin/PhieuNhapManagement'; 
 import NhaCungCapManagement from '../pages/Admin/NhaCungCapManagement';
 import LoaiThuocManagement from '../pages/Admin/LoaiThuocManagement';
@@ -65,7 +64,6 @@ const AppRouter: React.FC = () => {
                 <Route path="reports" element={<Reports />} />
                 
        
-                <Route path="chinhthuoc" element={<TestThuoc />} />
             </Route>
         </Route>
 
