@@ -3,36 +3,33 @@ import express from "express";
 import db from "./config/db.js";
 import thuocRoutes from "./routes/thuoc.js";
 import authRoutes from "./routes/auth.js";
-import benhNhanRoutes from "./routes/benhnhan.js"
-import cors from "cors"; 
+import benhNhanRoutes from "./routes/benhnhan.js";
+import cors from "cors";
 import nhanVienRouter from "./routes/nhanvien.js";
 import loaiThuocRouter from "./routes/loaithuoc.js";
 import nhaCungCapRouter from "./routes/nhacungcap.js";
 import phieuNhap from "./routes/nhapthuoc.js";
-import phieuXuatRoutes from './routes/phieuxuat.js';
-import xuatNoiBoRoutes from './routes/xuatnoibo.js';
+import phieuXuatRoutes from "./routes/phieuxuat.js";
+import xuatNoiBoRoutes from "./routes/xuatnoibo.js";
 import reportsRoutes from "./routes/reports.js";
 import donThuocRoutes from "./routes/donthuoc.js";
-import revenueRoutes from "./routes/revenue.js"; 
+import revenueRoutes from "./routes/revenue.js";
 import path from "path";
 import { fileURLToPath } from "url";
+
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename)
-
-
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 8080;
+const HOST = "0.0.0.0";
 
-
-app.use(cors()); 
-
+app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(__dirname, "../public")));
 
-//    Chúng ta sẽ thống nhất dùng /api/v1/thuoc
 app.use("/api/v1/nhanvien", nhanVienRouter);
-app.use("/api/v1/thuoc", thuocRoutes); 
+app.use("/api/v1/thuoc", thuocRoutes);
 app.use("/api/v1/benhnhan", benhNhanRoutes);
 app.use("/api/v1/loaithuoc", loaiThuocRouter);
 app.use("/api/v1/nhacungcap", nhaCungCapRouter);
@@ -42,12 +39,8 @@ app.use("/api/v1/xuatnoibo", xuatNoiBoRoutes);
 app.use("/api/v1/reports", reportsRoutes);
 app.use("/api/v1/donthuoc", donThuocRoutes);
 app.use("/api/v1/revenue", revenueRoutes);
-
-
 app.use("/api/v1/auth", authRoutes);
 
-
-
-app.listen(port, () => {
-  console.log(`Server đang chạy tại http://localhost:${port}`);
+app.listen(port, HOST, () => {
+  console.log(`Server đang chạy tại http://${HOST}:${port}`);
 });
