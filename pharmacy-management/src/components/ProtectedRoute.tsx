@@ -11,7 +11,7 @@ const ProtectedRoute: React.FC<Props> = ({ allowedRoles }) => {
   const userStr = localStorage.getItem('user');
   const token = localStorage.getItem('token');
 
-  // [DEBUG] In ra để kiểm tra xem đang lấy được gì
+  
   console.log("ProtectedRoute Check:", { allowedRoles, userStr, token });
 
   // 2. Nếu chưa đăng nhập -> Đá về Login

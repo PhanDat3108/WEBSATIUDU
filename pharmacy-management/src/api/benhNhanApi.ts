@@ -18,8 +18,8 @@ export const updatePatient = async (maBenhNhan: string, data: Partial<BenhNhan>)
   
  
   const dataForBackend = {
-    MaBenhNhan: maBenhNhan,          // <-- Lấy từ tham số `maBenhNhan`
-    TenBenhNhan: data.TenBenhNhan,   // <-- Lấy từ `data` (formData)
+    MaBenhNhan: maBenhNhan,          
+    TenBenhNhan: data.TenBenhNhan,  
     NgaySinh: data.NgaySinh,         
     GioiTinh: data.GioiTinh,         
     SoDienThoai: data.SoDienThoai,   
@@ -43,8 +43,6 @@ export const updatePatient = async (maBenhNhan: string, data: Partial<BenhNhan>)
   
   const result = await response.json();
   
-  // Trả về data (dạng PascalCase) để cập nhật UI
-  // Chúng ta dùng data gốc (biến 'data') và 'maBenhNhan' để tạo lại
   return { ...data, MaBenhNhan: maBenhNhan } as BenhNhan;
 };
 
@@ -78,7 +76,7 @@ export const addPatient = async (benhNhanData: Omit<BenhNhan, 'MaBenhNhan'>): Pr
     throw new Error(errorData.message || 'Thêm bệnh nhân thất bại');
   }
 
-  // Backend trả về: { message: "...", MaBenhNhan: "BN..." }
+  
   const result = await response.json(); 
   
   // Trả về object BenhNhan hoàn chỉnh

@@ -20,7 +20,7 @@ const NhanVienManagement: React.FC = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const data = await getNhanVien(); // Đã gọi API thật
+      const data = await getNhanVien(); 
       setEmployees(data);
     } catch (err) {
       setError((err as Error).message);

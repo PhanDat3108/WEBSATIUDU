@@ -28,7 +28,7 @@ const handleResponse = async (response: Response) => {
 /**
  * [SỬA TÊN HÀM] Lấy danh sách nhà cung cấp (thay cho getNhaCungCapList)
  
- * Kết nối với: GET /api/v1/nhacungcap/list (Giả định như loaiThuoc)
+ * Kết nối với: GET /api/v1/nhacungcap/list 
  */
 export const getNhaCungCap = async (): Promise<NhaCungCap[]> => {
   try {
@@ -44,7 +44,7 @@ export const getNhaCungCap = async (): Promise<NhaCungCap[]> => {
 
 /**
  * [MỚI] Thêm nhà cung cấp
- * Kết nối với: POST /api/v1/nhacungcap/add (Giả định như loaiThuoc)
+ * Kết nối với: POST /api/v1/nhacungcap/add 
  */
 export const addNhaCungCap = async (data: Partial<NhaCungCap>): Promise<NhaCungCap> => {
    try {
@@ -62,7 +62,7 @@ export const addNhaCungCap = async (data: Partial<NhaCungCap>): Promise<NhaCungC
 
 /**
  * [MỚI] Cập nhật nhà cung cấp
- * Kết nối với: PUT /api/v1/nhacungcap/fix (Giả định như loaiThuoc)
+ * Kết nối với: PUT /api/v1/nhacungcap/fix 
  */
 export const updateNhaCungCap = async (maNhaCungCap: string, data: Partial<NhaCungCap>): Promise<NhaCungCap> => {
    try {
@@ -81,7 +81,7 @@ export const updateNhaCungCap = async (maNhaCungCap: string, data: Partial<NhaCu
 
 /**
  * [MỚI] Xóa nhà cung cấp
- * Kết nối với: DELETE /api/v1/nhacungcap/delete/:id (Giả định như loaiThuoc)
+ * Kết nối với: DELETE /api/v1/nhacungcap/delete/:id 
  */
 export const deleteNhaCungCap = async (maNhaCungCap: string): Promise<any> => {
    try {
@@ -100,10 +100,10 @@ export const getNhaCungCapList = async (): Promise<NhaCungCap[]> => {
 }
 export const getNhaCungCapListForDropdown = async (): Promise<Pick<NhaCungCap, 'MaNhaCungCap' | 'TenNhaCungCap'>[]> => {
   try {
-    // Gọi đến endpoint '/'
+   
     const response = await fetch(`${API_BASE_URL}/`);
     
-    // Giữ nguyên logic handleResponse 
+    
     const data = await handleResponse(response); 
     return data as NhaCungCap[];
   } catch (error) {

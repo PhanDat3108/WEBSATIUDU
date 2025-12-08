@@ -1,32 +1,21 @@
 import { Thuoc } from '../interfaces';
 
-// Đường dẫn này khớp với server.js và proxy
 const API_BASE_URL = '/api/v1/thuoc';
 
-/**
- * [ĐÃ SỬA LẦN 2] Hàm chung để xử lý response từ fetch
- */
+//  Hàm chung để xử lý response từ fetch
 const handleResponse = async (response: Response) => {
-  // BƯỚC 1: Đọc dữ liệu trả về dưới dạng chữ (text) trước để an toàn
-  const responseText = await response.text();//trả về một json  '{"ten": "Panadol", "gia": 5000}'; cần parse giúp bỏ ''
-
-  // BƯỚC 2: Kiểm tra xem Server có báo lỗi không (Mã 4xx, 5xx)
-  // response.ok = true nếu mã lỗi là ok thuộc khoảng này 200-299 (Thành công).
-  // Nếu !response.ok nghĩa là có biến (Lỗi 400, 404, 500...).
+  
+  const responseText = await response.text();
+  
   if (!response.ok) {
-    // Cố gắng đọc thông báo lỗi từ JSON server gửi (ví dụ: { "message": "Trùng mã" })
     try {
       const errorJson = JSON.parse(responseText);
-      // Nếu đọc được message thì ném ra, còn không thì báo lỗi chung
       throw new Error(errorJson.message || 'Có lỗi xảy ra từ phía server');
     } catch (e) {
-      // Nếu dữ liệu lỗi không phải JSON (ví dụ HTML lỗi 404), ném nguyên văn bản ra
+      
       throw new Error(responseText || `Lỗi kết nối: ${response.status}`);
     }
   }
-
-  // BƯỚC 3: Nếu thành công, chuyển Text thành JSON (nếu có dữ liệu)
-  // Nếu chuỗi rỗng thì trả về null (tránh lỗi crash app)
   return responseText ? JSON.parse(responseText) : null;
 };
 
@@ -59,7 +48,7 @@ export const addMedicine = async (thuocData: Partial<Thuoc>): Promise<Thuoc> => 
     return await handleResponse(response);
   } catch (error) {
     console.error('Lỗi khi thêm thuốc:', error);
-    // [FIX] Ném lại lỗi để MedicineForm.tsx có thể bắt
+    
     throw error;
   }
 };
@@ -80,7 +69,7 @@ export const updateMedicine = async (maThuoc: string, data: Partial<Thuoc>): Pro
     return await handleResponse(response);
   } catch (error) {
     console.error('Lỗi khi cập nhật thuốc:', error);
-    // [FIX] Ném lại lỗi để MedicineForm.tsx có thể bắt
+    //  Ném lại lỗi để MedicineForm.tsx có thể bắt
     throw error;
   }
 };
@@ -96,10 +85,9 @@ export const deleteMedicine = async (maThuoc: string): Promise<void> => {
     if (!response.ok) {
        await handleResponse(response); // Ném lỗi nếu có
     }
-    // Nếu OK (ví dụ 200, 204), chỉ cần trả về
+    
   } catch (error) {
     console.error('Lỗi khi xóa thuốc:', error);
-    // [FIX] Ném lại lỗi
     throw error;
   }
 };
@@ -110,7 +98,7 @@ export const uploadMedicineImage = async (maThuoc: string, file: File) => {
 
   try {
     // 2. Gọi API
-    // Lưu ý: Không set 'Content-Type': 'application/json' khi gửi FormData
+    
     const response = await fetch(`${API_BASE_URL}/${maThuoc}/upload-image`, {
       method: "POST",
       body: formData,

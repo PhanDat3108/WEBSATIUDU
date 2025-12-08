@@ -14,9 +14,6 @@ const NhaCungCapManagement: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<NhaCungCap | null>(null);
 
-  // [Note] Cài đặt phân trang ở đây.
-  // suppliers: là cục dữ liệu gốc lấy từ API về.
-  // Số 5: là số dòng muốn hiện trên 1 trang.
   const { currentData, PaginationComponent } = usePagination(suppliers);
 
   const loadSuppliers = async () => {

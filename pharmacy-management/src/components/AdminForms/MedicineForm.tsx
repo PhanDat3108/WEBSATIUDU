@@ -2,18 +2,16 @@
 import React, { useState, useEffect } from "react";
 import { Thuoc, LoaiThuoc, NhaCungCap } from "../../interfaces";
 import styles from "../../styles/Form.module.css";
-
-// 1. Import hàm thêm/sửa thuốc và hàm upload ảnh
 import { addMedicine, updateMedicine, uploadMedicineImage } from "../../api/thuocApi";
 import { getLoaiThuocListname } from "../../api/loaiThuocApi";
 import { getNhaCungCapListForDropdown } from "../../api/nhaCungCapApi";
-
+// nhận từ cha 
 interface MedicineFormProps {
   medicine: Thuoc | null;
   onSave: () => void;
   onClose: () => void;
 }
-
+// khai báo  usetstate 
 export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, onClose }) => {
   const [formData, setFormData] = useState<Partial<Thuoc>>({
     MaThuoc: medicine?.MaThuoc || "",
@@ -28,16 +26,11 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-
-  // --- STATE CHO ẢNH ---
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  // Lưu cái đường link tạm thời để hiển thị ảnh lên màn hình cho người dùng xem trước
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  // ---------------------
-
   const [loaiThuocList, setLoaiThuocList] = useState<Pick<LoaiThuoc, "MaLoai" | "TenLoai">[]>([]);
   const [nhaCungCapList, setNhaCungCapList] = useState<Pick<NhaCungCap, "MaNhaCungCap" | "TenNhaCungCap">[]>([]);
-
+// render đầu tiên 
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -56,10 +49,10 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
     if (medicine?.MaThuoc) {
       // Đường dẫn ảnh từ server (Backend cần serve folder public/images/thuoc)
       // Thêm timestamp ?t=... để tránh cache trình duyệt khi thay đổi ảnh
-      setPreviewImage(`http://localhost:5000/images/thuoc/${medicine.MaThuoc}.jpg?t=${new Date().getTime()}`);
+      setPreviewImage(`http://localhost:8080/images/thuoc/${medicine.MaThuoc}.jpg?t=${new Date().getTime()}`);
     }
   }, [medicine]);
-
+// mình thằng này cân tất
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     if (name === "GiaBan") {
@@ -75,7 +68,7 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
     }
   };
 
-  // --- HÀM XỬ LÝ KHI CHỌN FILE ẢNH ---
+  //  HÀM XỬ LÝ KHI CHỌN FILE ẢNH 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -116,8 +109,7 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
         await updateMedicine(medicine.MaThuoc, dataToSave);
       } else {
         const response = await addMedicine(dataToSave);
-        // Giả sử API trả về object thuốc vừa tạo có chứa MaThuoc hoặc insertId
-        // Bạn cần kiểm tra lại response backend trả về gì khi create
+        // Khi thêm mới 
         finalMaThuoc = response.MaThuoc;
       }
 
@@ -141,7 +133,7 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
   return (
     <form onSubmit={handleSubmit} className={styles.formContainer}>
       <div className={styles.formGrid}>
-        {/* --- KHU VỰC HIỂN THỊ VÀ CHỌN ẢNH (New) --- */}
+      {/* hiện thị ảnh  */}
         <div
           className={styles.formGroup}
           style={{
@@ -182,7 +174,7 @@ export const MedicineForm: React.FC<MedicineFormProps> = ({ medicine, onSave, on
           </div>
           <input type="file" accept="image/*" onChange={handleImageChange} style={{ fontSize: "0.9rem" }} />
         </div>
-        {/* ------------------------------------------ */}
+        
 
         {isEditMode && (
           <div className={styles.formGroup}>
