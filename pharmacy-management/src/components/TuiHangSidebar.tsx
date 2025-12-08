@@ -112,7 +112,7 @@ const TuiHangSidebar: React.FC = () => {
                 </div>
                 <div className="tui-hang-footer">
                     <div className="tui-hang-tong-cong">
-                        <strong>Tổng: {layTongTien().toLocaleString()}₫</strong>
+                        <strong>Tổng: {layTongTien().toLocaleString('vi-VN')}VND</strong>
                     </div>
                     <button className="nut-thanh-toan" onClick={handleXuatDonThuoc}>Xuất đơn thuốc</button>
                 </div>
