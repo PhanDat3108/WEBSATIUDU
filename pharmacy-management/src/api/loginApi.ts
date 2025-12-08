@@ -10,16 +10,25 @@ const API_BASE_URL = '/api/v1/auth';
 
 // Hàm xử lý response chung
 const handleResponse = async (response: Response) => {
-  if (!response.ok) {
-    try {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Có lỗi xảy ra từ server');
-    } catch (jsonError) {
-      const errorText = await response.text();
-      throw new Error(errorText || `Lỗi ${response.status}: ${response.statusText}`);
-    }
+  // 1. Đọc text ra trước để an toàn
+  const text = await response.text(); 
+  
+  // 2. Thử parse JSON
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (error) {
+    data = {}; // Nếu không phải JSON thì data rỗng
   }
-  return response.json();
+
+  // 3. Nếu có lỗi HTTP (4xx, 5xx)
+  if (!response.ok) {
+    const errorMsg = (data && data.message) || text || response.statusText;
+    throw new Error(errorMsg);
+  }
+
+  // 4. Trả về data
+  return data;
 };
 
 // Xuất ra một Object chứa các hàm (để bên kia gọi loginApi.login được)
