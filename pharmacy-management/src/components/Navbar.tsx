@@ -55,7 +55,8 @@ const Navbar: React.FC<NavbarProps> = ({ onSelectCategory, onSearchKeyword }) =>
           setUserName("Khách");
           return;
         }
-        const response = await axios.get<any>("http://localhost:8080/api/v1/auth/me", {
+        //hihi
+        const response = await axios.get<any>("/api/v1/auth/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (response.data && response.data.user) {
@@ -277,7 +278,7 @@ const Navbar: React.FC<NavbarProps> = ({ onSelectCategory, onSearchKeyword }) =>
           href="#"
           onClick={(e) => {
             e.preventDefault();
-            handleSpecialFilter("FREE", "🎁 Quà tặng 0đ");
+            handleSpecialFilter("FREE", " Quà tặng 0đ");
           }}
           style={{ fontWeight: "bold" }}
         >
