@@ -1,17 +1,15 @@
-# Cấu hình Build cho Netlify biết code nằm ở đâu
 [build]
-  base = "pharmacy-management"   # Tên thư mục chứa code React
-  publish = "build"              # Tên thư mục output (React mặc định là build)
-  command = "npm run build"
+  base = "pharmacy-management"
+  publish = "build"
+  # Thêm CI=false vào trước câu lệnh build
+  command = "CI=false npm run build"
 
-# Cấu hình Proxy gọi API sang Railway
 [[redirects]]
   from = "/api/*"
-  to = "https://websatiudu-production.up.railway.app/api/:splat" # Nhớ thêm https://
+  to = "https://websatiudu-production.up.railway.app/api/:splat"
   status = 200
   force = true
 
-# Cấu hình SPA (Single Page App) để không lỗi khi reload trang con
 [[redirects]]
   from = "/*"
   to = "/index.html"
