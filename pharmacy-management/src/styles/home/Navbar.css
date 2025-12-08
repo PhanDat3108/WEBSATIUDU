@@ -29,7 +29,20 @@ a {
 }
 
 .navbar-logo img {
-  height: 150px;
+  height: 60px;
+  width: auto;
+
+  /* BƯỚC 2: Dùng transform để phóng to hình ảnh lên */
+  /* scale(2) nghĩa là phóng to gấp đôi kích thước thật (60px * 2 = 120px nhìn thấy) */
+  /* Bạn điều chỉnh số 2.5, 3.0... cho đến khi thấy đủ to như ý muốn */
+  transform: scale(2.5); 
+
+  /* BƯỚC 3: Đặt điểm neo để nó phóng to từ bên trái ra, thay vì từ giữa */
+  transform-origin: left center;
+
+  /* Giữ nguyên các thuộc tính khác */
+  margin-right: 20px; 
+  object-fit: contain;
 }
 
 .navbar-category {

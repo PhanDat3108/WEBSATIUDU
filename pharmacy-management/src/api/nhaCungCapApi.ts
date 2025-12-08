@@ -2,7 +2,7 @@
 import { NhaCungCap } from '../interfaces';
 
 
-const API_BASE_URL = 'http://localhost:8080/api/v1/nhacungcap'; 
+const API_BASE_URL = '/api/v1/nhacungcap'; 
 
 /**
  * Hàm chung xử lý response (giống loaiThuocApi.ts)
