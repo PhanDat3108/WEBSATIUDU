@@ -26,9 +26,9 @@ const DanhSachSanPham: React.FC<Props> = ({ maLoai, tenLoai, searchKeyword }) =>
   // Hàm xử lý logic tiêu đề
   const getTitle = () => {
     if (searchKeyword) return `🔍 Kết quả tìm kiếm: "${searchKeyword}"`;
-    if (maLoai === 'HOT') return '🔥 Sản phẩm Bán Chạy';
-    if (maLoai === 'NEW') return '✨ Sản phẩm Mới Về';
-    if (maLoai === 'FREE') return '🎁 Quà Tặng (0 Đồng)';
+    if (maLoai === 'HOT') return ' Sản phẩm Bán Chạy';
+    if (maLoai === 'NEW') return ' Sản phẩm Mới Về';
+    if (maLoai === 'FREE') return 'Quà Tặng ';
     if (tenLoai) return `Danh mục: ${tenLoai}`;
     return 'Tất cả sản phẩm';
   };
