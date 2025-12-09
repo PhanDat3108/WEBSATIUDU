@@ -1,4 +1,3 @@
-
 // src/pages/Admin/MedicineManagement.tsx
 import React, { useState, useEffect } from "react";
 import { Thuoc } from "../../interfaces";
@@ -7,7 +6,7 @@ import { MedicineForm } from "../../components/AdminForms/MedicineForm";
 import Modal from "../../components/common/Modal";
 import styles from "../../styles/AdminManagement.module.css";
 import { usePagination } from "../../components/common/usePagination";
-// khai báo usestate cần thiết 
+// khai báo usestate cần thiết
 const MedicineManagement: React.FC = () => {
   const [medicines, setMedicines] = useState<Thuoc[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -15,7 +14,7 @@ const MedicineManagement: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMedicine, setSelectedMedicine] = useState<Thuoc | null>(null);
   const { currentData, PaginationComponent } = usePagination(medicines);
-// Hàm tải trang 
+  // Hàm tải trang
   const loadMedicines = async () => {
     try {
       setIsLoading(true);
@@ -86,9 +85,15 @@ const MedicineManagement: React.FC = () => {
         <td>{med.TenNhaCungCap || "N/A"}</td>
         <td style={{ textAlign: "center" }}>{med.SoLuongTon}</td>
         <td style={{ textAlign: "center" }}>{med.DonViTinh}</td>
-        <td style={{ textAlign: "center" }}>{med.GiaBan.toLocaleString("vi-VN")} VNĐ</td>
+        <td style={{ textAlign: "center" }}>
+          {/* {med.GiaBan.toLocaleString("vi-VN")} đ */}
+          {Number(med.GiaBan).toLocaleString("vi-VN")} đ
+        </td>
         <td className={styles.actionButtons}>
-          <button onClick={() => handleOpenModal(med)} className={styles.editButton}>
+          <button
+            onClick={() => handleOpenModal(med)}
+            className={styles.editButton}
+          >
             Sửa
           </button>
         </td>
@@ -100,7 +105,10 @@ const MedicineManagement: React.FC = () => {
     <>
       <div className={styles.container}>
         <h1 className={styles.title}>Quản lý danh sách thuốc</h1>
-        <button onClick={() => handleOpenModal(null)} className={styles.addButton}>
+        <button
+          onClick={() => handleOpenModal(null)}
+          className={styles.addButton}
+        >
           Thêm thuốc mới
         </button>
         <table className={styles.table}>
@@ -135,20 +143,24 @@ const MedicineManagement: React.FC = () => {
           <tbody>{renderContent()}</tbody>
         </table>
 
-        
-        <div style={{ marginTop: "20px", display: "flex", justifyContent: "end" }}>
-        
+        <div
+          style={{ marginTop: "20px", display: "flex", justifyContent: "end" }}
+        >
           <PaginationComponent />
         </div>
       </div>
-{/* truyền prop xuống con  để call back  */}
+      {/* truyền prop xuống con  để call back  */}
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         title={selectedMedicine ? "Sửa thông tin thuốc" : "Thêm thuốc mới"}
         width="600px"
       >
-        <MedicineForm medicine={selectedMedicine} onSave={handleSave} onClose={handleCloseModal} />
+        <MedicineForm
+          medicine={selectedMedicine}
+          onSave={handleSave}
+          onClose={handleCloseModal}
+        />
       </Modal>
     </>
   );
