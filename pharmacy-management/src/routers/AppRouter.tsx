@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 
 // --- Imports Pages & Components ---
 import LoginPage from '../pages/Login';
-import LoginHomePage from "../pages/Login/components/LoginForm"; // Hoặc đường dẫn đúng tới trang login của bạn
 import RegisterPage from '../pages/Login/components/RegisterPage';
 import HomePage from '../pages/Home/HomePage';
 import AdminLayout from '../components/AdminLayout/AdminLayout'; 
@@ -23,14 +22,14 @@ const AppRouter: React.FC = () => {
   return (
     <Router>
       <Routes>
-        {/* Redirect trang chủ gốc về Login nếu chưa đăng nhập, hoặc xử lý ở Home */}
+        
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/" element={<LoginPage />} />
          
 
 
-        {/* Chỉ cho phép vai trò 'Dược sĩ' hoặc 'Nhân viên' truy cập */}
+      
         <Route element={<ProtectedRoute allowedRoles={['nhanvien']} />}>
            
             <Route path="/home" element={<HomePage />} />
@@ -38,10 +37,10 @@ const AppRouter: React.FC = () => {
         </Route>
 
 
-        {/* Chỉ cho phép vai trò 'Quản lý' hoặc 'Admin' truy cập */}
+        
         <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             
-            {/* Bọc tất cả route con bằng AdminLayout */}
+           
             <Route path="/admin" element={<AdminLayout />}>
            
                 
