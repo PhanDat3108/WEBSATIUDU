@@ -65,7 +65,6 @@ const TheSanPham: React.FC<Props> = ({ sanPham }) => {
     {Number(sanPham.GiaBan).toLocaleString('vi-VN', { maximumFractionDigits: 0 })}₫
 </div>
             
-            {/* [MỚI] Dòng hiển thị số lượng tồn kho */}
             <div style={{ 
                fontSize: '12px', 
                fontWeight: '700',
